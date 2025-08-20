@@ -12,8 +12,8 @@ public class TacticsController {
     private final TacticsService tacticsService;
 
     @PostMapping("/tactics/index")
-    public ResponseEntity<String> indexTactics(@RequestBody String content) {
-        tacticsService.indexTactics(content);
+    public ResponseEntity<String> indexTactics(@RequestBody String request) {
+        tacticsService.indexTactics(request);
         return ResponseEntity.ok("인덱싱 성공");
     }
 

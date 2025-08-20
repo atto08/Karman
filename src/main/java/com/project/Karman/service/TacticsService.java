@@ -17,12 +17,13 @@ public class TacticsService {
 
     private final VectorStore vectorStore;
     private final OpenAiChatModel chatModel;
+    private final DocumentService documentService;
 
     @Transactional
-    public void indexTactics(String content) {
+    public void indexTactics(String request) {
 
-        Document document = new Document(content);
-        vectorStore.add(List.of(document));
+        // 파싱해서 내용을 List<Document> 화 시키기.
+        documentService.indexDocument(request);
     }
 
     @Transactional
