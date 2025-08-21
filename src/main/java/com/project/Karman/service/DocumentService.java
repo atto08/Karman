@@ -31,6 +31,7 @@ public class DocumentService {
             Document document = new Document(chunks[i], map);
             documents.add(document);
         }
+        // 벡터 데이터 저장
         vectorStore.add(documents);
     }
 
@@ -65,5 +66,10 @@ public class DocumentService {
         }
 
         return map;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Document> similaritySearch(String ask) {
+        return vectorStore.similaritySearch(ask);
     }
 }
