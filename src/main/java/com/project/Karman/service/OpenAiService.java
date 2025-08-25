@@ -1,9 +1,11 @@
 package com.project.Karman.service;
 
+import com.project.Karman.domain.PromptMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,20 +17,14 @@ public class OpenAiService {
         this.chatModel = chatModel;
     }
 
-    public Prompt createPrompt(String ask, String context) {
+    public Prompt createPrompt(PromptMessage promptMessage, String ask, @Nullable String context) {
         // 요청 메시지 생성
-        String request = String.format("""
-                다음은 참고 문서입니다:
-                %s
-                            
-                위 문서를 바탕으로 다음 질문에 답해주세요:
-                %s
-                """, context, ask);
+        String request = (context == null) ? promptMessage.format(ask) : promptMessage.format(context, ask);
         // 증강 + 프롬프트 생성
         return new Prompt(new UserMessage(request));
     }
 
-    public ChatResponse askAiCoach(Prompt prompt) {
+    public ChatResponse askChatModel(Prompt prompt) {
         return chatModel.call(prompt);
     }
 }
