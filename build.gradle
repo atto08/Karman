@@ -6,7 +6,6 @@ plugins {
 
 group = 'com.project'
 version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
 
 java {
 	toolchain {
@@ -22,6 +21,8 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+	maven { url 'https://repo.spring.io/snapshot' }
 }
 
 ext {
@@ -29,19 +30,23 @@ ext {
 }
 
 dependencies {
+	implementation platform("org.springframework.ai:spring-ai-bom:${springAiVersion}")
+
 	// Spring Web & JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	// OpenAI
+	// SpringAi & OpenAI
+	implementation 'org.springframework.ai:spring-ai-openai'
 	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	// postgresql
+	// DB & Vector DB(postgresql + pgvector)
 	runtimeOnly 'org.postgresql:postgresql'
+	implementation 'org.springframework.ai:spring-ai-starter-vector-store-pgvector'
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
