@@ -1,64 +1,67 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.4'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.5.4'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.project'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
-	maven { url 'https://repo.spring.io/milestone' }
-	maven { url 'https://repo.spring.io/snapshot' }
+    mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 ext {
-	set('springAiVersion', "1.0.1")
+    set('springAiVersion', "1.0.1")
 }
 
 dependencies {
-	implementation platform("org.springframework.ai:spring-ai-bom:${springAiVersion}")
+    implementation platform("org.springframework.ai:spring-ai-bom:${springAiVersion}")
 
-	// Spring Web & JPA
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    // Spring Web & JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	// SpringAi & OpenAI
-	implementation 'org.springframework.ai:spring-ai-openai'
-	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    // SpringAi & OpenAI
+    implementation 'org.springframework.ai:spring-ai-openai'
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 
-	// lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-	// DB & Vector DB(postgresql + pgvector)
-	runtimeOnly 'org.postgresql:postgresql'
-	implementation 'org.springframework.ai:spring-ai-starter-vector-store-pgvector'
+    // DB & Vector DB(postgresql + pgvector)
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.springframework.ai:spring-ai-starter-vector-store-pgvector'
 
-	// test
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // JSONB 지원 라이브러리
+    implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
+
+    // test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
-	}
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    }
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
