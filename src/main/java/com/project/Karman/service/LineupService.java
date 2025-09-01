@@ -6,8 +6,6 @@ import com.project.Karman.domain.enums.PromptMessage;
 import com.project.Karman.repository.AffiliationRepository;
 import com.project.Karman.repository.ClubRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,21 +24,22 @@ public class LineupService {
     @Transactional(readOnly = true)
     public String recommendLineup(List<UUID> attendPlayers, UUID clubId) {
 
+        // 클럽 조회
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 클럽입니다."));
 
+        // 소속 선수 정보 조회
         List<Affiliation> playerInfoList = affiliationRepository.findAllByClubIdAndMemberIds(club.getClubId(), attendPlayers);
 
+        // 소속 선수 정보 파싱
         String playerRecords = playerInfoList.stream()
                 .map(player -> String.format("{ name: \"%s\", position: \"%s\", back_number: \"%s\"}",
                         player.getMember().getName(), player.getPosition(), player.getBackNumber()))
                 .collect(Collectors.joining(",\n"));
 
-        Prompt prompt = new Prompt(List.of(
-                new SystemMessage(PromptMessage.RECOMMEND_LINEUP_SYSTEM.getMessage()),
-                new UserMessage(PromptMessage.RECOMMEND_LINEUP_USER.getMessage().formatted(playerRecords))
-        ));
-
+        // 프롬프트 생성 - 사용자 요청
+        Prompt prompt = openAiService.createPrompt(PromptMessage.RECOMMEND_LINEUP_SYSTEM, PromptMessage.RECOMMEND_LINEUP_USER, playerRecords, null);
+        // Ai 응답 생성 - 사용자 요청
         return openAiService.askChatModel(prompt).getResult().getOutput().getText();
     }
 }

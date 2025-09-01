@@ -59,7 +59,7 @@ public class TacticsService {
         log.info("Finish-- print Document Text");
 
         // 프롬프트 생성 - 사용자 요청
-        Prompt prompt = openAiService.createPrompt(PromptMessage.RESPONSE_USER_ASK, ask, context.toString());
+        Prompt prompt = openAiService.createPrompt(PromptMessage.ASK_TACTICS_SYSTEM, PromptMessage.ASK_TACTICS_USER, ask, context.toString());
         // Ai 응답 생성 - 사용자 요청
         return openAiService.askChatModel(prompt).getResult().getOutput().getText();
     }
