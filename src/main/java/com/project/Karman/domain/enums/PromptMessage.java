@@ -1,5 +1,8 @@
 package com.project.Karman.domain.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum PromptMessage {
     RESPONSE_USER_ASK("""
             다음은 참고 문서입니다:
@@ -20,6 +23,19 @@ public enum PromptMessage {
             예시2)
             요청: "티키타카 전술에서 공격수와 수비수는 어떤 역량을 요구로해?"
             반환: { "formation" : "4-4-2" }
+            """),
+
+    RECOMMEND_LINEUP_SYSTEM("""
+            너의 역할은 아마추어 축구팀의 전술 코치야.
+            오늘 참석한 선수 목록에서 선발 라인업을 추천해줘.
+            포지션은 크게 GK, DF, MF, FW로 구분되고, 포지션 밸런스를 고려해줘.
+            """),
+
+    RECOMMEND_LINEUP_USER("""
+            오늘 참석한 선수 리스트:
+            [%s]
+
+            선발 선수 11명을 구성해줘.
             """);
 
     private final String message;
