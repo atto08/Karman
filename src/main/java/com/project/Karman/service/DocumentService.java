@@ -70,7 +70,17 @@ public class DocumentService {
     }
 
     @Transactional(readOnly = true)
-    public List<Document> similaritySearch(String ask) {
-        return vectorStore.similaritySearch(ask);
+    public List<Document> similaritySearch(String ask, String subtopic, String formation) {
+        SearchRequest searchRequest = SearchRequest
+                .builder()
+                .query(ask)
+                .topK(5)
+                .filterExpression(String.format("""
+                        "subtopic" == '%s' AND
+                        "formation" == '%s'
+                        """, subtopic, formation))
+                .build();
+
+        return vectorStore.similaritySearch(searchRequest);
     }
 }
