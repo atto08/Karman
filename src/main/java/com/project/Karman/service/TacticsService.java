@@ -1,7 +1,7 @@
 package com.project.Karman.service;
 
 import com.project.Karman.domain.enums.PromptMessage;
-import com.project.Karman.repository.TacticalDocumentRepository;
+import com.project.Karman.dto.AskTacticsRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -18,7 +18,6 @@ public class TacticsService {
 
     private final DocumentService documentService;
     private final OpenAiService openAiService;
-    private final TacticalDocumentRepository tacticalDocumentRepository;
 
     @Transactional
     public void indexTactics(String request) {
@@ -27,39 +26,27 @@ public class TacticsService {
     }
 
     @Transactional
-    public String askTacticalCoach(String ask) {
+    public String askTacticalCoach(AskTacticsRequest request) {
 
-        // TODO: 추출 키워드 토대로 유사도 검색하는 방향으로 개선
-//        // 1) 키워드 추출
-//        // 프롬프트 생성 - 키워드 추출
-//        Prompt keywordPrompt = openAiService.createPrompt(PromptMessage.EXTRACT_KEYWORD, ask, null);
-//        // Ai 응답 생성 - 키워드 추출
-//        String extractKeywords = openAiService.askChatModel(keywordPrompt).getResult().getOutput().getText();
-//        log.info("--extract keywords--{}", extractKeywords);
-//
-//        // 2) 포메이션 키워드 일치하는 리스트
-//        List<Map<String, Object>> result = tacticalDocumentRepository.findByMetadataJson(extractKeywords);
-//        log.info("result size : {}", result.size());
-//        for (Map<String, Object> info : result) {
-//            log.info("result info : {}", info);
-//        }
+        // 1) 키워드 추출
+        // 프롬프트 생성 - 키워드 추출
+        Prompt keywordPrompt = openAiService.createPrompt(PromptMessage.EXTRACT_KEYWORD_SYSTEM, PromptMessage.EXTRACT_KEYWORD_USER, request.ask(), null);
+        // Ai 응답 생성 - 키워드 추출
+        String formation = openAiService.askChatModel(keywordPrompt).getResult().getOutput().getText();
+        log.info("---formation: {} & subtopic: {}", formation, request.subtopic());
 
-        // 2) 유사도 검색 결과와 키워드 비교
-        // 유사도 검색 결과 리스트 - 부정확
-        List<Document> documents = documentService.similaritySearch(ask);
-        log.info("Document Count:{}", documents.size());
-
-        // 검색 결과 통합
+        // 2) 유사도 검색 - metadata로 범위 축소
+        List<Document> documents = documentService.similaritySearch(request.ask(), request.subtopic(), formation);
+        log.info("---유사도 검색 결과: {}", documents.size());
+        // 유사도 검색 결과 통합 - context
         StringBuilder context = new StringBuilder();
-        log.info("Start-- print Document Text");
         for (Document document : documents) {
-            log.info(document.getText());
+            log.info("---문서정보: {}",document.getText());
             context.append(document.getText()).append("\n");
         }
-        log.info("Finish-- print Document Text");
 
         // 프롬프트 생성 - 사용자 요청
-        Prompt prompt = openAiService.createPrompt(PromptMessage.ASK_TACTICS_SYSTEM, PromptMessage.ASK_TACTICS_USER, ask, context.toString());
+        Prompt prompt = openAiService.createPrompt(PromptMessage.ASK_TACTICS_SYSTEM, PromptMessage.ASK_TACTICS_USER, request.ask(), context.toString());
         // Ai 응답 생성 - 사용자 요청
         return openAiService.askChatModel(prompt).getResult().getOutput().getText();
     }
