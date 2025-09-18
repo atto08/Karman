@@ -2,6 +2,7 @@ package com.project.Karman.repository;
 
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.AffiliationId;
+import com.project.Karman.domain.entity.Club;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +22,6 @@ public interface AffiliationRepository extends JpaRepository<Affiliation, Affili
             @Param("clubId") UUID clubId,
             @Param("memberIds") List<UUID> memberIds
     );
+
+    List<Affiliation> findAllByClub(Club club);
 }
