@@ -2,7 +2,7 @@ package com.project.Karman.service;
 
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
-import com.project.Karman.domain.mapper.AffiliationMapper;
+import com.project.Karman.service.mapper.AffiliationMapper;
 import com.project.Karman.dto.PlayersInfoResponse;
 import com.project.Karman.repository.AffiliationRepository;
 import com.project.Karman.repository.ClubRepository;

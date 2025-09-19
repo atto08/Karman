@@ -1,4 +1,4 @@
-package com.project.Karman.domain.mapper;
+package com.project.Karman.service.mapper;
 
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.dto.PlayersInfoResponse;
