@@ -1,16 +1,18 @@
 package com.project.Karman.service.mapper;
 
 import com.project.Karman.domain.entity.Club;
-import com.project.Karman.dto.CreateClubRequest;
+import com.project.Karman.dto.ClubRequestDto;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 @Component
 public class ClubMapper {
 
-    public Club toEntity(CreateClubRequest request) {
+    public Club toEntity(UUID memberId, ClubRequestDto request) {
 
         return Club.of(
-                request.memberId(),
+                memberId,
                 request.clubName(),
                 request.area(),
                 request.ageGroup(),

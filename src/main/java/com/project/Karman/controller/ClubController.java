@@ -1,6 +1,6 @@
 package com.project.Karman.controller;
 
-import com.project.Karman.dto.CreateClubRequest;
+import com.project.Karman.dto.ClubRequestDto;
 import com.project.Karman.dto.PlayersInfoResponse;
 import com.project.Karman.service.ClubService;
 import org.springframework.http.HttpStatus;
@@ -27,13 +27,23 @@ public class ClubController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createClub(@RequestBody CreateClubRequest request) {
-        clubService.createClub(request);
+    public ResponseEntity<String> createClub(@RequestHeader UUID memberId,
+                                             @RequestBody ClubRequestDto request) {
+        clubService.createClub(memberId, request);
         return new ResponseEntity<>("클럽 생성 완료", HttpStatus.OK);
     }
 
+    @PatchMapping("/{club_id}")
+    public ResponseEntity<String> modifyClub(@PathVariable(value = "club_id") UUID clubId,
+                                             @RequestHeader UUID memberId,
+                                             @RequestBody ClubRequestDto request) {
+        clubService.modifyClubInfo(clubId, memberId, request);
+        return new ResponseEntity<>("클럽 수정 완료", HttpStatus.OK);
+    }
+
     @DeleteMapping("/{club_id}")
-    public ResponseEntity<String> deleteClub(@PathVariable(value = "club_id") UUID clubId, @RequestHeader UUID memberId) {
+    public ResponseEntity<String> deleteClub(@PathVariable(value = "club_id") UUID clubId,
+                                             @RequestHeader UUID memberId) {
         clubService.deleteClub(clubId, memberId);
         return new ResponseEntity<>("클럽 삭제 완료", HttpStatus.OK);
     }
