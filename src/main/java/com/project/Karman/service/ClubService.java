@@ -2,10 +2,14 @@ package com.project.Karman.service;
 
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
+import com.project.Karman.domain.entity.Member;
+import com.project.Karman.dto.CreateClubRequest;
+import com.project.Karman.repository.MemberRepository;
 import com.project.Karman.service.mapper.AffiliationMapper;
 import com.project.Karman.dto.PlayersInfoResponse;
 import com.project.Karman.repository.AffiliationRepository;
 import com.project.Karman.repository.ClubRepository;
+import com.project.Karman.service.mapper.ClubMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +24,10 @@ import java.util.UUID;
 public class ClubService {
     private final ClubRepository clubRepository;
     private final AffiliationRepository affiliationRepository;
+    // TODO: 회원 기능 구현 후 제거
+    private final MemberRepository memberRepository;
     private final AffiliationMapper affiliationMapper;
+    private final ClubMapper clubMapper;
 
     @Transactional(readOnly = true)
     public List<PlayersInfoResponse> findPlayersInfoByClub(UUID clubId) {
@@ -37,5 +44,17 @@ public class ClubService {
         }
 
         return playersInfo;
+    }
+
+
+    // TODO: 로그인 기능 구현 후 request에서 memeber 제거
+    @Transactional
+    public void createClub(CreateClubRequest request) {
+        // 회원 체크
+        Member member = memberRepository.findById(request.memberId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        Club club = clubMapper.toEntity(request);
+        clubRepository.save(club);
     }
 }

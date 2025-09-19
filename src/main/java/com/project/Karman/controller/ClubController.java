@@ -1,13 +1,11 @@
 package com.project.Karman.controller;
 
+import com.project.Karman.dto.CreateClubRequest;
 import com.project.Karman.dto.PlayersInfoResponse;
 import com.project.Karman.service.ClubService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,5 +24,11 @@ public class ClubController {
     public ResponseEntity<List<PlayersInfoResponse>> getPlayersByClub(@PathVariable(value = "club_id") UUID clubId) {
         List<PlayersInfoResponse> playersInfo = clubService.findPlayersInfoByClub(clubId);
         return new ResponseEntity<>(playersInfo, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<String> createClub(@RequestBody CreateClubRequest request) {
+        clubService.createClub(request);
+        return new ResponseEntity<>("클럽 생성 완료", HttpStatus.OK);
     }
 }
