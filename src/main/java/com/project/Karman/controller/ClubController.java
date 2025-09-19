@@ -31,4 +31,10 @@ public class ClubController {
         clubService.createClub(request);
         return new ResponseEntity<>("클럽 생성 완료", HttpStatus.OK);
     }
+
+    @DeleteMapping("/{club_id}")
+    public ResponseEntity<String> deleteClub(@PathVariable(value = "club_id") UUID clubId, @RequestHeader UUID memberId) {
+        clubService.deleteClub(clubId, memberId);
+        return new ResponseEntity<>("클럽 삭제 완료", HttpStatus.OK);
+    }
 }

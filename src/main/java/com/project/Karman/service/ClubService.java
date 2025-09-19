@@ -57,4 +57,20 @@ public class ClubService {
         Club club = clubMapper.toEntity(request);
         clubRepository.save(club);
     }
+
+    @Transactional
+    public void deleteClub(UUID clubId, UUID memberId) {
+        // 회원 체크
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        // 클럽 체크
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
+        // 구단주와 접근 유저 동일 여부 체크
+        if (!club.getMemberId().equals(memberId)) {
+            throw new IllegalArgumentException("권한이 없는 유저입니다.");
+        }
+        // 클럽 삭제.
+        clubRepository.delete(club);
+    }
 }
