@@ -2,9 +2,7 @@ package com.project.Karman.domain.entity;
 
 import com.project.Karman.domain.enums.AgeGroup;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 import java.util.UUID;
@@ -12,7 +10,9 @@ import java.util.UUID;
 @Entity
 @Table(name = "club")
 @Getter
+@Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Club extends BaseEntity {
 
     @Id
@@ -35,4 +35,24 @@ public class Club extends BaseEntity {
 
     @Column(nullable = false)
     private Date foundationDate;
+
+    // 엔터티 생성시 사용
+    public static Club of(UUID memberId, String clubName, String area, AgeGroup ageGroup, Date foundationDate) {
+
+        return Club.builder()
+                .memberId(memberId)
+                .clubName(clubName)
+                .area(area)
+                .ageGroup(ageGroup)
+                .foundationDate(foundationDate)
+                .build();
+    }
+
+    // 수정시 사용
+    public void update(String clubName, String area, AgeGroup ageGroup, Date foundationDate) {
+        if (clubName != null) this.clubName = clubName;
+        if (area != null) this.area = area;
+        if (ageGroup != null) this.ageGroup = ageGroup;
+        if (foundationDate != null) this.foundationDate = foundationDate;
+    }
 }
