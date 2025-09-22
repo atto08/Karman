@@ -2,6 +2,7 @@ package com.project.Karman.controller;
 
 import com.project.Karman.dto.ClubRequestDto;
 import com.project.Karman.dto.PlayersInfoResponse;
+import com.project.Karman.dto.SearchClubResponseDto;
 import com.project.Karman.service.ClubService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,4 +48,14 @@ public class ClubController {
         clubService.deleteClub(clubId, memberId);
         return new ResponseEntity<>("클럽 삭제 완료", HttpStatus.OK);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<SearchClubResponseDto>> searchClub(@RequestParam(name = "clubName") String param) {
+        List<SearchClubResponseDto> searchClubDtoList = clubService.searchClub(param);
+        return new ResponseEntity<>(searchClubDtoList, HttpStatus.OK);
+    }
+
+    // 클럽 가입
+
+    // 클럽 탈퇴
 }

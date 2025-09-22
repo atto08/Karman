@@ -4,6 +4,7 @@ import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Member;
 import com.project.Karman.dto.ClubRequestDto;
+import com.project.Karman.dto.SearchClubResponseDto;
 import com.project.Karman.repository.MemberRepository;
 import com.project.Karman.service.mapper.AffiliationMapper;
 import com.project.Karman.dto.PlayersInfoResponse;
@@ -85,5 +86,17 @@ public class ClubService {
         }
         // 클럽 삭제.
         clubRepository.delete(club);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SearchClubResponseDto> searchClub(String param) {
+        List<Club> searchClubs = clubRepository.findAllClubs(param);
+
+        List<SearchClubResponseDto> searchClubInfos = new ArrayList<>();
+        for (Club club : searchClubs) {
+            searchClubInfos.add(new SearchClubResponseDto(club.getClubId(), club.getClubName()));
+        }
+
+        return searchClubInfos;
     }
 }
