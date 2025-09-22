@@ -1,6 +1,7 @@
 package com.project.Karman.service.mapper;
 
 import com.project.Karman.domain.entity.Club;
+import com.project.Karman.dto.ClubInfoResponseDto;
 import com.project.Karman.dto.ClubRequestDto;
 import org.springframework.stereotype.Component;
 
@@ -17,5 +18,16 @@ public class ClubMapper {
                 request.area(),
                 request.ageGroup(),
                 request.foundationDate());
+    }
+
+    public ClubInfoResponseDto toDto(Club club) {
+
+        return ClubInfoResponseDto.of(
+                club.getClubId(),
+                club.getClubName(),
+                club.getArea(),
+                club.getAgeGroup().toString(),
+                club.getFoundationDate().toString()
+        );
     }
 }

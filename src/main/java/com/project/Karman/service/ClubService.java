@@ -3,6 +3,7 @@ package com.project.Karman.service;
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Member;
+import com.project.Karman.dto.ClubInfoResponseDto;
 import com.project.Karman.dto.ClubRequestDto;
 import com.project.Karman.dto.SearchClubResponseDto;
 import com.project.Karman.repository.MemberRepository;
@@ -98,5 +99,13 @@ public class ClubService {
         }
 
         return searchClubInfos;
+    }
+
+    @Transactional(readOnly = true)
+    public ClubInfoResponseDto getClubInfo(UUID clubId) {
+        Club club  = clubRepository.findById(clubId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
+
+        return clubMapper.toDto(club);
     }
 }

@@ -1,5 +1,6 @@
 package com.project.Karman.controller;
 
+import com.project.Karman.dto.ClubInfoResponseDto;
 import com.project.Karman.dto.ClubRequestDto;
 import com.project.Karman.dto.PlayersInfoResponse;
 import com.project.Karman.dto.SearchClubResponseDto;
@@ -55,7 +56,11 @@ public class ClubController {
         return new ResponseEntity<>(searchClubDtoList, HttpStatus.OK);
     }
 
-    // 클럽 가입
+    @GetMapping("/{club_id}")
+    public ResponseEntity<ClubInfoResponseDto> getClubInfo(@PathVariable(value = "club_id") UUID clubId) {
+        ClubInfoResponseDto clubInfoDto = clubService.getClubInfo(clubId);
+        return new ResponseEntity<>(clubInfoDto, HttpStatus.OK);
+    }
 
     // 클럽 탈퇴
 }
