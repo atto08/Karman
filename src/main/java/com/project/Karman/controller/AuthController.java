@@ -2,6 +2,7 @@ package com.project.Karman.controller;
 
 import com.project.Karman.dto.LoginRequestDto;
 import com.project.Karman.dto.SignupRequestDto;
+import com.project.Karman.dto.JwtTokenDto;
 import com.project.Karman.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -10,8 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,8 +31,8 @@ public class AuthController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
-        String token = authService.login(loginRequestDto);
-        return new ResponseEntity<>(Map.of("message", "로그인 성공", "Authorization", token), HttpStatus.OK);
+    public ResponseEntity<JwtTokenDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+        JwtTokenDto token = authService.login(loginRequestDto);
+        return new ResponseEntity<>(token, HttpStatus.OK);
     }
 }

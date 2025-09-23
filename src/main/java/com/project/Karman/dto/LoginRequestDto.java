@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Pattern;
 
 public record LoginRequestDto(
         @NotBlank(message = "이메일(아이디)은 필수 입력 값입니다.")
-        @Email(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
+        @Email(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
                 message = "올바른 이메일 형식이 아닙니다. (영문, 숫자만 허용)")
         String email,
 

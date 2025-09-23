@@ -1,9 +1,10 @@
 package com.project.Karman.service;
 
-import com.project.Karman.config.jwt.JwtUtil;
+import com.project.Karman.config.jwt.JwtTokenProvider;
 import com.project.Karman.domain.entity.Member;
 import com.project.Karman.dto.LoginRequestDto;
 import com.project.Karman.dto.SignupRequestDto;
+import com.project.Karman.dto.JwtTokenDto;
 import com.project.Karman.repository.MemberRepository;
 import com.project.Karman.service.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
     public void signup(SignupRequestDto signupRequestDto) {
@@ -40,7 +41,7 @@ public class AuthService {
 
 
     @Transactional(readOnly = true)
-    public String login(LoginRequestDto loginRequestDto) {
+    public JwtTokenDto login(LoginRequestDto loginRequestDto) {
         // 유저 찾기
         Member member = memberRepository.findByEmail(loginRequestDto.email())
                 .orElseThrow(() -> new NoSuchElementException("가입하지 않는 이메일입니다."));
@@ -51,6 +52,6 @@ public class AuthService {
         }
 
         // 토큰 생성 및 반환
-        return jwtUtil.generateToken(loginRequestDto.email());
+        return jwtTokenProvider.createToken(loginRequestDto.email());
     }
 }

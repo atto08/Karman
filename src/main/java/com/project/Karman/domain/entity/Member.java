@@ -1,5 +1,6 @@
 package com.project.Karman.domain.entity;
 
+import com.project.Karman.domain.enums.MemberRole;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,13 +29,17 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column
+    @Column(nullable = false, length = 10)
+    @Enumerated(value = EnumType.STRING)
+    private MemberRole role;
+
+    @Column(nullable = false, length = 10)
     private Integer age;
 
-    @Column
+    @Column(nullable = false, length = 10)
     private BigDecimal weight;
 
-    @Column
+    @Column(nullable = false, length = 10)
     private BigDecimal height;
 
     // 엔터티 생성 사용
@@ -44,6 +49,7 @@ public class Member extends BaseEntity {
                 .email(email)
                 .password(hashedPassword)
                 .name(name)
+                .role(MemberRole.USER)
                 .age(age)
                 .weight(weight)
                 .height(height)
