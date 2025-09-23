@@ -51,6 +51,17 @@ dependencies {
     // JSONB 지원 라이브러리
     implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
 
+    // Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 비밀번호 인코딩 임시방편 - No use Spring Security yet
+    implementation 'org.springframework.security:spring-security-crypto'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON 직렬화용
+
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
