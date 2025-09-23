@@ -34,3 +34,6 @@ spring:
         dimensions: 1536
         max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
         schema-validation: true # true ?? -> ???? ???? SQL ?? ?? ?? ?? ??
+
+  jwt:
+    secret: ${JWT_SECRET}
