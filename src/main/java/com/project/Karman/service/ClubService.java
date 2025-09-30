@@ -3,6 +3,7 @@ package com.project.Karman.service;
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Member;
+import com.project.Karman.domain.enums.AgeGroup;
 import com.project.Karman.dto.*;
 import com.project.Karman.service.mapper.AffiliationMapper;
 import com.project.Karman.repository.AffiliationRepository;
@@ -56,8 +57,10 @@ public class ClubService {
         if (!club.getMemberId().equals(member.getMemberId())) {
             throw new IllegalArgumentException("권한이 없는 유저입니다.");
         }
+
+        AgeGroup updatedAgeGroup = request.ageGroup() != null ? AgeGroup.fromDescription(request.ageGroup()) : null;
         // 수정된 내용 적용 - 더티체킹
-        club.update(request.clubName(), request.area(), request.ageGroup(), request.foundationDate());
+        club.update(request.clubName(), request.area(), updatedAgeGroup, request.foundationDate());
     }
 
     @Transactional

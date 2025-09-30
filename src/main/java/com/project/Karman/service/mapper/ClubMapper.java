@@ -1,6 +1,7 @@
 package com.project.Karman.service.mapper;
 
 import com.project.Karman.domain.entity.Club;
+import com.project.Karman.domain.enums.AgeGroup;
 import com.project.Karman.dto.ClubInfoResponseDto;
 import com.project.Karman.dto.ClubCreateRequestDto;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,7 @@ public class ClubMapper {
                 memberId,
                 request.clubName(),
                 request.area(),
-                request.ageGroup(),
+                AgeGroup.fromDescription(request.ageGroup()),
                 request.foundationDate());
     }
 

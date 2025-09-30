@@ -23,13 +23,13 @@ public class Club extends BaseEntity {
     @Column(nullable = false)
     private UUID memberId;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 30)
     private String clubName;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 30)
     private String area;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private AgeGroup ageGroup;
 
