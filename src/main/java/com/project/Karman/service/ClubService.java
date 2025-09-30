@@ -3,12 +3,8 @@ package com.project.Karman.service;
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Member;
-import com.project.Karman.dto.ClubInfoResponseDto;
-import com.project.Karman.dto.ClubRequestDto;
-import com.project.Karman.dto.SearchClubResponseDto;
-import com.project.Karman.repository.MemberRepository;
+import com.project.Karman.dto.*;
 import com.project.Karman.service.mapper.AffiliationMapper;
-import com.project.Karman.dto.PlayersInfoResponse;
 import com.project.Karman.repository.AffiliationRepository;
 import com.project.Karman.repository.ClubRepository;
 import com.project.Karman.service.mapper.ClubMapper;
@@ -23,8 +19,6 @@ import java.util.*;
 public class ClubService {
     private final ClubRepository clubRepository;
     private final AffiliationRepository affiliationRepository;
-    // TODO: 회원 기능 구현 후 제거
-    private final MemberRepository memberRepository;
     private final AffiliationMapper affiliationMapper;
     private final ClubMapper clubMapper;
 
@@ -46,27 +40,20 @@ public class ClubService {
     }
 
 
-    // TODO: 로그인 기능 구현 후 request에서 memeber 제거
     @Transactional
-    public void createClub(UUID memberId, ClubRequestDto request) {
-        // 회원 체크
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
-        Club club = clubMapper.toEntity(memberId, request);
+    public void createClub(Member member, ClubCreateRequestDto request) {
+        // 클럽 객체생성 및 저장
+        Club club = clubMapper.toEntity(member.getMemberId(), request);
         clubRepository.save(club);
     }
 
     @Transactional
-    public void modifyClubInfo(UUID clubId, UUID memberId, ClubRequestDto request) {
-        // 회원 체크
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+    public void modifyClubInfo(UUID clubId, Member member, ClubUpdateRequestDto request) {
         // 클럽 체크
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
         // 구단주와 접근 유저 동일 여부 체크
-        if (!club.getMemberId().equals(memberId)) {
+        if (!club.getMemberId().equals(member.getMemberId())) {
             throw new IllegalArgumentException("권한이 없는 유저입니다.");
         }
         // 수정된 내용 적용 - 더티체킹
@@ -74,15 +61,12 @@ public class ClubService {
     }
 
     @Transactional
-    public void deleteClub(UUID clubId, UUID memberId) {
-        // 회원 체크
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+    public void deleteClub(UUID clubId, Member member) {
         // 클럽 체크
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
         // 구단주와 접근 유저 동일 여부 체크
-        if (!club.getMemberId().equals(memberId)) {
+        if (!club.getMemberId().equals(member.getMemberId())) {
             throw new IllegalArgumentException("권한이 없는 유저입니다.");
         }
         // 클럽 삭제.
@@ -102,9 +86,11 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public ClubInfoResponseDto getClubInfo(UUID clubId) {
-        Club club  = clubRepository.findById(clubId)
+    public ClubInfoResponseDto getClubInfo(UUID clubId, Member member) {
+        // 클럽 상세조회
+        Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
+        // TODO - 클럽에 소속한 선수는 디테일 정보 열람가능하도록 수정
 
         return clubMapper.toDto(club);
     }
