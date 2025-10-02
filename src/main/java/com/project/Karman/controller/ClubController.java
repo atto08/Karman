@@ -62,4 +62,11 @@ public class ClubController {
         ClubInfoResponseDto clubInfoDto = clubService.getClubInfo(clubId, userDetails.getmember());
         return new ResponseEntity<>(clubInfoDto, HttpStatus.OK);
     }
+
+    @PostMapping("/{club_id}/join")
+    public ResponseEntity<String> joinClub(@PathVariable(value = "club_id") UUID clubId,
+                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
+        clubService.requestJoinClub(clubId, userDetails.getmember());
+        return new ResponseEntity<>("가입 신청 완료", HttpStatus.OK);
+    }
 }

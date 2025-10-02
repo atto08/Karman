@@ -26,8 +26,7 @@ public class ClubService {
     @Transactional(readOnly = true)
     public List<PlayersInfoResponse> findPlayersInfoByClub(UUID clubId) {
         // 클럽 존재 여부 확인
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
+        Club club = findClub(clubId);
         // 클럽에 속한 선수 목록 조회
         List<Affiliation> affiliations = affiliationRepository.findAllByClub(club);
         // entity -> dto
@@ -51,8 +50,7 @@ public class ClubService {
     @Transactional
     public void modifyClubInfo(UUID clubId, Member member, ClubUpdateRequestDto request) {
         // 클럽 체크
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
+        Club club = findClub(clubId);
         // 구단주와 접근 유저 동일 여부 체크
         if (!club.getMemberId().equals(member.getMemberId())) {
             throw new IllegalArgumentException("권한이 없는 유저입니다.");
@@ -66,8 +64,7 @@ public class ClubService {
     @Transactional
     public void deleteClub(UUID clubId, Member member) {
         // 클럽 체크
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
+        Club club = findClub(clubId);
         // 구단주와 접근 유저 동일 여부 체크
         if (!club.getMemberId().equals(member.getMemberId())) {
             throw new IllegalArgumentException("권한이 없는 유저입니다.");
@@ -91,10 +88,31 @@ public class ClubService {
     @Transactional(readOnly = true)
     public ClubInfoResponseDto getClubInfo(UUID clubId, Member member) {
         // 클럽 상세조회
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
+        Club club = findClub(clubId);
         // TODO - 클럽에 소속한 선수는 디테일 정보 열람가능하도록 수정
 
         return clubMapper.toDto(club);
     }
+
+    @Transactional
+    public void requestJoinClub(UUID clubId, Member member) {
+        // 클럽 조회
+        Club club = findClub(clubId);
+        // 유저 조회
+        Optional<Affiliation> player = affiliationRepository.findByClubIdAndMemberId(clubId, member.getMemberId());
+        if (player.isPresent()) {
+            throw new IllegalArgumentException("이미 가입된 선수 입니다.");
+        }
+        // 가입 신청
+        Affiliation requestJoinMember = affiliationMapper.toEntity(club, member);
+        affiliationRepository.save(requestJoinMember);
+    }
+
+    //
+    private Club findClub(UUID clubId) {
+        // 클럽 상세조회
+        return clubRepository.findById(clubId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
+    }
+
 }
