@@ -45,7 +45,9 @@ public class ClubService {
     public void createClub(Member member, ClubCreateRequestDto request) {
         // 클럽 객체생성 및 저장
         Club club = clubMapper.toEntity(member.getMemberId(), request);
+        Affiliation headCoach = affiliationMapper.toEntity(club, member);
         clubRepository.save(club);
+        affiliationRepository.save(headCoach);
     }
 
     @Transactional
