@@ -4,6 +4,7 @@ import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Member;
 import com.project.Karman.domain.enums.AgeGroup;
+import com.project.Karman.domain.enums.ClubJoinStatus;
 import com.project.Karman.dto.*;
 import com.project.Karman.service.mapper.AffiliationMapper;
 import com.project.Karman.repository.AffiliationRepository;
@@ -108,11 +109,27 @@ public class ClubService {
         affiliationRepository.save(requestJoinMember);
     }
 
+    @Transactional
+    public String updateClubJoinStatus(UUID clubId, UUID playerId, JoinStatusUpdateRequestDto request, Member member) {
+        // 클럽 조회
+        Club club = findClub(clubId);
+        // 로그인 유저 권한 체크
+        if (!club.getMemberId().equals(member.getMemberId())) {
+            throw new IllegalArgumentException("구단주가 아닌 유저는 가입 처리를 진행할 수 없습니다.");
+        }
+        // 가입 요청한 선수 정보
+        Affiliation player = affiliationRepository.findByClubIdAndMemberId(clubId, playerId)
+                .orElseThrow(() -> new NoSuchElementException("찾을 수 없는 선수입니다."));
+        // 가입 상태 수정
+        player.updateJoinStatus(request.joinStatus());
+        // 여부에 따라서 메시지 변경
+        return request.joinStatus().equals(ClubJoinStatus.APPROVED) ? "가입 승인 처리 완료" : "가입 철회 처리 완료";
+    }
+
     //
     private Club findClub(UUID clubId) {
         // 클럽 상세조회
         return clubRepository.findById(clubId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
     }
-
 }

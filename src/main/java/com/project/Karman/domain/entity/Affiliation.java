@@ -71,4 +71,8 @@ public class Affiliation extends BaseEntity {
                 .club(club)
                 .build();
     }
+
+    public void updateJoinStatus(ClubJoinStatus updatedStatus) {
+        this.joinStatus = updatedStatus;
+    }
 }

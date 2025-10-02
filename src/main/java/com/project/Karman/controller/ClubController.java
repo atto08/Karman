@@ -69,4 +69,14 @@ public class ClubController {
         clubService.requestJoinClub(clubId, userDetails.getmember());
         return new ResponseEntity<>("가입 신청 완료", HttpStatus.OK);
     }
+
+    @PatchMapping("/{club_id}/players/{player_id}/update")
+    public ResponseEntity<String> updateClubJoinStatus(@PathVariable(value = "club_id") UUID clubId,
+                                                       @PathVariable(value = "player_id") UUID playerId,
+                                                       @RequestBody JoinStatusUpdateRequestDto request,
+                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        String message = clubService.updateClubJoinStatus(clubId, playerId, request, userDetails.getmember());
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
 }
