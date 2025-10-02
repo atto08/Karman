@@ -128,10 +128,25 @@ public class ClubService {
         return request.joinStatus().equals(ClubJoinStatus.APPROVED) ? "가입 승인 처리 완료" : "가입 철회 처리 완료";
     }
 
+    @Transactional
+    public void withdrawClub(UUID clubId, Member member) {
+        // 클럽 조회
+        Club club = findClub(clubId);
+        if (club.getMemberId().equals(member.getMemberId())) {
+            throw new IllegalArgumentException("구단주는 현재 클럽을 탈퇴할 수 없습니다.");
+        }
+        // 선수 조회
+        Affiliation player = affiliationRepository.findByClubIdAndMemberId(clubId, member.getMemberId())
+                .orElseThrow(() -> new NoSuchElementException("찾을 수 없는 선수입니다."));
+        // 삭제
+        affiliationRepository.delete(player);
+    }
+
     //
     private Club findClub(UUID clubId) {
         // 클럽 상세조회
         return clubRepository.findById(clubId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 클럽입니다."));
     }
+
 }

@@ -79,4 +79,11 @@ public class ClubController {
         String message = clubService.updateClubJoinStatus(clubId, playerId, request, userDetails.getmember());
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{club_id}/withdraw")
+    public ResponseEntity<String> withdrawClub(@PathVariable(value = "club_id") UUID clubId,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        clubService.withdrawClub(clubId, userDetails.getmember());
+        return new ResponseEntity<>("클럽 탈퇴 완료", HttpStatus.OK);
+    }
 }
