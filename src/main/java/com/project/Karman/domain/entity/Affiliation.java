@@ -1,17 +1,18 @@
 package com.project.Karman.domain.entity;
 
+import com.project.Karman.domain.enums.ClubJoinStatus;
 import com.project.Karman.domain.enums.Position;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "affiliation")
 @Getter
+@Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Affiliation extends BaseEntity {
 
     @EmbeddedId
@@ -27,25 +28,51 @@ public class Affiliation extends BaseEntity {
     @JoinColumn(name = "club_id")
     private Club club;
 
+    @Builder.Default
     @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    private Position position;
+    private Position position = Position.GK;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Integer backNumber;
+    private Integer backNumber = 0;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Integer matchCount;
+    private Integer matchCount = 0;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Integer goal;
+    private Integer goal = 0;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Integer assist;
+    private Integer assist = 0;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Integer clear;
+    private Integer clear = 0;
 
+    @Builder.Default
     @Column(nullable = false)
-    private BigDecimal point;
+    private BigDecimal point = BigDecimal.valueOf(0);
+
+    @Builder.Default
+    @Column(length = 10)
+    @Enumerated(EnumType.STRING)
+    private ClubJoinStatus joinStatus = ClubJoinStatus.PENDING;
+
+
+    public static Affiliation of(Member member, Club club) {
+
+        return Affiliation.builder()
+                .affiliationId(AffiliationId.of(member.getMemberId(), club.getClubId()))
+                .member(member)
+                .club(club)
+                .build();
+    }
+
+    public void updateJoinStatus(ClubJoinStatus updatedStatus) {
+        this.joinStatus = updatedStatus;
+    }
 }

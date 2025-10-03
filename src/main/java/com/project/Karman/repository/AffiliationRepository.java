@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -24,4 +25,10 @@ public interface AffiliationRepository extends JpaRepository<Affiliation, Affili
     );
 
     List<Affiliation> findAllByClub(Club club);
+
+    @Query("""
+            SELECT a FROM Affiliation a
+            WHERE a.club.clubId = :clubId AND a.member.memberId = :memberId
+            """)
+    Optional<Affiliation> findByClubIdAndMemberId(UUID clubId, UUID memberId);
 }

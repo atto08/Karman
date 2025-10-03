@@ -1,12 +1,12 @@
 package com.project.Karman.controller;
 
-import com.project.Karman.dto.ClubInfoResponseDto;
-import com.project.Karman.dto.ClubRequestDto;
-import com.project.Karman.dto.PlayersInfoResponse;
-import com.project.Karman.dto.SearchClubResponseDto;
+import com.project.Karman.config.security.CustomUserDetails;
+import com.project.Karman.dto.*;
 import com.project.Karman.service.ClubService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,24 +29,24 @@ public class ClubController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createClub(@RequestHeader UUID memberId,
-                                             @RequestBody ClubRequestDto request) {
-        clubService.createClub(memberId, request);
+    public ResponseEntity<String> createClub(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                             @Valid @RequestBody ClubCreateRequestDto request) {
+        clubService.createClub(userDetails.getmember(), request);
         return new ResponseEntity<>("클럽 생성 완료", HttpStatus.OK);
     }
 
     @PatchMapping("/{club_id}")
     public ResponseEntity<String> modifyClub(@PathVariable(value = "club_id") UUID clubId,
-                                             @RequestHeader UUID memberId,
-                                             @RequestBody ClubRequestDto request) {
-        clubService.modifyClubInfo(clubId, memberId, request);
+                                             @AuthenticationPrincipal CustomUserDetails userDetails,
+                                             @Valid @RequestBody ClubUpdateRequestDto request) {
+        clubService.modifyClubInfo(clubId, userDetails.getmember(), request);
         return new ResponseEntity<>("클럽 수정 완료", HttpStatus.OK);
     }
 
     @DeleteMapping("/{club_id}")
     public ResponseEntity<String> deleteClub(@PathVariable(value = "club_id") UUID clubId,
-                                             @RequestHeader UUID memberId) {
-        clubService.deleteClub(clubId, memberId);
+                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        clubService.deleteClub(clubId, userDetails.getmember());
         return new ResponseEntity<>("클럽 삭제 완료", HttpStatus.OK);
     }
 
@@ -57,10 +57,33 @@ public class ClubController {
     }
 
     @GetMapping("/{club_id}")
-    public ResponseEntity<ClubInfoResponseDto> getClubInfo(@PathVariable(value = "club_id") UUID clubId) {
-        ClubInfoResponseDto clubInfoDto = clubService.getClubInfo(clubId);
+    public ResponseEntity<ClubInfoResponseDto> getClubInfo(@PathVariable(value = "club_id") UUID clubId,
+                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
+        ClubInfoResponseDto clubInfoDto = clubService.getClubInfo(clubId, userDetails.getmember());
         return new ResponseEntity<>(clubInfoDto, HttpStatus.OK);
     }
 
-    // 클럽 탈퇴
+    @PostMapping("/{club_id}/join")
+    public ResponseEntity<String> joinClub(@PathVariable(value = "club_id") UUID clubId,
+                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
+        clubService.requestJoinClub(clubId, userDetails.getmember());
+        return new ResponseEntity<>("가입 신청 완료", HttpStatus.OK);
+    }
+
+    @PatchMapping("/{club_id}/players/{player_id}/update")
+    public ResponseEntity<String> updateClubJoinStatus(@PathVariable(value = "club_id") UUID clubId,
+                                                       @PathVariable(value = "player_id") UUID playerId,
+                                                       @RequestBody JoinStatusUpdateRequestDto request,
+                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        String message = clubService.updateClubJoinStatus(clubId, playerId, request, userDetails.getmember());
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{club_id}/withdraw")
+    public ResponseEntity<String> withdrawClub(@PathVariable(value = "club_id") UUID clubId,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        clubService.withdrawClub(clubId, userDetails.getmember());
+        return new ResponseEntity<>("클럽 탈퇴 완료", HttpStatus.OK);
+    }
 }
