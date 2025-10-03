@@ -1,6 +1,6 @@
 package com.project.Karman.config.jwt;
 
-import com.project.Karman.dto.JwtTokenDto;
+import com.project.Karman.dto.response.JwtTokenDto;
 import io.jsonwebtoken.*;
 
 import io.jsonwebtoken.io.Decoders;

@@ -1,7 +1,7 @@
 package com.project.Karman.service.mapper;
 
 import com.project.Karman.domain.entity.Member;
-import com.project.Karman.dto.SignupRequestDto;
+import com.project.Karman.dto.request.SignupRequestDto;
 import org.springframework.stereotype.Component;
 
 @Component

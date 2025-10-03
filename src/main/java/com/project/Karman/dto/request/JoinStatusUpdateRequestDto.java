@@ -1,4 +1,4 @@
-package com.project.Karman.dto;
+package com.project.Karman.dto.request;
 
 import com.project.Karman.domain.enums.ClubJoinStatus;
 

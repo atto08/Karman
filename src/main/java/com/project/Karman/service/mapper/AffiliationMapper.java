@@ -3,10 +3,8 @@ package com.project.Karman.service.mapper;
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Member;
-import com.project.Karman.dto.PlayersInfoResponse;
+import com.project.Karman.dto.response.PlayersInfoResponse;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 public class AffiliationMapper {

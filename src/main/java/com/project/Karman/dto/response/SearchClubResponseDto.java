@@ -1,4 +1,4 @@
-package com.project.Karman.dto;
+package com.project.Karman.dto.response;
 
 import java.util.UUID;
 

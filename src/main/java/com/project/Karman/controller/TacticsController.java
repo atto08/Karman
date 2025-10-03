@@ -1,6 +1,6 @@
 package com.project.Karman.controller;
 
-import com.project.Karman.dto.AskTacticsRequest;
+import com.project.Karman.dto.request.AskTacticsRequestDto;
 import com.project.Karman.service.TacticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ public class TacticsController {
     }
 
     @PostMapping("/tactics/ask")
-    public ResponseEntity<String> askTacticalCoach(@RequestBody AskTacticsRequest request) {
+    public ResponseEntity<String> askTacticalCoach(@RequestBody AskTacticsRequestDto request) {
         String response = tacticsService.askTacticalCoach(request);
         return ResponseEntity.ok(response);
     }

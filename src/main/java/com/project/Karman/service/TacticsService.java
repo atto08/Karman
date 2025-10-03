@@ -1,7 +1,7 @@
 package com.project.Karman.service;
 
 import com.project.Karman.domain.enums.PromptMessage;
-import com.project.Karman.dto.AskTacticsRequest;
+import com.project.Karman.dto.request.AskTacticsRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -26,7 +26,7 @@ public class TacticsService {
     }
 
     @Transactional
-    public String askTacticalCoach(AskTacticsRequest request) {
+    public String askTacticalCoach(AskTacticsRequestDto request) {
 
         // 1) 키워드 추출
         // 프롬프트 생성 - 키워드 추출

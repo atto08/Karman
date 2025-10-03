@@ -2,8 +2,8 @@ package com.project.Karman.service.mapper;
 
 import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.enums.AgeGroup;
-import com.project.Karman.dto.ClubInfoResponseDto;
-import com.project.Karman.dto.ClubCreateRequestDto;
+import com.project.Karman.dto.response.ClubInfoResponseDto;
+import com.project.Karman.dto.request.ClubCreateRequestDto;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;

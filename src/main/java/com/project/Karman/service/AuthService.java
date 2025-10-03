@@ -2,9 +2,9 @@ package com.project.Karman.service;
 
 import com.project.Karman.config.jwt.JwtTokenProvider;
 import com.project.Karman.domain.entity.Member;
-import com.project.Karman.dto.LoginRequestDto;
-import com.project.Karman.dto.SignupRequestDto;
-import com.project.Karman.dto.JwtTokenDto;
+import com.project.Karman.dto.request.LoginRequestDto;
+import com.project.Karman.dto.request.SignupRequestDto;
+import com.project.Karman.dto.response.JwtTokenDto;
 import com.project.Karman.repository.MemberRepository;
 import com.project.Karman.service.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;

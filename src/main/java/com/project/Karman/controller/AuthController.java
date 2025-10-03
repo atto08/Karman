@@ -1,8 +1,8 @@
 package com.project.Karman.controller;
 
-import com.project.Karman.dto.LoginRequestDto;
-import com.project.Karman.dto.SignupRequestDto;
-import com.project.Karman.dto.JwtTokenDto;
+import com.project.Karman.dto.request.LoginRequestDto;
+import com.project.Karman.dto.request.SignupRequestDto;
+import com.project.Karman.dto.response.JwtTokenDto;
 import com.project.Karman.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
