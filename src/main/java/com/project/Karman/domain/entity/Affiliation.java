@@ -1,6 +1,7 @@
 package com.project.Karman.domain.entity;
 
 import com.project.Karman.domain.enums.ClubJoinStatus;
+import com.project.Karman.domain.enums.ClubPlayerRole;
 import com.project.Karman.domain.enums.Position;
 import jakarta.persistence.*;
 import lombok.*;
@@ -57,18 +58,25 @@ public class Affiliation extends BaseEntity {
     @Column(nullable = false)
     private BigDecimal point = BigDecimal.valueOf(0);
 
+    @Column(nullable = false, length = 10)
+    @Enumerated(EnumType.STRING)
+    private ClubPlayerRole playerRole;
+
     @Builder.Default
     @Column(length = 10)
     @Enumerated(EnumType.STRING)
     private ClubJoinStatus joinStatus = ClubJoinStatus.PENDING;
 
 
-    public static Affiliation of(Member member, Club club) {
+    public static Affiliation of(Member member, Club club, ClubPlayerRole playerRole) {
+        ClubJoinStatus status = playerRole.equals(ClubPlayerRole.OWNER) ? ClubJoinStatus.APPROVED : ClubJoinStatus.PENDING;
 
         return Affiliation.builder()
                 .affiliationId(AffiliationId.of(member.getMemberId(), club.getClubId()))
                 .member(member)
                 .club(club)
+                .playerRole(playerRole)
+                .joinStatus(status)
                 .build();
     }
 

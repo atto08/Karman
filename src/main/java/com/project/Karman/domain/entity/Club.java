@@ -4,7 +4,9 @@ import com.project.Karman.domain.enums.AgeGroup;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -36,6 +38,10 @@ public class Club extends BaseEntity {
     @Column(nullable = false)
     private Date foundationDate;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Affiliation> affiliationPlayers = new ArrayList<>();
+
     // 엔터티 생성시 사용
     public static Club of(UUID memberId, String clubName, String area, AgeGroup ageGroup, Date foundationDate) {
 
@@ -54,5 +60,10 @@ public class Club extends BaseEntity {
         if (area != null) this.area = area;
         if (ageGroup != null) this.ageGroup = ageGroup;
         if (foundationDate != null) this.foundationDate = foundationDate;
+    }
+
+
+    public void addPlayer(Affiliation owner) {
+        this.affiliationPlayers.add(owner);
     }
 }
