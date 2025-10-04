@@ -2,16 +2,16 @@ package com.project.Karman.domain.entity;
 
 import com.project.Karman.domain.enums.Weather;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "match")
 @Getter
+@Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Match extends BaseEntity {
 
     @Id
@@ -32,6 +32,22 @@ public class Match extends BaseEntity {
     private Integer concededScore;
 
     @Column(nullable = false, length = 50)
+    private String location;
+
+    @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     private Weather weather;
+
+
+    public static Match of(UUID clubId, String opponent, Integer score, Integer concededScore, String location, Weather weather) {
+
+        return Match.builder()
+                .clubId(clubId)
+                .opponent(opponent)
+                .score(score)
+                .concededScore(concededScore)
+                .location(location)
+                .weather(weather)
+                .build();
+    }
 }
