@@ -5,12 +5,14 @@ import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Member;
 import com.project.Karman.domain.enums.AgeGroup;
 import com.project.Karman.domain.enums.ClubJoinStatus;
+import com.project.Karman.domain.enums.ClubPlayerRole;
 import com.project.Karman.dto.request.ClubCreateRequestDto;
 import com.project.Karman.dto.request.ClubUpdateRequestDto;
 import com.project.Karman.dto.request.JoinStatusUpdateRequestDto;
 import com.project.Karman.dto.response.ClubInfoResponseDto;
 import com.project.Karman.dto.response.PlayersInfoResponse;
 import com.project.Karman.dto.response.SearchClubResponseDto;
+import com.project.Karman.repository.MemberRepository;
 import com.project.Karman.service.mapper.AffiliationMapper;
 import com.project.Karman.repository.AffiliationRepository;
 import com.project.Karman.repository.ClubRepository;
@@ -25,6 +27,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ClubService {
     private final ClubRepository clubRepository;
+    private final MemberRepository memberRepository;
     private final AffiliationRepository affiliationRepository;
     private final AffiliationMapper affiliationMapper;
     private final ClubMapper clubMapper;
@@ -50,9 +53,13 @@ public class ClubService {
     public void createClub(Member member, ClubCreateRequestDto request) {
         // 클럽 객체생성 및 저장
         Club club = clubMapper.toEntity(member.getMemberId(), request);
-        Affiliation headCoach = affiliationMapper.toEntity(club, member);
+        // 유저 정보 영속성 컨텍스트
+        Member user = memberRepository.findById(member.getMemberId())
+                .orElseThrow(() -> new NoSuchElementException("찾을 수 없는 유저입니다."));
+        // 연관관계 객체생성
+        Affiliation owner = affiliationMapper.toEntity(club, user, ClubPlayerRole.OWNER);
+        club.addPlayer(owner);
         clubRepository.save(club);
-        affiliationRepository.save(headCoach);
     }
 
     @Transactional
@@ -111,9 +118,12 @@ public class ClubService {
         if (player.isPresent()) {
             throw new IllegalArgumentException("이미 가입된 선수 입니다.");
         }
+        // 연관관계 객체생성
+        Member user = memberRepository.findById(member.getMemberId())
+                .orElseThrow(() -> new NoSuchElementException("찾을 수 없는 유저입니다."));
         // 가입 신청
-        Affiliation requestJoinMember = affiliationMapper.toEntity(club, member);
-        affiliationRepository.save(requestJoinMember);
+        Affiliation requestJoinMember = affiliationMapper.toEntity(club, user, ClubPlayerRole.USER);
+        club.addPlayer(requestJoinMember);
     }
 
     @Transactional
