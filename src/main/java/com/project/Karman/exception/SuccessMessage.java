@@ -1,0 +1,30 @@
+package com.project.Karman.exception;
+
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+@Getter
+public enum SuccessMessage {
+    // 회원가입, 로그인 성공
+    SIGNUP(HttpStatus.OK, "회원가입 완료", 200),
+    LOGIN(HttpStatus.OK, "로그인 성공", 200),
+
+    // 클럽 서비스
+    CREATE_CLUB(HttpStatus.OK, "클럽 생성 성공", 200),
+    UPDATE_CLUB(HttpStatus.OK, "클럽 정보 수정 성공", 200),
+    DELETE_CLUB(HttpStatus.OK, "클럽 삭제 완료", 200),
+    REQUEST_JOIN_CLUB(HttpStatus.OK, "클럽 가입 신청 완료", 200),
+    ACCEPT_JOIN_CLUB_REQUEST(HttpStatus.OK, "클럽 가입 요청 승인", 200),
+    REJECT_JOIN_CLUB_REQUEST(HttpStatus.OK, "클럽 가입 요청 거부", 200),
+    WITHDRAW_CLUB(HttpStatus.OK, "클럽 탈퇴 완료.", 200);
+
+    private final HttpStatus httpStatus;
+    private final String message;
+    private final int code;
+
+    SuccessMessage(HttpStatus httpStatus, String message, int code) {
+        this.httpStatus = httpStatus;
+        this.message = message;
+        this.code = code;
+    }
+}
