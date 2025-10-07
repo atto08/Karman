@@ -22,12 +22,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         String jsonResponse = """
                 {
-                    "error": "UNAUTHORIZED",
-                    "message": "인증이 필요합니다. 로그인 후 다시 시도해주세요.",
-                    "timestamp": "%s",
+                    "message": "%s",
+                    "code": "%s",
                     "path": "%s"
                 }
-                """.formatted(LocalDateTime.now(), request.getRequestURI());
+                """.formatted("인증이 필요합니다. 로그인 후 다시 시도해주세요.", response.getStatus(), request.getRequestURI());
 
         response.getWriter().write(jsonResponse);
     }
