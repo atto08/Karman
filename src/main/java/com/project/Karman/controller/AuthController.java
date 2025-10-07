@@ -2,15 +2,18 @@ package com.project.Karman.controller;
 
 import com.project.Karman.dto.request.LoginRequestDto;
 import com.project.Karman.dto.request.SignupRequestDto;
+import com.project.Karman.dto.response.ApiResponse;
 import com.project.Karman.dto.response.JwtTokenDto;
 import com.project.Karman.service.AuthService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static com.project.Karman.exception.SuccessMessage.LOGIN;
+import static com.project.Karman.exception.SuccessMessage.SIGNUP;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,15 +27,15 @@ public class AuthController {
 
     // 회원 가입
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
         authService.signup(signupRequestDto);
-        return new ResponseEntity<>("회원 가입 완료", HttpStatus.OK);
+        return ResponseEntity.status(SIGNUP.getHttpStatus()).body(ApiResponse.success(SIGNUP.getMessage()));
     }
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<JwtTokenDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+    public ResponseEntity<ApiResponse<JwtTokenDto>> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
         JwtTokenDto token = authService.login(loginRequestDto);
-        return new ResponseEntity<>(token, HttpStatus.OK);
+        return ResponseEntity.status(LOGIN.getHttpStatus()).body(ApiResponse.success(LOGIN.getMessage(), token));
     }
 }
