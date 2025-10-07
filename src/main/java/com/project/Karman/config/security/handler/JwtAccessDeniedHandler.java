@@ -24,12 +24,11 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
         String jsonResponse = """
                 {
-                    "error": "FORBIDDEN",
-                    "message": "접근 권한이 없습니다.",
-                    "timestamp": "%s",
+                    "message": "%s",
+                    "code": "%s",
                     "path": "%s"
                 }
-                """.formatted(LocalDateTime.now(), request.getRequestURI());
+                """.formatted("접근 권한이 없습니다.",response.getStatus(), request.getRequestURI());
 
         response.getWriter().write(jsonResponse);
     }
