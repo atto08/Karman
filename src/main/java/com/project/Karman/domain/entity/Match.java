@@ -4,6 +4,7 @@ import com.project.Karman.domain.enums.Weather;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -26,27 +27,32 @@ public class Match extends BaseEntity {
     private String opponent;
 
     @Column(nullable = false)
-    private Integer score;
+    private Integer scoredGoal;
 
     @Column(nullable = false)
-    private Integer concededScore;
+    private Integer concededGoal;
 
     @Column(nullable = false, length = 50)
     private String location;
+
+    @Column(nullable = false)
+    private LocalDateTime matchDate;
 
     @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     private Weather weather;
 
 
-    public static Match of(UUID clubId, String opponent, Integer score, Integer concededScore, String location, Weather weather) {
+    public static Match of(UUID clubId, String opponent, Integer scoredGoal, Integer concededGoal,
+                           String location, LocalDateTime matchDate, Weather weather) {
 
         return Match.builder()
                 .clubId(clubId)
                 .opponent(opponent)
-                .score(score)
-                .concededScore(concededScore)
+                .scoredGoal(scoredGoal)
+                .concededGoal(concededGoal)
                 .location(location)
+                .matchDate(matchDate)
                 .weather(weather)
                 .build();
     }
