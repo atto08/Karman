@@ -2,6 +2,9 @@ package com.project.Karman.controller;
 
 import com.project.Karman.config.security.CustomUserDetails;
 import com.project.Karman.dto.request.MatchCreateRequestDto;
+import com.project.Karman.dto.response.ApiResponse;
+import com.project.Karman.dto.response.MatchListResponseDto;
+import com.project.Karman.exception.SuccessMessage;
 import com.project.Karman.service.MatchService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -9,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,4 +32,16 @@ public class MatchController {
         matchService.createMatch(request, clubId, userDetails.getmember());
         return new ResponseEntity<>("경기 등록 완료", HttpStatus.OK);
     }
+
+    // 매치 등록
+    // 매치 전체 조회
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<MatchListResponseDto>>> getMatchList(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                                @PathVariable(value = "club_id") UUID clubId) {
+        List<MatchListResponseDto> matchAll = matchService.getMatchAll(userDetails.getmember(), clubId);
+        return ResponseEntity.status(SuccessMessage.GET_MATCH_ALL.getCode()).body(ApiResponse.success(SuccessMessage.GET_MATCH_ALL.getMessage(), matchAll));
+    }
+
+    // 매치 상세 조회
+
 }
