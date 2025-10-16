@@ -20,34 +20,39 @@ public class Match extends BaseEntity {
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID matchId;
 
-    @Column(nullable = false)
-    private UUID clubId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_id", columnDefinition = "uuid")
+    private Club club;
 
     @Column(nullable = false, length = 50)
     private String opponent;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Integer scoredGoal;
+    private Integer scoredGoal = 0;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Integer concededGoal;
+    private Integer concededGoal = 0;
 
-    @Column(nullable = false, length = 50)
-    private String location;
+    @Builder.Default
+    @Column(length = 50)
+    private String location = null;
 
     @Column(nullable = false)
     private LocalDateTime matchDate;
 
+    @Builder.Default
     @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
-    private Weather weather;
+    private Weather weather = Weather.SUNNY;
 
 
-    public static Match of(UUID clubId, String opponent, Integer scoredGoal, Integer concededGoal,
+    public static Match of(Club club, String opponent, Integer scoredGoal, Integer concededGoal,
                            String location, LocalDateTime matchDate, Weather weather) {
 
         return Match.builder()
-                .clubId(clubId)
+                .club(club)
                 .opponent(opponent)
                 .scoredGoal(scoredGoal)
                 .concededGoal(concededGoal)

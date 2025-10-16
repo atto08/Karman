@@ -1,6 +1,7 @@
 package com.project.Karman.service;
 
 import com.project.Karman.domain.entity.Affiliation;
+import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Match;
 import com.project.Karman.domain.entity.Member;
 import com.project.Karman.domain.enums.ClubPlayerRole;
@@ -9,6 +10,7 @@ import com.project.Karman.dto.response.MatchListResponseDto;
 import com.project.Karman.exception.CustomException;
 import com.project.Karman.exception.ExceptionMessage;
 import com.project.Karman.repository.AffiliationRepository;
+import com.project.Karman.repository.ClubRepository;
 import com.project.Karman.repository.MatchRepository;
 import com.project.Karman.service.mapper.MatchMapper;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +25,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MatchService {
 
+    private final ClubRepository clubRepository;
     private final MatchRepository matchRepository;
     private final AffiliationRepository affiliationRepository;
     private final MatchMapper matchMapper;
 
     @Transactional
     public void createMatch(MatchCreateRequestDto request, UUID clubId, Member member) {
+        // 클럽 조회
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
         // 클럽 소속 선수 여부
         Affiliation player = affiliationRepository.findByClubIdAndMemberId(clubId, member.getMemberId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
@@ -37,7 +43,7 @@ public class MatchService {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
         // 매치 객체 생성 & 저장
-        Match match = matchMapper.toEntity(request, clubId);
+        Match match = matchMapper.toEntity(request, club);
         matchRepository.save(match);
     }
 
@@ -48,7 +54,7 @@ public class MatchService {
         List<Match> matchList = matchRepository.findAllByClubId(clubId);
         // dto로 변환
         List<MatchListResponseDto> matchAllDto = new ArrayList<>();
-        for(Match match : matchList) {
+        for (Match match : matchList) {
             MatchListResponseDto matchDto = matchMapper.toDto(match);
             matchAllDto.add(matchDto);
         }

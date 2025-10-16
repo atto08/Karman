@@ -20,7 +20,6 @@ public record MatchCreateRequestDto(
         @NotNull(message = "실점은 필수 입력 값입니다.")
         @PositiveOrZero
         Integer concededGoal,
-        @NotBlank(message = "매치 장소는 필수 입력 값입니다.")
         @Pattern(regexp = "^[A-Za-z0-9가-힣\\- ]+$",
                 message = "위치는 영문, 한글, 숫자, 공백, '-'만 입력 가능합니다.")
         String location,
