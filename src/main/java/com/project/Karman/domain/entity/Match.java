@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -47,6 +49,10 @@ public class Match extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Weather weather = Weather.SUNNY;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MatchQuarter> matchQuarters = new ArrayList<>();
+
 
     public static Match of(Club club, String opponent, Integer scoredGoal, Integer concededGoal,
                            String location, LocalDateTime matchDate, Weather weather) {
@@ -60,5 +66,10 @@ public class Match extends BaseEntity {
                 .matchDate(matchDate)
                 .weather(weather)
                 .build();
+    }
+
+    // 매치에 쿼터기록 추가
+    public void addMatchQuarter(MatchQuarter matchQuarter) {
+        matchQuarters.add(matchQuarter);
     }
 }
