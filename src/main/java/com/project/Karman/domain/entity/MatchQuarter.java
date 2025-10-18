@@ -4,6 +4,8 @@ import com.project.Karman.domain.enums.Formation;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -35,6 +37,15 @@ public class MatchQuarter extends BaseEntity {
     @Column(nullable = false)
     private Integer concededGoal = 0;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "matchQuarter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MatchLineup> lineup = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "matchQuarter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MatchGoal> scoredGoals = new ArrayList<>();
+
+
     public static MatchQuarter of(UUID matchId, Integer quarter, Match match, Formation formation, Integer concededGoal) {
 
         return MatchQuarter.builder()
@@ -43,5 +54,17 @@ public class MatchQuarter extends BaseEntity {
                 .formation(formation)
                 .concededGoal(concededGoal)
                 .build();
+    }
+
+    public void addLineup(MatchLineup player) {
+        lineup.add(player);
+    }
+
+    public void addScoredGoal(MatchGoal goal) {
+        scoredGoals.add(goal);
+    }
+
+    public void countGoal() {
+        scoredGoal = scoredGoals.size();
     }
 }
