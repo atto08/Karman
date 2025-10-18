@@ -1,5 +1,6 @@
 package com.project.Karman.repository;
 
+import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Match;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +15,7 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
 
     @Query("""
             SELECT m FROM Match m
-            WHERE m.clubId = :clubId
+            WHERE m.club = :club
             """)
-    List<Match> findAllByClubId(@Param("clubId") UUID clubId);
+    List<Match> findAllByClub(@Param("club") Club club);
 }
