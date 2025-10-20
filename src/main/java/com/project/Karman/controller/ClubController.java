@@ -34,7 +34,7 @@ public class ClubController {
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> createClub(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                         @Valid @RequestBody ClubCreateRequestDto request) {
-        clubService.createClub(userDetails.getmember(), request);
+        clubService.createClub(userDetails.getMember(), request);
         return ResponseEntity
                 .status(CREATE_CLUB.getHttpStatus())
                 .body(ApiResponse.success(CREATE_CLUB.getMessage()));
@@ -43,7 +43,7 @@ public class ClubController {
     @GetMapping("/{club_id}")
     public ResponseEntity<ApiResponse<ClubInfoResponseDto>> getClubInfo(@PathVariable(value = "club_id") UUID clubId,
                                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
-        ClubInfoResponseDto clubInfoDto = clubService.getClubInfo(clubId, userDetails.getmember());
+        ClubInfoResponseDto clubInfoDto = clubService.getClubInfo(clubId, userDetails.getMember());
         return ResponseEntity
                 .status(GET_CLUB_INFO.getHttpStatus())
                 .body(ApiResponse.success(GET_CLUB_INFO.getMessage(), clubInfoDto));
@@ -53,7 +53,7 @@ public class ClubController {
     public ResponseEntity<ApiResponse<Void>> modifyClub(@PathVariable(value = "club_id") UUID clubId,
                                                         @AuthenticationPrincipal CustomUserDetails userDetails,
                                                         @Valid @RequestBody ClubUpdateRequestDto request) {
-        clubService.modifyClubInfo(clubId, userDetails.getmember(), request);
+        clubService.modifyClubInfo(clubId, userDetails.getMember(), request);
         return ResponseEntity
                 .status(UPDATE_CLUB.getHttpStatus())
                 .body(ApiResponse.success(UPDATE_CLUB.getMessage()));
@@ -62,7 +62,7 @@ public class ClubController {
     @DeleteMapping("/{club_id}")
     public ResponseEntity<ApiResponse<Void>> deleteClub(@PathVariable(value = "club_id") UUID clubId,
                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
-        clubService.deleteClub(clubId, userDetails.getmember());
+        clubService.deleteClub(clubId, userDetails.getMember());
         return ResponseEntity
                 .status(DELETE_CLUB.getHttpStatus())
                 .body(ApiResponse.success(DELETE_CLUB.getMessage()));
@@ -87,7 +87,7 @@ public class ClubController {
     @PostMapping("/{club_id}/join")
     public ResponseEntity<ApiResponse<Void>> requestJoinClub(@PathVariable(value = "club_id") UUID clubId,
                                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
-        clubService.requestJoinClub(clubId, userDetails.getmember());
+        clubService.requestJoinClub(clubId, userDetails.getMember());
         return ResponseEntity
                 .status(REQUEST_JOIN_CLUB.getHttpStatus())
                 .body(ApiResponse.success(REQUEST_JOIN_CLUB.getMessage()));
@@ -98,7 +98,7 @@ public class ClubController {
                                                                   @PathVariable(value = "player_id") UUID playerId,
                                                                   @RequestBody JoinStatusUpdateRequestDto request,
                                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
-        String message = clubService.updateClubJoinStatus(clubId, playerId, request, userDetails.getmember());
+        String message = clubService.updateClubJoinStatus(clubId, playerId, request, userDetails.getMember());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(message));
@@ -107,7 +107,7 @@ public class ClubController {
     @DeleteMapping("/{club_id}/withdraw")
     public ResponseEntity<ApiResponse<Void>> withdrawClub(@PathVariable(value = "club_id") UUID clubId,
                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
-        clubService.withdrawClub(clubId, userDetails.getmember());
+        clubService.withdrawClub(clubId, userDetails.getMember());
         return ResponseEntity
                 .status(WITHDRAW_CLUB.getHttpStatus())
                 .body(ApiResponse.success(WITHDRAW_CLUB.getMessage()));

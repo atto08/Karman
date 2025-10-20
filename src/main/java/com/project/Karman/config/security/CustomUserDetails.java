@@ -17,7 +17,7 @@ public class CustomUserDetails implements UserDetails {
         this.member = member;
     }
 
-    public Member getmember() {
+    public Member getMember() {
         return member;
     }
 
