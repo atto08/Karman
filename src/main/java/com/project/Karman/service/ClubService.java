@@ -98,9 +98,11 @@ public class ClubService {
     @Transactional(readOnly = true)
     public List<PlayersInfoResponse> findPlayersInfoByClub(UUID clubId) {
         // 클럽 존재 여부 확인
-        Club club = findClub(clubId);
+        if (!clubRepository.existsById(clubId)) {
+            throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
+        }
         // 클럽에 속한 선수 목록 조회
-        List<Affiliation> affiliations = affiliationRepository.findAllByClub(club);
+        List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubId(clubId);
         // entity -> dto
         List<PlayersInfoResponse> playersInfo = new ArrayList<>();
         for (Affiliation player : affiliations) {
@@ -116,7 +118,7 @@ public class ClubService {
         // 클럽 조회
         Club club = findClub(clubId);
         // 유저 조회
-        Optional<Affiliation> player = affiliationRepository.findByClubIdAndMemberId(clubId, member.getMemberId());
+        Optional<Affiliation> player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId());
         if (player.isPresent()) {
             throw new CustomException(ExceptionMessage.ALREADY_JOINED_PLAYER);
         }
@@ -137,7 +139,7 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
         // 가입 요청한 선수 정보
-        Affiliation player = affiliationRepository.findByClubIdAndMemberId(clubId, playerId)
+        Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, playerId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
         // 가입 상태 수정
         player.updateJoinStatus(request.joinStatus());
@@ -153,7 +155,7 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.OWNER_CAN_NOT_WITHDRAW_CLUB);
         }
         // 선수 조회
-        Affiliation player = affiliationRepository.findByClubIdAndMemberId(clubId, member.getMemberId())
+        Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
         // 삭제
         affiliationRepository.delete(player);

@@ -34,7 +34,7 @@ public class MatchService {
     @Transactional
     public void createMatch(MatchCreateRequestDto requestDto, UUID clubId, Member member) {
         // 클럽 소속 선수 여부
-        Affiliation player = affiliationRepository.findByClubIdAndMemberId(clubId, member.getMemberId())
+        Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
         // 권한 체크
         if (player.getPlayerRole().equals(ClubPlayerRole.USER)) {
@@ -49,9 +49,9 @@ public class MatchService {
     }
 
     @Transactional
-    public void createMatchQuarter(MatchQuarterCreateRequestDto requestDto, UUID clubId, UUID matchId,Member member) {
+    public void createMatchQuarter(MatchQuarterCreateRequestDto requestDto, UUID clubId, UUID matchId, Member member) {
         // 클럽 소속 선수 여부
-        Affiliation player = affiliationRepository.findByClubIdAndMemberId(clubId, member.getMemberId())
+        Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
         // 권한 체크 - USER 는 쿼터 생성불가
         if (player.getPlayerRole().equals(ClubPlayerRole.USER)) {
@@ -76,7 +76,7 @@ public class MatchService {
             matchQuarter.addLineup(playerInLineup);
         }
         // 득점 추가
-        for(MatchGoalCreateRequestDto goalDto : requestDto.goalsInfo()) {
+        for (MatchGoalCreateRequestDto goalDto : requestDto.goalsInfo()) {
             MatchGoal scoreInfo = matchMapper.toMatchQuarterGoalEntity(matchQuarter, goalDto);
             matchQuarter.addScoredGoal(scoreInfo);
         }
