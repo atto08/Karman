@@ -19,7 +19,12 @@ public enum SuccessMessage {
     ACCEPT_JOIN_CLUB_REQUEST(HttpStatus.OK, "클럽 가입 요청 승인", 200),
     REJECT_JOIN_CLUB_REQUEST(HttpStatus.OK, "클럽 가입 요청 거부", 200),
     WITHDRAW_CLUB(HttpStatus.OK, "클럽 탈퇴 완료.", 200),
-    GET_PLAYERS_IN_CLUB(HttpStatus.OK, "클럽 소속 선수들 정보 조회", 200);
+    GET_PLAYERS_IN_CLUB(HttpStatus.OK, "클럽 소속 선수들 정보 조회", 200),
+
+    // 매치 서비스
+    CRATE_MATCH(HttpStatus.OK, "신규 매치등록 완료", 200),
+    GET_MATCH_ALL(HttpStatus.OK, "매치 전체 기록 조회", 200),
+    CREATE_MATCH_QUARTER(HttpStatus.OK, "쿼터 기록 등록 완료", 200);
 
     private final HttpStatus httpStatus;
     private final String message;

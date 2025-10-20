@@ -4,6 +4,9 @@ import com.project.Karman.domain.enums.Weather;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -19,35 +22,54 @@ public class Match extends BaseEntity {
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID matchId;
 
-    @Column(nullable = false)
-    private UUID clubId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_id", columnDefinition = "uuid")
+    private Club club;
 
     @Column(nullable = false, length = 50)
     private String opponent;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Integer score;
+    private Integer scoredGoal = 0;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer concededGoal = 0;
+
+    @Builder.Default
+    @Column(length = 50)
+    private String location = null;
 
     @Column(nullable = false)
-    private Integer concededScore;
+    private LocalDateTime matchDate;
 
-    @Column(nullable = false, length = 50)
-    private String location;
-
+    @Builder.Default
     @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
-    private Weather weather;
+    private Weather weather = Weather.SUNNY;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MatchQuarter> matchQuarters = new ArrayList<>();
 
 
-    public static Match of(UUID clubId, String opponent, Integer score, Integer concededScore, String location, Weather weather) {
+    public static Match of(Club club, String opponent, Integer scoredGoal, Integer concededGoal,
+                           String location, LocalDateTime matchDate, Weather weather) {
 
         return Match.builder()
-                .clubId(clubId)
+                .club(club)
                 .opponent(opponent)
-                .score(score)
-                .concededScore(concededScore)
+                .scoredGoal(scoredGoal)
+                .concededGoal(concededGoal)
                 .location(location)
+                .matchDate(matchDate)
                 .weather(weather)
                 .build();
+    }
+
+    // 매치에 쿼터기록 추가
+    public void addMatchQuarter(MatchQuarter matchQuarter) {
+        matchQuarters.add(matchQuarter);
     }
 }

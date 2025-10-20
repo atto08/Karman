@@ -42,6 +42,11 @@ public class Club extends BaseEntity {
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Affiliation> affiliationPlayers = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Match> matches = new ArrayList<>();
+
+
     // 엔터티 생성시 사용
     public static Club of(UUID memberId, String clubName, String area, AgeGroup ageGroup, Date foundationDate) {
 
