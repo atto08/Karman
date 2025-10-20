@@ -36,9 +36,9 @@ public class ClubService {
 
 
     @Transactional
-    public void createClub(Member member, ClubCreateRequestDto request) {
+    public void createClub(Member member, ClubCreateRequestDto requestDto) {
         // 클럽 객체생성 및 저장
-        Club club = clubMapper.toEntity(member.getMemberId(), request);
+        Club club = clubMapper.toEntity(member.getMemberId(), requestDto);
         // 유저 정보 영속성 컨텍스트
         Member user = memberRepository.findById(member.getMemberId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MEMBER));
@@ -49,7 +49,7 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public ClubInfoResponseDto getClubInfo(UUID clubId, Member member) {
+    public ClubInfoResponseDto getClubInfo(Member member, UUID clubId) {
         // 클럽 상세조회
         Club club = findClub(clubId);
         // TODO - 클럽에 소속한 선수는 디테일 정보 열람가능하도록 수정
@@ -58,7 +58,7 @@ public class ClubService {
     }
 
     @Transactional
-    public void modifyClubInfo(UUID clubId, Member member, ClubUpdateRequestDto request) {
+    public void modifyClubInfo(Member member, UUID clubId, ClubUpdateRequestDto requestDto) {
         // 클럽 체크
         Club club = findClub(clubId);
         // 구단주와 접근 유저 동일 여부 체크
@@ -66,13 +66,13 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
 
-        AgeGroup updatedAgeGroup = request.ageGroup() != null ? AgeGroup.fromDescription(request.ageGroup()) : null;
+        AgeGroup updatedAgeGroup = requestDto.ageGroup() != null ? AgeGroup.fromDescription(requestDto.ageGroup()) : null;
         // 수정된 내용 적용 - 더티체킹
-        club.update(request.clubName(), request.area(), updatedAgeGroup, request.foundationDate());
+        club.update(requestDto.clubName(), requestDto.area(), updatedAgeGroup, requestDto.foundationDate());
     }
 
     @Transactional
-    public void deleteClub(UUID clubId, Member member) {
+    public void deleteClub(Member member, UUID clubId) {
         // 클럽 체크
         Club club = findClub(clubId);
         // 구단주와 접근 유저 동일 여부 체크
@@ -114,7 +114,7 @@ public class ClubService {
     }
 
     @Transactional
-    public void requestJoinClub(UUID clubId, Member member) {
+    public void requestJoinClub(Member member, UUID clubId) {
         // 클럽 조회
         Club club = findClub(clubId);
         // 유저 조회
@@ -131,7 +131,7 @@ public class ClubService {
     }
 
     @Transactional
-    public String updateClubJoinStatus(UUID clubId, UUID playerId, JoinStatusUpdateRequestDto request, Member member) {
+    public String updateClubJoinStatus(Member member, UUID clubId, UUID playerId, JoinStatusUpdateRequestDto requestDto) {
         // 클럽 조회
         Club club = findClub(clubId);
         // 로그인 유저 권한 체크
@@ -142,13 +142,13 @@ public class ClubService {
         Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, playerId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
         // 가입 상태 수정
-        player.updateJoinStatus(request.joinStatus());
+        player.updateJoinStatus(requestDto.joinStatus());
         // 여부에 따라서 메시지 변경
-        return request.joinStatus().equals(ClubJoinStatus.APPROVED) ? "가입 승인 처리 완료" : "가입 철회 처리 완료";
+        return requestDto.joinStatus().equals(ClubJoinStatus.APPROVED) ? "가입 승인 처리 완료" : "가입 철회 처리 완료";
     }
 
     @Transactional
-    public void withdrawClub(UUID clubId, Member member) {
+    public void withdrawClub(Member member, UUID clubId) {
         // 클럽 조회
         Club club = findClub(clubId);
         if (club.getMemberId().equals(member.getMemberId())) {
