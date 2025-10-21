@@ -9,6 +9,7 @@ import com.project.Karman.domain.enums.ClubPlayerRole;
 import com.project.Karman.dto.request.ClubCreateRequestDto;
 import com.project.Karman.dto.request.ClubUpdateRequestDto;
 import com.project.Karman.dto.request.JoinStatusUpdateRequestDto;
+import com.project.Karman.dto.request.PlayerStatUpdateRequestDto;
 import com.project.Karman.dto.response.ClubInfoResponseDto;
 import com.project.Karman.dto.response.PlayersInfoResponse;
 import com.project.Karman.dto.response.SearchClubResponseDto;
@@ -131,15 +132,19 @@ public class ClubService {
     }
 
     @Transactional
-    public String updateClubJoinStatus(Member member, UUID clubId, UUID playerId, JoinStatusUpdateRequestDto requestDto) {
+    public String updateClubJoinStatus(Member member, UUID clubId, UUID playerMemberId, JoinStatusUpdateRequestDto requestDto) {
         // 클럽 조회
-        Club club = findClub(clubId);
-        // 로그인 유저 권한 체크
-        if (!club.getMember().getMemberId().equals(member.getMemberId())) {
+        if (!clubRepository.existsById(clubId)) {
+            throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
+        }
+        // 소속팀에서 로그인 유저의 권한 확인
+        Affiliation loginUser = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId())
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
+        if (loginUser.getPlayerRole().equals(ClubPlayerRole.USER)) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
         // 가입 요청한 선수 정보
-        Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, playerId)
+        Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, playerMemberId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
         // 가입 상태 수정
         player.updateJoinStatus(requestDto.joinStatus());
@@ -159,6 +164,30 @@ public class ClubService {
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
         // 삭제
         affiliationRepository.delete(player);
+    }
+
+    @Transactional
+    public void updatePlayerInfo(Member member, UUID clubId, UUID playerMemberId, PlayerStatUpdateRequestDto requestDto) {
+        // 클럽 조회
+        if (!clubRepository.existsById(clubId)) {
+            throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
+        }
+        // 소속팀에서 로그인 유저의 권한 확인
+        Affiliation loginUser = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId())
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
+        if (loginUser.getPlayerRole().equals(ClubPlayerRole.USER)) {
+            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
+        }
+        // TODO - 구단주 권한으로 수정 요청 -> 체계적인 수정 필요
+        // 구단주로 변경 요청은 거부
+        if(requestDto.playerRole().equals(ClubPlayerRole.OWNER)) {
+            throw new CustomException(ExceptionMessage.NOT_ALLOWED_OWNER_ROLE);
+        }
+        // 가입 요청한 선수 정보
+        Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, playerMemberId)
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
+        // 선수 정보수정
+        player.updatePlayerInfo(requestDto.position(), requestDto.backNumber(), requestDto.playerRole());
     }
 
     private Club findClub(UUID clubId) {

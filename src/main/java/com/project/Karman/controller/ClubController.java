@@ -4,6 +4,7 @@ import com.project.Karman.config.security.CustomUserDetails;
 import com.project.Karman.dto.request.ClubCreateRequestDto;
 import com.project.Karman.dto.request.ClubUpdateRequestDto;
 import com.project.Karman.dto.request.JoinStatusUpdateRequestDto;
+import com.project.Karman.dto.request.PlayerStatUpdateRequestDto;
 import com.project.Karman.dto.response.ApiResponse;
 import com.project.Karman.dto.response.ClubInfoResponseDto;
 import com.project.Karman.dto.response.PlayersInfoResponse;
@@ -84,7 +85,7 @@ public class ClubController {
                 .body(ApiResponse.success(GET_PLAYERS_IN_CLUB.getMessage(), playersInfo));
     }
 
-    @PostMapping("/{club_id}/join")
+    @PostMapping("/{club_id}/join-requests")
     public ResponseEntity<ApiResponse<Void>> requestJoinClub(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                              @PathVariable(value = "club_id") UUID clubId) {
         clubService.requestJoinClub(userDetails.getMember(), clubId);
@@ -93,12 +94,12 @@ public class ClubController {
                 .body(ApiResponse.success(REQUEST_JOIN_CLUB.getMessage()));
     }
 
-    @PatchMapping("/{club_id}/players/{player_id}/update")
+    @PatchMapping("/{club_id}/join-requests/{player_member_id}")
     public ResponseEntity<ApiResponse<Void>> updateClubJoinStatus(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                   @PathVariable(value = "club_id") UUID clubId,
-                                                                  @PathVariable(value = "player_id") UUID playerId,
+                                                                  @PathVariable(value = "player_member_id") UUID playerMemberId,
                                                                   @RequestBody JoinStatusUpdateRequestDto requestDto) {
-        String message = clubService.updateClubJoinStatus(userDetails.getMember(), clubId, playerId, requestDto);
+        String message = clubService.updateClubJoinStatus(userDetails.getMember(), clubId, playerMemberId, requestDto);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(message));
@@ -111,5 +112,16 @@ public class ClubController {
         return ResponseEntity
                 .status(WITHDRAW_CLUB.getHttpStatus())
                 .body(ApiResponse.success(WITHDRAW_CLUB.getMessage()));
+    }
+
+    @PatchMapping("/{club_id}/players/{player_member_id}")
+    public ResponseEntity<ApiResponse<Void>> updatePlayerInfo(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                              @PathVariable(value = "club_id") UUID clubId,
+                                                              @PathVariable(value = "player_member_id") UUID playerMemberId,
+                                                              @RequestBody PlayerStatUpdateRequestDto requestDto) {
+        clubService.updatePlayerInfo(userDetails.getMember(), clubId, playerMemberId, requestDto);
+        return ResponseEntity
+                .status(UPDATE_PLAYER_INFO.getHttpStatus())
+                .body(ApiResponse.success(UPDATE_PLAYER_INFO.getMessage()));
     }
 }
