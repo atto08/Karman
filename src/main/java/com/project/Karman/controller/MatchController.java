@@ -30,7 +30,7 @@ public class MatchController {
     public ResponseEntity<String> createMatch(@AuthenticationPrincipal CustomUserDetails userDetails,
                                               @PathVariable(value = "club_id") UUID clubId,
                                               @Valid @RequestBody MatchCreateRequestDto requestDto) {
-        matchService.createMatch(requestDto, clubId, userDetails.getmember());
+        matchService.createMatch(requestDto, clubId, userDetails.getMember());
         return new ResponseEntity<>("경기 등록 완료", HttpStatus.OK);
     }
 
@@ -39,7 +39,7 @@ public class MatchController {
                                                                 @PathVariable(value = "club_id") UUID clubId,
                                                                 @PathVariable(value = "match_id") UUID matchId,
                                                                 @Valid @RequestBody MatchQuarterCreateRequestDto requestDto) {
-        matchService.createMatchQuarter(requestDto, clubId, matchId, userDetails.getmember());
+        matchService.createMatchQuarter(requestDto, clubId, matchId, userDetails.getMember());
         return ResponseEntity
                 .status(SuccessMessage.CREATE_MATCH_QUARTER.getCode())
                 .body(ApiResponse.success(SuccessMessage.CREATE_MATCH_QUARTER.getMessage()));
@@ -49,7 +49,7 @@ public class MatchController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<MatchListResponseDto>>> getMatchList(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                                 @PathVariable(value = "club_id") UUID clubId) {
-        List<MatchListResponseDto> matchAll = matchService.getMatchAll(userDetails.getmember(), clubId);
+        List<MatchListResponseDto> matchAll = matchService.getMatchAll(userDetails.getMember(), clubId);
         return ResponseEntity
                 .status(SuccessMessage.GET_MATCH_ALL.getCode())
                 .body(ApiResponse.success(SuccessMessage.GET_MATCH_ALL.getMessage(), matchAll));
