@@ -19,11 +19,12 @@ public class Club extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+    @Column(name = "club_id", columnDefinition = "uuid", nullable = false, updatable = false)
     private UUID clubId;
 
-    @Column(nullable = false)
-    private UUID memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", columnDefinition = "uuid", nullable = false, updatable = false)
+    private Member member;
 
     @Column(nullable = false, length = 30)
     private String clubName;
@@ -48,10 +49,10 @@ public class Club extends BaseEntity {
 
 
     // 엔터티 생성시 사용
-    public static Club of(UUID memberId, String clubName, String area, AgeGroup ageGroup, Date foundationDate) {
+    public static Club of(Member member, String clubName, String area, AgeGroup ageGroup, Date foundationDate) {
 
         return Club.builder()
-                .memberId(memberId)
+                .member(member)
                 .clubName(clubName)
                 .area(area)
                 .ageGroup(ageGroup)

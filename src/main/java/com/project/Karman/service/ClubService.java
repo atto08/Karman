@@ -37,13 +37,13 @@ public class ClubService {
 
     @Transactional
     public void createClub(Member member, ClubCreateRequestDto requestDto) {
-        // 클럽 객체생성 및 저장
-        Club club = clubMapper.toEntity(member.getMemberId(), requestDto);
         // 유저 정보 영속성 컨텍스트
         Member user = memberRepository.findById(member.getMemberId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MEMBER));
+        // 클럽 객체생성 및 저장
+        Club club = clubMapper.toEntity(user, requestDto);
         // 연관관계 객체생성
-        Affiliation owner = affiliationMapper.toEntity(club, user, ClubPlayerRole.OWNER);
+        Affiliation owner = affiliationMapper.toEntity(user, club, ClubPlayerRole.OWNER);
         club.addPlayer(owner);
         clubRepository.save(club);
     }
@@ -62,7 +62,7 @@ public class ClubService {
         // 클럽 체크
         Club club = findClub(clubId);
         // 구단주와 접근 유저 동일 여부 체크
-        if (!club.getMemberId().equals(member.getMemberId())) {
+        if (!club.getMember().getMemberId().equals(member.getMemberId())) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
 
@@ -76,7 +76,7 @@ public class ClubService {
         // 클럽 체크
         Club club = findClub(clubId);
         // 구단주와 접근 유저 동일 여부 체크
-        if (!club.getMemberId().equals(member.getMemberId())) {
+        if (!club.getMember().getMemberId().equals(member.getMemberId())) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
         // 클럽 삭제.
@@ -126,7 +126,7 @@ public class ClubService {
         Member user = memberRepository.findById(member.getMemberId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MEMBER));
         // 가입 신청
-        Affiliation requestJoinMember = affiliationMapper.toEntity(club, user, ClubPlayerRole.USER);
+        Affiliation requestJoinMember = affiliationMapper.toEntity(user, club, ClubPlayerRole.USER);
         club.addPlayer(requestJoinMember);
     }
 
@@ -135,7 +135,7 @@ public class ClubService {
         // 클럽 조회
         Club club = findClub(clubId);
         // 로그인 유저 권한 체크
-        if (!club.getMemberId().equals(member.getMemberId())) {
+        if (!club.getMember().getMemberId().equals(member.getMemberId())) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
         // 가입 요청한 선수 정보
@@ -151,7 +151,7 @@ public class ClubService {
     public void withdrawClub(Member member, UUID clubId) {
         // 클럽 조회
         Club club = findClub(clubId);
-        if (club.getMemberId().equals(member.getMemberId())) {
+        if (club.getMember().getMemberId().equals(member.getMemberId())) {
             throw new CustomException(ExceptionMessage.OWNER_CAN_NOT_WITHDRAW_CLUB);
         }
         // 선수 조회
