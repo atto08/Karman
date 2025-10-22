@@ -1,6 +1,10 @@
 package com.project.Karman.domain.enums;
 
+import com.project.Karman.exception.CustomException;
+import com.project.Karman.exception.ExceptionMessage;
 import lombok.Getter;
+
+import java.util.Arrays;
 
 @Getter
 public enum Formation {
@@ -25,12 +29,9 @@ public enum Formation {
     }
 
     public static Formation fromName(String name) {
-        for (Formation formation : Formation.values()) {
-            if (formation.getName().equals(name)) {
-                return formation;
-            }
-        }
-
-        return NOT_VALID_FORMATION;
+        return Arrays.stream(Formation.values())
+                .filter(f -> f.name.equals(name))
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_VALID_FORMATION));
     }
 }
