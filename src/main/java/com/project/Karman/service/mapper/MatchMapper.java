@@ -22,7 +22,6 @@ public class MatchMapper {
                 requestDto.location(),
                 requestDto.matchDate(),
                 requestDto.weather()
-
         );
     }
 

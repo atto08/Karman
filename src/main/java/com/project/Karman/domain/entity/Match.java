@@ -1,5 +1,6 @@
 package com.project.Karman.domain.entity;
 
+import com.project.Karman.domain.enums.MatchResult;
 import com.project.Karman.domain.enums.Weather;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,11 +20,11 @@ public class Match extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+    @Column(name = "match_id", columnDefinition = "uuid", nullable = false, updatable = false)
     private UUID matchId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "club_id", columnDefinition = "uuid")
+    @JoinColumn(name = "club_id", columnDefinition = "uuid", nullable = false, updatable = false)
     private Club club;
 
     @Column(nullable = false, length = 50)
@@ -48,6 +49,11 @@ public class Match extends BaseEntity {
     @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     private Weather weather = Weather.SUNNY;
+
+    @Builder.Default
+    @Column(nullable = false, length = 50)
+    @Enumerated(EnumType.STRING)
+    private MatchResult matchResult = MatchResult.DRAW;
 
     @Builder.Default
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
