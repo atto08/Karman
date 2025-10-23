@@ -89,4 +89,12 @@ public class Affiliation extends BaseEntity {
         this.backNumber = updatedBackNumber == null ? this.backNumber : updatedBackNumber;
         this.playerRole = updatedPlayerRole == null ? this.playerRole : updatedPlayerRole;
     }
+
+    public void updateGoal(Long updatedGoal) {
+        this.goal = updatedGoal;
+    }
+
+    public void updateAssist(Long updatedAssist) {
+        this.assist = updatedAssist;
+    }
 }

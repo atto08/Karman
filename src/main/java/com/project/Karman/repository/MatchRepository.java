@@ -18,4 +18,28 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
             WHERE m.club = :club
             """)
     List<Match> findAllByClub(@Param("club") Club club);
+
+    @Query("""
+            SELECT COUNT(mg) FROM MatchGoal mg
+            WHERE mg.matchQuarter.matchQuarterId.matchId = :matchId
+            """)
+    Long countGoalsByMatchId(@Param("matchId") UUID matchId);
+
+    @Query("""
+            SELECT COALESCE(SUM(mq.concededGoal), 0) FROM MatchQuarter mq
+            WHERE mq.matchQuarterId.matchId = :matchId
+            """)
+    Long countConcededGoalsByMatchId(@Param("matchId") UUID matchId);
+
+    @Query("""
+            SELECT COUNT(mg) FROM MatchGoal mg
+            WHERE mg.scorePlayer.affiliationId = :affiliationId
+            """)
+    Long countGoalsByAffiliationId(@Param("affiliationId") UUID affiliationId);
+
+    @Query("""
+            SELECT COUNT(mg) FROM MatchGoal mg
+            WHERE mg.assistPlayer.affiliationId = :affiliationId
+            """)
+    Long countAssistsByAffiliationId(@Param("affiliationId") UUID affiliationId);
 }
