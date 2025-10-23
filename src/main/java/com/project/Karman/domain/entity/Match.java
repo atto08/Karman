@@ -32,11 +32,11 @@ public class Match extends BaseEntity {
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer scoredGoal = 0;
+    private Long scoredGoal = 0L;
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer concededGoal = 0;
+    private Long concededGoal = 0L;
 
     @Builder.Default
     @Column(length = 50)
@@ -60,7 +60,7 @@ public class Match extends BaseEntity {
     private List<MatchQuarter> matchQuarters = new ArrayList<>();
 
 
-    public static Match of(Club club, String opponent, Integer scoredGoal, Integer concededGoal,
+    public static Match of(Club club, String opponent, Long scoredGoal, Long concededGoal,
                            String location, LocalDateTime matchDate, Weather weather) {
 
         return Match.builder()

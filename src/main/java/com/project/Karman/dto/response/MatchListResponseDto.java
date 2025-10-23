@@ -10,14 +10,14 @@ import java.util.UUID;
 public record MatchListResponseDto(
         UUID matchId,
         String opponent,
-        Integer scoredGoal,
-        Integer concededGoal,
+        Long scoredGoal,
+        Long concededGoal,
         LocalDateTime matchDate,
         String location
 ) {
 
 
-    public static MatchListResponseDto of(UUID matchId, String opponent, Integer scoredGoal, Integer concededGoal, LocalDateTime matchDate, String location) {
+    public static MatchListResponseDto of(UUID matchId, String opponent, Long scoredGoal, Long concededGoal, LocalDateTime matchDate, String location) {
 
         return MatchListResponseDto.builder()
                 .matchId(matchId)

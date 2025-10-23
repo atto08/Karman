@@ -41,19 +41,19 @@ public class Affiliation extends BaseEntity {
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer matchCount = 0;
+    private Long matchCount = 0L;
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer goal = 0;
+    private Long goal = 0L;
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer assist = 0;
+    private Long assist = 0L;
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer clear = 0;
+    private Long clear = 0L;
 
     @Builder.Default
     @Column(nullable = false)

@@ -16,10 +16,10 @@ public record MatchCreateRequestDto(
         String opponent,
         @NotNull(message = "득점은 필수 입력 값입니다.")
         @PositiveOrZero
-        Integer scoredGoal,
+        Long scoredGoal,
         @NotNull(message = "실점은 필수 입력 값입니다.")
         @PositiveOrZero
-        Integer concededGoal,
+        Long concededGoal,
         @Pattern(regexp = "^[A-Za-z0-9가-힣\\- ]+$",
                 message = "위치는 영문, 한글, 숫자, 공백, '-'만 입력 가능합니다.")
         String location,
