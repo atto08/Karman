@@ -206,18 +206,13 @@ public class MatchService {
     }
 
     @Transactional(readOnly = true)
-    public List<MatchListResponseDto> getMatchAll(Member member, UUID clubId) {
+    public MatchListResponseDto getMatchInfoAll(Member member, UUID clubId) {
         // 클럽 조회
-        Club club = findClub(clubId);
-        // 클럽 아이디를 갖고 있는 경기 기록 전부 조회
-        List<Match> matchList = matchRepository.findAllByClub(club);
-        // dto로 변환
-        List<MatchListResponseDto> matchAllDto = new ArrayList<>();
-        for (Match match : matchList) {
-            MatchListResponseDto matchDto = matchMapper.toDto(match);
-            matchAllDto.add(matchDto);
-        }
-        return matchAllDto;
+        checkClubIsExist(clubId);
+        // 클럽 전체 매치 기록 조회
+        List<Match> matchList = matchRepository.findAllByClubId(clubId);
+
+        return matchMapper.toMatchListResponseDto(matchList);
     }
 
     @Transactional(readOnly = true)

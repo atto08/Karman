@@ -1,6 +1,5 @@
 package com.project.Karman.repository;
 
-import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Match;
 import com.project.Karman.domain.entity.MatchQuarter;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,9 +16,9 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
 
     @Query("""
             SELECT m FROM Match m
-            WHERE m.club = :club
+            WHERE m.club.clubId = :clubId
             """)
-    List<Match> findAllByClub(@Param("club") Club club);
+    List<Match> findAllByClubId(@Param("clubId") UUID clubId);
 
     @Query("""
             SELECT COUNT(mg) FROM MatchGoal mg

@@ -118,15 +118,25 @@ public class MatchMapper {
     }
 
 
-    public MatchListResponseDto toDto(Match match) {
+    public MatchListResponseDto toMatchListResponseDto(List<Match> matchList) {
+
+        List<MatchSummaryResponseDto> matchSummaryResponseDtoList = matchList.stream()
+                .map(this::toMatchSummaryResponseDto)
+                .toList();
 
         return MatchListResponseDto.of(
+                matchSummaryResponseDtoList
+        );
+    }
+
+    public MatchSummaryResponseDto toMatchSummaryResponseDto(Match match) {
+
+        return MatchSummaryResponseDto.of(
                 match.getMatchId(),
                 match.getOpponent(),
                 match.getScoredGoal(),
                 match.getConcededGoal(),
-                match.getMatchDate(),
-                match.getLocation()
+                match.getMatchDate()
         );
     }
 }

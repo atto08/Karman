@@ -62,9 +62,9 @@ public class MatchController {
 
     // 매치 전체 조회
     @GetMapping
-    public ResponseEntity<ApiResponse<List<MatchListResponseDto>>> getMatchList(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<ApiResponse<MatchListResponseDto>> getMatchInfoAll(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                                 @PathVariable(value = "club_id") UUID clubId) {
-        List<MatchListResponseDto> matchAll = matchService.getMatchAll(userDetails.getMember(), clubId);
+       MatchListResponseDto matchAll = matchService.getMatchInfoAll(userDetails.getMember(), clubId);
         return ResponseEntity
                 .status(SuccessMessage.GET_ALL_MATCH_INFO.getHttpStatus())
                 .body(ApiResponse.success(SuccessMessage.GET_ALL_MATCH_INFO.getMessage(), matchAll));
