@@ -57,6 +57,7 @@ public class Match extends BaseEntity {
 
     @Builder.Default
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("matchQuarterId.quarter ASC")
     private List<MatchQuarter> matchQuarters = new ArrayList<>();
 
 
