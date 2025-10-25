@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Embeddable
+@Getter
 @Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

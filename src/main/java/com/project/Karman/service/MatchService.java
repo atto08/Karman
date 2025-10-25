@@ -5,6 +5,7 @@ import com.project.Karman.domain.enums.ClubPlayerRole;
 import com.project.Karman.domain.enums.Formation;
 import com.project.Karman.dto.request.*;
 import com.project.Karman.dto.response.MatchListResponseDto;
+import com.project.Karman.dto.response.MatchResponseDto;
 import com.project.Karman.exception.CustomException;
 import com.project.Karman.exception.ExceptionMessage;
 import com.project.Karman.repository.AffiliationRepository;
@@ -153,7 +154,7 @@ public class MatchService {
     private void addQuarterLineup(List<MatchLineupCreateRequestDto> lineup, MatchQuarter matchQuarter) {
         for (MatchLineupCreateRequestDto lineupDto : lineup) {
             // 출전선수 정보 생성
-            MatchLineup playerInLineup = matchMapper.toMatchQuarterLineupEntity(matchQuarter, lineupDto);
+            MatchLineup playerInLineup = matchMapper.toMatchLineupEntity(matchQuarter, lineupDto);
             matchQuarter.addLineup(playerInLineup);
         }
     }
@@ -162,7 +163,7 @@ public class MatchService {
 
         for (MatchGoalCreateRequestDto goalDto : goalsInfo) {
             // 득점 정보 객체 생성 및 저장
-            MatchGoal scoreInfo = matchMapper.toMatchQuarterGoalEntity(matchQuarter, goalDto);
+            MatchGoal scoreInfo = matchMapper.toMatchGoalEntity(matchQuarter, goalDto);
             matchQuarter.addScoredGoal(scoreInfo);
 
             // 득점한 선수가 소속 선수
@@ -217,6 +218,18 @@ public class MatchService {
             matchAllDto.add(matchDto);
         }
         return matchAllDto;
+    }
+
+    @Transactional(readOnly = true)
+    public MatchResponseDto getMatchInfo(Member member, UUID clubId, UUID matchId) {
+        // 클럽 조회
+        checkClubIsExist(clubId);
+        // 매치 조회
+        Match match = findMatch(matchId);
+        // 클럽 경기 여부
+        checkMatchBelongToClub(match.getClub().getClubId(), clubId);
+        // Dto 반환
+        return matchMapper.toMatchDto(match);
     }
 
     private Club findClub(UUID clubId) {

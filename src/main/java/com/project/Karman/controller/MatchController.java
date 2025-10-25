@@ -6,6 +6,7 @@ import com.project.Karman.dto.request.MatchQuarterCreateRequestDto;
 import com.project.Karman.dto.request.MatchQuarterUpdateRequestDto;
 import com.project.Karman.dto.response.ApiResponse;
 import com.project.Karman.dto.response.MatchListResponseDto;
+import com.project.Karman.dto.response.MatchResponseDto;
 import com.project.Karman.exception.SuccessMessage;
 import com.project.Karman.service.MatchService;
 import jakarta.validation.Valid;
@@ -65,10 +66,18 @@ public class MatchController {
                                                                                 @PathVariable(value = "club_id") UUID clubId) {
         List<MatchListResponseDto> matchAll = matchService.getMatchAll(userDetails.getMember(), clubId);
         return ResponseEntity
-                .status(SuccessMessage.GET_MATCH_ALL.getHttpStatus())
-                .body(ApiResponse.success(SuccessMessage.GET_MATCH_ALL.getMessage(), matchAll));
+                .status(SuccessMessage.GET_ALL_MATCH_INFO.getHttpStatus())
+                .body(ApiResponse.success(SuccessMessage.GET_ALL_MATCH_INFO.getMessage(), matchAll));
     }
 
     // 매치 상세 조회
-
+    @GetMapping("/{match_id}")
+    public ResponseEntity<ApiResponse<MatchResponseDto>> getMatchInfo(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                      @PathVariable(value = "club_id") UUID clubId,
+                                                                      @PathVariable(value = "match_id") UUID matchId) {
+        MatchResponseDto matchResponseDto = matchService.getMatchInfo(userDetails.getMember(), clubId, matchId);
+        return ResponseEntity
+                .status(SuccessMessage.GET_MATCH_DETAIL_INFO.getHttpStatus())
+                .body(ApiResponse.success(SuccessMessage.GET_MATCH_DETAIL_INFO.getMessage(), matchResponseDto));
+    }
 }
