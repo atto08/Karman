@@ -41,19 +41,19 @@ public class Affiliation extends BaseEntity {
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer matchCount = 0;
+    private Long matchCount = 0L;
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer goal = 0;
+    private Long goal = 0L;
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer assist = 0;
+    private Long assist = 0L;
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer clear = 0;
+    private Long clear = 0L;
 
     @Builder.Default
     @Column(nullable = false)
@@ -88,5 +88,13 @@ public class Affiliation extends BaseEntity {
         this.position = updatedPosition == null ? this.position : updatedPosition;
         this.backNumber = updatedBackNumber == null ? this.backNumber : updatedBackNumber;
         this.playerRole = updatedPlayerRole == null ? this.playerRole : updatedPlayerRole;
+    }
+
+    public void updateGoal(Long updatedGoal) {
+        this.goal = updatedGoal;
+    }
+
+    public void updateAssist(Long updatedAssist) {
+        this.assist = updatedAssist;
     }
 }

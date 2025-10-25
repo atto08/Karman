@@ -5,11 +5,7 @@ import jakarta.validation.constraints.*;
 
 import java.util.List;
 
-public record MatchQuarterCreateRequestDto(
-        @NotNull(message = "쿼터는 필수 입력 값입니다.")
-        @Min(value = 1, message = "쿼터는 1 이상이어야 합니다.")
-        @Max(value = 8, message = "쿼터는 8 이하여야 합니다.")
-        Integer quarter,
+public record MatchQuarterUpdateRequestDto(
 
         @NotBlank(message = "포메이션은 필수 입력 값입니다.")
         String formation,

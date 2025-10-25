@@ -180,9 +180,12 @@ public class ClubService {
         }
         // TODO - 구단주 권한으로 수정 요청 -> 체계적인 수정 필요
         // 구단주로 변경 요청은 거부
-        if(requestDto.playerRole().equals(ClubPlayerRole.OWNER)) {
-            throw new CustomException(ExceptionMessage.NOT_ALLOWED_OWNER_ROLE);
+        if(requestDto.playerRole() != null) {
+            if(requestDto.playerRole().equals(ClubPlayerRole.OWNER)) {
+                throw new CustomException(ExceptionMessage.NOT_ALLOWED_OWNER_ROLE);
+            }
         }
+
         // 가입 요청한 선수 정보
         Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, playerMemberId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
@@ -190,8 +193,8 @@ public class ClubService {
         player.updatePlayerInfo(requestDto.position(), requestDto.backNumber(), requestDto.playerRole());
     }
 
+    // 클럽 상세조회
     private Club findClub(UUID clubId) {
-        // 클럽 상세조회
         return clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
     }

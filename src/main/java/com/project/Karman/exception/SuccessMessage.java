@@ -24,8 +24,10 @@ public enum SuccessMessage {
 
     // 매치 서비스
     CRATE_MATCH(HttpStatus.OK, "신규 매치등록 완료", 200),
-    GET_MATCH_ALL(HttpStatus.OK, "매치 전체 기록 조회", 200),
-    CREATE_MATCH_QUARTER(HttpStatus.OK, "쿼터 기록 등록 완료", 200);
+    GET_ALL_MATCH_INFO(HttpStatus.OK, "매치 전체 기록 조회", 200),
+    GET_MATCH_DETAIL_INFO(HttpStatus.OK, "매치 상세 기록 조회", 200),
+    CREATE_MATCH_QUARTER(HttpStatus.OK, "쿼터 기록 등록 완료", 200),
+    UPDATE_MATHC_QUARTER(HttpStatus.OK, "쿼터 기록 수정 완료", 200);
 
     private final HttpStatus httpStatus;
     private final String message;

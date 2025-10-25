@@ -1,5 +1,6 @@
 package com.project.Karman.domain.entity;
 
+import com.project.Karman.domain.enums.MatchResult;
 import com.project.Karman.domain.enums.Weather;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,11 +20,11 @@ public class Match extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+    @Column(name = "match_id", columnDefinition = "uuid", nullable = false, updatable = false)
     private UUID matchId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "club_id", columnDefinition = "uuid")
+    @JoinColumn(name = "club_id", columnDefinition = "uuid", nullable = false, updatable = false)
     private Club club;
 
     @Column(nullable = false, length = 50)
@@ -31,11 +32,11 @@ public class Match extends BaseEntity {
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer scoredGoal = 0;
+    private Long scoredGoal = 0L;
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer concededGoal = 0;
+    private Long concededGoal = 0L;
 
     @Builder.Default
     @Column(length = 50)
@@ -50,11 +51,17 @@ public class Match extends BaseEntity {
     private Weather weather = Weather.SUNNY;
 
     @Builder.Default
+    @Column(nullable = false, length = 50)
+    @Enumerated(EnumType.STRING)
+    private MatchResult matchResult = MatchResult.DRAW;
+
+    @Builder.Default
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("matchQuarterId.quarter ASC")
     private List<MatchQuarter> matchQuarters = new ArrayList<>();
 
 
-    public static Match of(Club club, String opponent, Integer scoredGoal, Integer concededGoal,
+    public static Match of(Club club, String opponent, Long scoredGoal, Long concededGoal,
                            String location, LocalDateTime matchDate, Weather weather) {
 
         return Match.builder()
@@ -71,5 +78,18 @@ public class Match extends BaseEntity {
     // 매치에 쿼터기록 추가
     public void addMatchQuarter(MatchQuarter matchQuarter) {
         matchQuarters.add(matchQuarter);
+    }
+
+
+    public void updateScore(Long updateScoredGoal, Long updatedConcededGoal) {
+        if (updateScoredGoal > updatedConcededGoal) {
+            this.matchResult = MatchResult.WIN;
+        } else if (updateScoredGoal < updatedConcededGoal) {
+            this.matchResult = MatchResult.LOSE;
+        } else {
+            this.matchResult = MatchResult.DRAW;
+        }
+        this.scoredGoal = updateScoredGoal;
+        this.concededGoal = updatedConcededGoal;
     }
 }

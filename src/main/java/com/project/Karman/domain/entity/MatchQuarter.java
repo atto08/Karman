@@ -31,11 +31,11 @@ public class MatchQuarter extends BaseEntity {
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer scoredGoal = 0;
+    private Long scoredGoal = 0L;
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer concededGoal = 0;
+    private Long concededGoal = 0L;
 
     @Builder.Default
     @OneToMany(mappedBy = "matchQuarter", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -46,7 +46,7 @@ public class MatchQuarter extends BaseEntity {
     private List<MatchGoal> scoredGoals = new ArrayList<>();
 
 
-    public static MatchQuarter of(UUID matchId, Integer quarter, Match match, Formation formation, Integer concededGoal) {
+    public static MatchQuarter of(UUID matchId, Integer quarter, Match match, Formation formation, Long concededGoal) {
 
         return MatchQuarter.builder()
                 .matchQuarterId(MatchQuarterId.of(matchId, quarter))
@@ -64,7 +64,13 @@ public class MatchQuarter extends BaseEntity {
         scoredGoals.add(goal);
     }
 
-    public void countGoal() {
-        scoredGoal = scoredGoals.size();
+    public void update(Formation formation, Long concededGoal) {
+        if(formation != null) this.formation = formation;
+        if(concededGoal != null) this.concededGoal = concededGoal;
+    }
+
+    public void clearQuarterData() {
+        this.lineup.clear();
+        this.scoredGoals.clear();
     }
 }
