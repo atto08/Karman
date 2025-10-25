@@ -35,10 +35,8 @@ public class MatchService {
     public void createMatch(MatchCreateRequestDto requestDto, UUID clubId, Member member) {
         // 클럽 조회
         Club club = findClub(clubId);
-        // 클럽 소속 선수 여부
-        Affiliation loginUser = findAffiliation(clubId, member.getMemberId());
-        // 권한 체크
-        userClubRoleIsManagement(loginUser.getPlayerRole());
+        // 클럽 소속 선수 여부 & 권한 체크
+        validateUserClubRoleIsManagement(clubId, member.getMemberId());
         // 매치 객체 생성 & 저장
         Match match = matchMapper.toMatchEntity(requestDto, club);
         matchRepository.save(match);
@@ -46,25 +44,24 @@ public class MatchService {
 
     @Transactional
     public void createMatchQuarter(MatchQuarterCreateRequestDto requestDto, UUID clubId, UUID matchId, Member member) {
-        // 검증 로직
+        // [검증 로직]
         // 1) 클럽 조회
         if (!clubRepository.existsById(clubId)) {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
-        // 2) 클럽 소속 여부
-        Affiliation loginUser = findAffiliation(clubId, member.getMemberId());
-        // 3) 권한 체크 - 운영진 이삼만 쿼터생성 가능
-        userClubRoleIsManagement(loginUser.getPlayerRole());
-        // 4) 매치 조회 - 존재 여부 판단 + 영속성 컨텍스트 저장
+        // 2) 클럽 소속 여부 & 권한 체크 - 운영진 이삼만 쿼터생성 가능
+        validateUserClubRoleIsManagement(clubId, member.getMemberId());
+        // 3) 매치 조회 - 존재 여부 판단 + 영속성 컨텍스트 저장
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH));
-        // 5) 클럽 경기 여부
+        // 4) 클럽 경기 여부
         if (!match.getClub().getClubId().equals(clubId)) {
             throw new CustomException(ExceptionMessage.MATCH_NOT_BELONG_TO_CLUB);
         }
-        // TODO 6) dto 라인업 & 득점/도움 선수 판단 로직
-
-        // 비즈니스 로직
+        // TODO - MVP 구현 후 A안 B안 속도 비교
+        // 5) 라인업 선수 소속 여부 검증 - A안
+        validateAffiliationIdsInSquads(requestDto, clubId);
+        // [비즈니스 로직]
         // 포메이션 변환
         Formation formation = Formation.fromName(requestDto.formation());
         // 쿼터 생성
@@ -78,7 +75,44 @@ public class MatchService {
         // 득점 계산 - Match 테이블 필드
         calculateMatchScore(match);
         // 득점 & 도움 계산 - Affiliation 테이블 업데이트
-        calculateUpdatedGoalOrAssist(updatedAffiliations);
+        updateAffiliationStats(updatedAffiliations);
+    }
+
+    private void validateAffiliationIdsInSquads(MatchQuarterCreateRequestDto requestDto, UUID clubId) {
+        // 입력받은 affiliationId 목록
+        Set<UUID> affiliationIdsToValidate = getAffiliationIdsFromDto(requestDto);
+        // 검증
+        if (!affiliationIdsToValidate.isEmpty()) {
+            // 실존하는 affiliationId 객체만 리스트로 반환
+            List<Affiliation> validAffiliations = affiliationRepository
+                    .findAllByClub_ClubIdAndAffiliationIds(clubId, new ArrayList<>(affiliationIdsToValidate));
+            // 아이디 수가 일치하지 않으면 정상적이지 않은 affiliationId가 포함된 상황
+            if (validAffiliations.size() != affiliationIdsToValidate.size()) {
+                throw new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB);
+            }
+        }
+    }
+
+    private Set<UUID> getAffiliationIdsFromDto(MatchQuarterCreateRequestDto requestDto) {
+        Set<UUID> affiliationIdsToValidate = new HashSet<>();
+        // 라인업에서 수집
+        for (MatchLineupCreateRequestDto lineupDto : requestDto.lineup()) {
+            if (lineupDto.affiliationId() != null) {
+                affiliationIdsToValidate.add(lineupDto.affiliationId());
+            }
+        }
+        // 득점/어시스트 정보에서 수집
+        if (requestDto.goalsInfo() != null) {
+            for (MatchGoalCreateRequestDto goalDto : requestDto.goalsInfo()) {
+                if (goalDto.scorerAffiliationId() != null) {
+                    affiliationIdsToValidate.add(goalDto.scorerAffiliationId());
+                }
+                if (goalDto.assistPlayerAffiliationId() != null) {
+                    affiliationIdsToValidate.add(goalDto.assistPlayerAffiliationId());
+                }
+            }
+        }
+        return affiliationIdsToValidate;
     }
 
     private void calculateMatchScore(Match match) {
@@ -118,9 +152,10 @@ public class MatchService {
         return updatedAffiliations;
     }
 
-    private void calculateUpdatedGoalOrAssist(Set<GoalAssistPlayer> updatedAffiliations) {
+    private void updateAffiliationStats(Set<GoalAssistPlayer> updatedAffiliations) {
         for (GoalAssistPlayer goalAssistPlayer : updatedAffiliations) {
-            Affiliation updatePlayer = findAffiliation(null, goalAssistPlayer.affiliationId());
+            Affiliation updatePlayer = affiliationRepository.findById(goalAssistPlayer.affiliationId())
+                    .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
             // 득점 경우
             if (goalAssistPlayer.type().equals(GoalAssist.GOAL)) {
                 Long updatedGoals = matchRepository.countGoalsByAffiliationId(goalAssistPlayer.affiliationId());
@@ -134,7 +169,6 @@ public class MatchService {
         }
     }
 
-
     @Transactional(readOnly = true)
     public List<MatchListResponseDto> getMatchAll(Member member, UUID clubId) {
         // 클럽 조회
@@ -147,7 +181,6 @@ public class MatchService {
             MatchListResponseDto matchDto = matchMapper.toDto(match);
             matchAllDto.add(matchDto);
         }
-
         return matchAllDto;
     }
 
@@ -156,17 +189,12 @@ public class MatchService {
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
     }
 
-    private Affiliation findAffiliation(UUID clubId, UUID memberId) {
-        if (clubId == null) {
-            return affiliationRepository.findById(memberId)
-                    .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
-        }
-        return affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
+    private void validateUserClubRoleIsManagement(UUID clubId, UUID memberId) {
+        // 로그인 유저 클럽 소속여부 확인
+        Affiliation loginUser = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
-    }
-
-    private void userClubRoleIsManagement(ClubPlayerRole playerRole) {
-        if (playerRole.equals(ClubPlayerRole.USER)) {
+        // 권한 체크
+        if (loginUser.getPlayerRole().equals(ClubPlayerRole.USER)) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
     }
