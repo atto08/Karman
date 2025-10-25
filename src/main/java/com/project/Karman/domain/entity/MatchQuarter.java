@@ -63,4 +63,14 @@ public class MatchQuarter extends BaseEntity {
     public void addScoredGoal(MatchGoal goal) {
         scoredGoals.add(goal);
     }
+
+    public void update(Formation formation, Long concededGoal) {
+        if(formation != null) this.formation = formation;
+        if(concededGoal != null) this.concededGoal = concededGoal;
+    }
+
+    public void clearQuarterData() {
+        this.lineup.clear();
+        this.scoredGoals.clear();
+    }
 }
