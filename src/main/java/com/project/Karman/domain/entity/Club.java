@@ -69,7 +69,7 @@ public class Club extends BaseEntity {
     }
 
 
-    public void addPlayer(Affiliation owner) {
-        this.affiliationPlayers.add(owner);
+    public void addPlayer(Affiliation affiliation) {
+        this.affiliationPlayers.add(affiliation);
     }
 }
