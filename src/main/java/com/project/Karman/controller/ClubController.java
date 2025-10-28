@@ -5,10 +5,7 @@ import com.project.Karman.dto.request.ClubCreateRequestDto;
 import com.project.Karman.dto.request.ClubUpdateRequestDto;
 import com.project.Karman.dto.request.JoinStatusUpdateRequestDto;
 import com.project.Karman.dto.request.PlayerStatUpdateRequestDto;
-import com.project.Karman.dto.response.ApiResponse;
-import com.project.Karman.dto.response.ClubInfoResponseDto;
-import com.project.Karman.dto.response.PlayersInfoResponse;
-import com.project.Karman.dto.response.SearchClubResponseDto;
+import com.project.Karman.dto.response.*;
 import com.project.Karman.service.ClubService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -78,11 +75,20 @@ public class ClubController {
     }
 
     @GetMapping("/{club_id}/player-list")
-    public ResponseEntity<ApiResponse<List<PlayersInfoResponse>>> getPlayersByClub(@PathVariable(value = "club_id") UUID clubId) {
-        List<PlayersInfoResponse> playersInfo = clubService.findPlayersInfoByClub(clubId);
+    public ResponseEntity<ApiResponse<PlayerInfoListResponseDto>> getPlayerList(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                                @PathVariable(value = "club_id") UUID clubId) {
+        PlayerInfoListResponseDto playerInfoList = clubService.getPlayerInfoList(userDetails.getMember(), clubId);
         return ResponseEntity
-                .status(GET_PLAYERS_IN_CLUB.getHttpStatus())
-                .body(ApiResponse.success(GET_PLAYERS_IN_CLUB.getMessage(), playersInfo));
+                .status(GET_PLAYERS_INFO_IN_CLUB.getHttpStatus())
+                .body(ApiResponse.success(GET_PLAYERS_INFO_IN_CLUB.getMessage(), playerInfoList));
+    }
+
+    @GetMapping("/{club_id}/squad")
+    public ResponseEntity<ApiResponse<PlayerSelectListResponseDto>> getPlayerSelectList(@PathVariable(value = "club_id") UUID clubId) {
+        PlayerSelectListResponseDto playerSelectList = clubService.findPlayerSelectList(clubId);
+        return ResponseEntity
+                .status(GET_PLAYER_SELECT_IN_CLUB.getHttpStatus())
+                .body(ApiResponse.success(GET_PLAYER_SELECT_IN_CLUB.getMessage(), playerSelectList));
     }
 
     @PostMapping("/{club_id}/join-requests")
