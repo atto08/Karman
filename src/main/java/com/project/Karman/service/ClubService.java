@@ -50,7 +50,7 @@ public class ClubService {
     @Transactional(readOnly = true)
     public ClubInfoResponseDto getClubInfo(Member member, UUID clubId) {
         // 클럽 상세조회
-        Club club = findClub(clubId);
+        Club club = findClubById(clubId);
         // TODO - 클럽에 소속한 선수는 디테일 정보 열람가능하도록 수정
 
         return clubMapper.toDto(club);
@@ -59,7 +59,7 @@ public class ClubService {
     @Transactional
     public void modifyClubInfo(Member member, UUID clubId, ClubUpdateRequestDto requestDto) {
         // 클럽 체크
-        Club club = findClub(clubId);
+        Club club = findClubById(clubId);
         // 구단주와 접근 유저 동일 여부 체크
         if (!club.getMember().getMemberId().equals(member.getMemberId())) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
@@ -73,7 +73,7 @@ public class ClubService {
     @Transactional
     public void deleteClub(Member member, UUID clubId) {
         // 클럽 체크
-        Club club = findClub(clubId);
+        Club club = findClubById(clubId);
         // 구단주와 접근 유저 동일 여부 체크
         if (!club.getMember().getMemberId().equals(member.getMemberId())) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
@@ -121,7 +121,7 @@ public class ClubService {
     @Transactional
     public void requestJoinClub(Member member, UUID clubId) {
         // 클럽 조회
-        Club club = findClub(clubId);
+        Club club = findClubById(clubId);
         // 유저 조회
         Optional<Affiliation> player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId());
         if (player.isPresent()) {
@@ -159,7 +159,7 @@ public class ClubService {
     @Transactional
     public void withdrawClub(Member member, UUID clubId) {
         // 클럽 조회
-        Club club = findClub(clubId);
+        Club club = findClubById(clubId);
         if (club.getMember().getMemberId().equals(member.getMemberId())) {
             throw new CustomException(ExceptionMessage.OWNER_CAN_NOT_WITHDRAW_CLUB);
         }
@@ -198,7 +198,7 @@ public class ClubService {
     }
 
     // 클럽 상세조회
-    private Club findClub(UUID clubId) {
+    private Club findClubById(UUID clubId) {
         return clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
     }

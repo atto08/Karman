@@ -30,7 +30,7 @@ public class MatchService {
     @Transactional
     public void createMatch(MatchCreateRequestDto requestDto, UUID clubId, Member member) {
         // 클럽 조회
-        Club club = findClub(clubId);
+        Club club = findClubById(clubId);
         // 클럽 소속 선수 여부 & 권한 체크
         validateUserClubRoleIsManagement(clubId, member.getMemberId());
         // 매치 객체 생성 & 저장
@@ -46,12 +46,12 @@ public class MatchService {
         // 2) 클럽 소속 여부 & 권한 체크(운영진 이삼만 쿼터생성 가능)
         validateUserClubRoleIsManagement(clubId, member.getMemberId());
         // 3) 매치 조회 - 존재 여부 판단 + 영속성 컨텍스트 저장
-        Match match = findMatch(matchId);
+        Match match = findMatchById(matchId);
         // 4) 클럽 경기 여부
         checkMatchBelongToClub(match.getClub().getClubId(), clubId);
         // TODO - MVP 구현 후 A안 B안 속도 비교
         // 5) 라인업 선수 소속 여부 검증 - A안
-        validateAffiliationIdsInSquads(requestDto.lineup(), requestDto.goalsInfo(), clubId);
+        validateAffiliationIdsInSquad(requestDto.lineup(), requestDto.goalsInfo(), clubId);
         // [비즈니스 로직]
         // 포메이션 변환
         Formation formation = Formation.fromName(requestDto.formation());
@@ -78,11 +78,11 @@ public class MatchService {
         // 2) 클럽 소속 여부 & 권한 체크(운영진 이삼만 쿼터생성 가능)
         validateUserClubRoleIsManagement(clubId, member.getMemberId());
         // 3) 매치 조회 - 존재 여부 판단 + 영속성 컨텍스트 저장
-        Match match = findMatch(matchId);
+        Match match = findMatchById(matchId);
         // 4) 클럽 경기 여부
         checkMatchBelongToClub(match.getClub().getClubId(), clubId);
         // 5) 라인업 선수 소속 여부 검증
-        validateAffiliationIdsInSquads(requestDto.lineup(), requestDto.goalsInfo(), clubId);
+        validateAffiliationIdsInSquad(requestDto.lineup(), requestDto.goalsInfo(), clubId);
         // 쿼터 조회
         MatchQuarter matchQuarter = matchRepository.findMatchQuarterByMatchIdAndQuarter(matchId, quarter)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH_QUARTER));
@@ -105,7 +105,7 @@ public class MatchService {
         updateAffiliationStats(updatedAffiliations);
     }
 
-    private void validateAffiliationIdsInSquads(List<MatchLineupCreateRequestDto> lineupRequestDto, List<MatchGoalCreateRequestDto> goalsInfoRequestDto, UUID clubId) {
+    private void validateAffiliationIdsInSquad(List<MatchLineupCreateRequestDto> lineupRequestDto, List<MatchGoalCreateRequestDto> goalsInfoRequestDto, UUID clubId) {
         // 입력받은 affiliationId 목록
         Set<UUID> affiliationIdsToValidate = getAffiliationIdsFromDto(lineupRequestDto, goalsInfoRequestDto);
         // 검증
@@ -177,8 +177,8 @@ public class MatchService {
         }
     }
 
-    private void updateAffiliationStats(Set<UUID> updatedAffiliationIds) {
-        for (UUID updateAffiliationId : updatedAffiliationIds) {
+    private void updateAffiliationStats(Set<UUID> updateAffiliationIds) {
+        for (UUID updateAffiliationId : updateAffiliationIds) {
             Affiliation updatePlayer = affiliationRepository.findById(updateAffiliationId)
                     .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
 
@@ -220,14 +220,14 @@ public class MatchService {
         // 클럽 조회
         checkClubIsExist(clubId);
         // 매치 조회
-        Match match = findMatch(matchId);
+        Match match = findMatchById(matchId);
         // 클럽 경기 여부
         checkMatchBelongToClub(match.getClub().getClubId(), clubId);
         // Dto 반환
         return matchMapper.toMatchDto(match);
     }
 
-    private Club findClub(UUID clubId) {
+    private Club findClubById(UUID clubId) {
         return clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
     }
@@ -238,7 +238,7 @@ public class MatchService {
         }
     }
 
-    private Match findMatch(UUID matchId) {
+    private Match findMatchById(UUID matchId) {
         return matchRepository.findById(matchId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH));
     }
