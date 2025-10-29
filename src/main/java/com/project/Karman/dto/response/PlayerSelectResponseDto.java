@@ -7,16 +7,16 @@ import lombok.Builder;
 import java.util.UUID;
 
 @Builder(access = AccessLevel.PRIVATE)
-public record PlayersInfoResponse(
+public record PlayerSelectResponseDto(
         UUID memberId,
         String name,
         Integer backNumber,
         Position position
 ) {
 
-    public static PlayersInfoResponse of(UUID memberId, String name, Integer backNumber, Position position) {
+    public static PlayerSelectResponseDto of(UUID memberId, String name, Integer backNumber, Position position) {
 
-        return PlayersInfoResponse.builder()
+        return PlayerSelectResponseDto.builder()
                 .memberId(memberId)
                 .name(name)
                 .backNumber(backNumber)

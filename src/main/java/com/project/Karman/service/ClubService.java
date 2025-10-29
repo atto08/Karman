@@ -2,17 +2,17 @@ package com.project.Karman.service;
 
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
+import com.project.Karman.domain.entity.Match;
 import com.project.Karman.domain.entity.Member;
 import com.project.Karman.domain.enums.AgeGroup;
 import com.project.Karman.domain.enums.ClubJoinStatus;
 import com.project.Karman.domain.enums.ClubPlayerRole;
+import com.project.Karman.domain.enums.MatchResult;
 import com.project.Karman.dto.request.ClubCreateRequestDto;
 import com.project.Karman.dto.request.ClubUpdateRequestDto;
 import com.project.Karman.dto.request.JoinStatusUpdateRequestDto;
 import com.project.Karman.dto.request.PlayerStatUpdateRequestDto;
-import com.project.Karman.dto.response.ClubInfoResponseDto;
-import com.project.Karman.dto.response.PlayersInfoResponse;
-import com.project.Karman.dto.response.SearchClubResponseDto;
+import com.project.Karman.dto.response.*;
 import com.project.Karman.exception.CustomException;
 import com.project.Karman.exception.ExceptionMessage;
 import com.project.Karman.repository.MemberRepository;
@@ -42,9 +42,9 @@ public class ClubService {
         Member user = memberRepository.findById(member.getMemberId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MEMBER));
         // 클럽 객체생성 및 저장
-        Club club = clubMapper.toEntity(user, requestDto);
+        Club club = clubMapper.toClubEntity(user, requestDto);
         // 연관관계 객체생성
-        Affiliation owner = affiliationMapper.toEntity(user, club, ClubPlayerRole.OWNER);
+        Affiliation owner = affiliationMapper.toAffiliationEntity(user, club, ClubPlayerRole.OWNER);
         club.addPlayer(owner);
         clubRepository.save(club);
     }
@@ -52,16 +52,16 @@ public class ClubService {
     @Transactional(readOnly = true)
     public ClubInfoResponseDto getClubInfo(Member member, UUID clubId) {
         // 클럽 상세조회
-        Club club = findClub(clubId);
+        Club club = findClubById(clubId);
         // TODO - 클럽에 소속한 선수는 디테일 정보 열람가능하도록 수정
 
-        return clubMapper.toDto(club);
+        return clubMapper.toClubInfoDto(club);
     }
 
     @Transactional
     public void modifyClubInfo(Member member, UUID clubId, ClubUpdateRequestDto requestDto) {
         // 클럽 체크
-        Club club = findClub(clubId);
+        Club club = findClubById(clubId);
         // 구단주와 접근 유저 동일 여부 체크
         if (!club.getMember().getMemberId().equals(member.getMemberId())) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
@@ -75,7 +75,7 @@ public class ClubService {
     @Transactional
     public void deleteClub(Member member, UUID clubId) {
         // 클럽 체크
-        Club club = findClub(clubId);
+        Club club = findClubById(clubId);
         // 구단주와 접근 유저 동일 여부 체크
         if (!club.getMember().getMemberId().equals(member.getMemberId())) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
@@ -97,27 +97,33 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public List<PlayersInfoResponse> findPlayersInfoByClub(UUID clubId) {
+    public PlayerInfoListResponseDto getPlayerInfoList(Member member, UUID clubId) {
+
+        if (!clubRepository.existsById(clubId)) {
+            throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
+        }
+
+        List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubId(clubId);
+
+        return affiliationMapper.toPlayerInfoListDto(clubId, affiliations);
+    }
+
+    @Transactional(readOnly = true)
+    public PlayerSelectListResponseDto findPlayerSelectList(UUID clubId) {
         // 클럽 존재 여부 확인
         if (!clubRepository.existsById(clubId)) {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
         // 클럽에 속한 선수 목록 조회
         List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubId(clubId);
-        // entity -> dto
-        List<PlayersInfoResponse> playersInfo = new ArrayList<>();
-        for (Affiliation player : affiliations) {
-            PlayersInfoResponse info = affiliationMapper.toDto(player);
-            playersInfo.add(info);
-        }
 
-        return playersInfo;
+        return affiliationMapper.toPlayerSelectListDto(clubId, affiliations);
     }
 
     @Transactional
     public void requestJoinClub(Member member, UUID clubId) {
         // 클럽 조회
-        Club club = findClub(clubId);
+        Club club = findClubById(clubId);
         // 유저 조회
         Optional<Affiliation> player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId());
         if (player.isPresent()) {
@@ -127,7 +133,7 @@ public class ClubService {
         Member user = memberRepository.findById(member.getMemberId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MEMBER));
         // 가입 신청
-        Affiliation requestJoinMember = affiliationMapper.toEntity(user, club, ClubPlayerRole.USER);
+        Affiliation requestJoinMember = affiliationMapper.toAffiliationEntity(user, club, ClubPlayerRole.USER);
         club.addPlayer(requestJoinMember);
     }
 
@@ -155,7 +161,7 @@ public class ClubService {
     @Transactional
     public void withdrawClub(Member member, UUID clubId) {
         // 클럽 조회
-        Club club = findClub(clubId);
+        Club club = findClubById(clubId);
         if (club.getMember().getMemberId().equals(member.getMemberId())) {
             throw new CustomException(ExceptionMessage.OWNER_CAN_NOT_WITHDRAW_CLUB);
         }
@@ -180,8 +186,8 @@ public class ClubService {
         }
         // TODO - 구단주 권한으로 수정 요청 -> 체계적인 수정 필요
         // 구단주로 변경 요청은 거부
-        if(requestDto.playerRole() != null) {
-            if(requestDto.playerRole().equals(ClubPlayerRole.OWNER)) {
+        if (requestDto.playerRole() != null) {
+            if (requestDto.playerRole().equals(ClubPlayerRole.OWNER)) {
                 throw new CustomException(ExceptionMessage.NOT_ALLOWED_OWNER_ROLE);
             }
         }
@@ -193,8 +199,31 @@ public class ClubService {
         player.updatePlayerInfo(requestDto.position(), requestDto.backNumber(), requestDto.playerRole());
     }
 
+    @Transactional(readOnly = true)
+    public ClubStaticsRecordsResponseDto getStaticsRecords(Member member, UUID clubId) {
+        // 클럽 조회
+        Club club = findClubById(clubId);
+        // 수치 계산
+        Long matchCount = (long) club.getMatches().size();
+        Long win = 0L, draw = 0L, lose = 0L;
+        Long scoreGoals = 0L, concedeGoals = 0L;
+        for (Match match : club.getMatches()) {
+            if(match.getMatchResult().equals(MatchResult.WIN)) {
+                win++;
+            } else if(match.getMatchResult().equals(MatchResult.DRAW)) {
+                draw++;
+            } else {
+                lose++;
+            }
+            scoreGoals += match.getScoredGoal();
+            concedeGoals += match.getConcededGoal();
+        }
+
+        return clubMapper.toClubStaticsRecordsDto(matchCount, win, draw, lose, scoreGoals, concedeGoals);
+    }
+
     // 클럽 상세조회
-    private Club findClub(UUID clubId) {
+    private Club findClubById(UUID clubId) {
         return clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
     }
