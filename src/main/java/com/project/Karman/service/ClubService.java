@@ -2,10 +2,12 @@ package com.project.Karman.service;
 
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
+import com.project.Karman.domain.entity.Match;
 import com.project.Karman.domain.entity.Member;
 import com.project.Karman.domain.enums.AgeGroup;
 import com.project.Karman.domain.enums.ClubJoinStatus;
 import com.project.Karman.domain.enums.ClubPlayerRole;
+import com.project.Karman.domain.enums.MatchResult;
 import com.project.Karman.dto.request.ClubCreateRequestDto;
 import com.project.Karman.dto.request.ClubUpdateRequestDto;
 import com.project.Karman.dto.request.JoinStatusUpdateRequestDto;
@@ -40,7 +42,7 @@ public class ClubService {
         Member user = memberRepository.findById(member.getMemberId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MEMBER));
         // 클럽 객체생성 및 저장
-        Club club = clubMapper.toEntity(user, requestDto);
+        Club club = clubMapper.toClubEntity(user, requestDto);
         // 연관관계 객체생성
         Affiliation owner = affiliationMapper.toAffiliationEntity(user, club, ClubPlayerRole.OWNER);
         club.addPlayer(owner);
@@ -53,7 +55,7 @@ public class ClubService {
         Club club = findClubById(clubId);
         // TODO - 클럽에 소속한 선수는 디테일 정보 열람가능하도록 수정
 
-        return clubMapper.toDto(club);
+        return clubMapper.toClubInfoDto(club);
     }
 
     @Transactional
@@ -195,6 +197,29 @@ public class ClubService {
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
         // 선수 정보수정
         player.updatePlayerInfo(requestDto.position(), requestDto.backNumber(), requestDto.playerRole());
+    }
+
+    @Transactional(readOnly = true)
+    public ClubStaticsRecordsResponseDto getStaticsRecords(Member member, UUID clubId) {
+        // 클럽 조회
+        Club club = findClubById(clubId);
+        // 수치 계산
+        Long matchCount = (long) club.getMatches().size();
+        Long win = 0L, draw = 0L, lose = 0L;
+        Long scoreGoals = 0L, concedeGoals = 0L;
+        for (Match match : club.getMatches()) {
+            if(match.getMatchResult().equals(MatchResult.WIN)) {
+                win++;
+            } else if(match.getMatchResult().equals(MatchResult.DRAW)) {
+                draw++;
+            } else {
+                lose++;
+            }
+            scoreGoals += match.getScoredGoal();
+            concedeGoals += match.getConcededGoal();
+        }
+
+        return clubMapper.toClubStaticsRecordsDto(matchCount, win, draw, lose, scoreGoals, concedeGoals);
     }
 
     // 클럽 상세조회

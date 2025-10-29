@@ -130,4 +130,13 @@ public class ClubController {
                 .status(UPDATE_PLAYER_INFO.getHttpStatus())
                 .body(ApiResponse.success(UPDATE_PLAYER_INFO.getMessage()));
     }
+
+    @GetMapping("/{club_id}/statics-records")
+    public ResponseEntity<ApiResponse<ClubStaticsRecordsResponseDto>> getStaticsRecords(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                           @PathVariable(value = "club_id") UUID clubId) {
+        ClubStaticsRecordsResponseDto clubStaticsRecordsResponseDto = clubService.getStaticsRecords(userDetails.getMember(), clubId);
+        return ResponseEntity
+                .status(GET_CLUB_STATICS_RECORDS.getHttpStatus())
+                .body(ApiResponse.success(GET_CLUB_STATICS_RECORDS.getMessage() ,clubStaticsRecordsResponseDto));
+    }
 }
