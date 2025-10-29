@@ -18,7 +18,7 @@ public class MatchQuarterId implements Serializable {
     @Column(name = "match_id", columnDefinition = "uuid", nullable = false)
     private UUID matchId;
 
-    @Column(columnDefinition = "integer", nullable = false, unique = true)
+    @Column(columnDefinition = "integer", nullable = false)
     private Integer quarter;
 
 
