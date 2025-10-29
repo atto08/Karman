@@ -2,7 +2,7 @@ package com.project.Karman.domain.enums;
 
 import java.util.Arrays;
 
-public enum AgeGroup {
+public enum ClubAgeGroup {
     TEENS_EARLY("10대-초반"),
     TEENS_MID("10대-중반"),
     TEENS_LATE("10대-후반"),
@@ -27,13 +27,13 @@ public enum AgeGroup {
 
     private final String description;
 
-    AgeGroup(String description) {
+    ClubAgeGroup(String description) {
         this.description = description;
     }
 
     // String -> AgeGroup
-    public static AgeGroup fromDescription(String description) {
-        return Arrays.stream(AgeGroup.values())
+    public static ClubAgeGroup fromDescription(String description) {
+        return Arrays.stream(ClubAgeGroup.values())
                 .filter(group -> group.description.equals(description))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 연령대입니다: " + description));

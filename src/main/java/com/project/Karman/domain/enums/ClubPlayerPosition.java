@@ -3,7 +3,7 @@ package com.project.Karman.domain.enums;
 import lombok.Getter;
 
 @Getter
-public enum Position {
+public enum ClubPlayerPosition {
     FW("공격수"),
     CF("중앙 공격수"),
     WF("윙어"),
@@ -19,7 +19,7 @@ public enum Position {
 
     private final String description;
 
-    Position(String description) {
+    ClubPlayerPosition(String description) {
         this.description = description;
     }
 }

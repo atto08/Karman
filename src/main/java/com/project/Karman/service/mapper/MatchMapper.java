@@ -1,7 +1,7 @@
 package com.project.Karman.service.mapper;
 
 import com.project.Karman.domain.entity.*;
-import com.project.Karman.domain.enums.Formation;
+import com.project.Karman.domain.enums.MatchFormation;
 import com.project.Karman.dto.request.MatchCreateRequestDto;
 import com.project.Karman.dto.request.MatchGoalCreateRequestDto;
 import com.project.Karman.dto.request.MatchLineupCreateRequestDto;
@@ -27,13 +27,13 @@ public class MatchMapper {
         );
     }
 
-    public MatchQuarter toMatchQuarterEntity(MatchQuarterCreateRequestDto requestDto, Match match, Formation formation) {
+    public MatchQuarter toMatchQuarterEntity(MatchQuarterCreateRequestDto requestDto, Match match, MatchFormation matchFormation) {
 
         return MatchQuarter.of(
                 match.getMatchId(),
                 requestDto.quarter(),
                 match,
-                formation,
+                matchFormation,
                 requestDto.concededGoal()
         );
     }
@@ -91,7 +91,7 @@ public class MatchMapper {
 
         return MatchQuarterResponseDto.of(
                 matchQuarter.getMatchQuarterId().getQuarter(),
-                matchQuarter.getFormation().getName(),
+                matchQuarter.getMatchFormation().getName(),
                 (long) scoredGoalsInfo.size(),
                 matchQuarter.getConcededGoal(),
                 lineupResponseDto,
@@ -103,7 +103,7 @@ public class MatchMapper {
 
         return MatchLineupResponseDto.of(
                 matchLineup.getPlayerInfo().getName(),
-                matchLineup.getPosition(),
+                matchLineup.getClubPlayerPosition(),
                 matchLineup.getPositionNumber(),
                 matchLineup.getIsSub()
         );

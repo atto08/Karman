@@ -1,8 +1,8 @@
 package com.project.Karman.domain.entity;
 
 import com.project.Karman.domain.enums.ClubJoinStatus;
+import com.project.Karman.domain.enums.ClubPlayerPosition;
 import com.project.Karman.domain.enums.ClubPlayerRole;
-import com.project.Karman.domain.enums.Position;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,7 +33,7 @@ public class Affiliation extends BaseEntity {
     @Builder.Default
     @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    private Position position = Position.GK;
+    private ClubPlayerPosition playerPosition = ClubPlayerPosition.GK;
 
     @Builder.Default
     @Column(nullable = false)
@@ -84,8 +84,8 @@ public class Affiliation extends BaseEntity {
         this.joinStatus = updatedStatus;
     }
 
-    public void updatePlayerInfo(Position updatedPosition, Integer updatedBackNumber, ClubPlayerRole updatedPlayerRole) {
-        this.position = updatedPosition == null ? this.position : updatedPosition;
+    public void updatePlayerInfo(ClubPlayerPosition updatedPlayerPosition, Integer updatedBackNumber, ClubPlayerRole updatedPlayerRole) {
+        this.playerPosition = updatedPlayerPosition == null ? this.playerPosition : updatedPlayerPosition;
         this.backNumber = updatedBackNumber == null ? this.backNumber : updatedBackNumber;
         this.playerRole = updatedPlayerRole == null ? this.playerRole : updatedPlayerRole;
     }

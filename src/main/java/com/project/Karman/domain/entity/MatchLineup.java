@@ -1,6 +1,6 @@
 package com.project.Karman.domain.entity;
 
-import com.project.Karman.domain.enums.Position;
+import com.project.Karman.domain.enums.ClubPlayerPosition;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,7 +31,7 @@ public class MatchLineup extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Position position;
+    private ClubPlayerPosition clubPlayerPosition;
 
     @Builder.Default
     @Column(nullable = false)
@@ -40,12 +40,12 @@ public class MatchLineup extends BaseEntity {
     @Embedded
     private MatchPlayerInfo playerInfo;
 
-    public static MatchLineup of(MatchQuarter matchQuarter, Integer positionNumber, Position position, Boolean isSub, String name, UUID affiliationId) {
+    public static MatchLineup of(MatchQuarter matchQuarter, Integer positionNumber, ClubPlayerPosition clubPlayerPosition, Boolean isSub, String name, UUID affiliationId) {
 
         return MatchLineup.builder()
                 .matchQuarter(matchQuarter)
                 .positionNumber(positionNumber)
-                .position(position)
+                .clubPlayerPosition(clubPlayerPosition)
                 .isSub(isSub)
                 .playerInfo(MatchPlayerInfo.of(name, affiliationId))
                 .build();

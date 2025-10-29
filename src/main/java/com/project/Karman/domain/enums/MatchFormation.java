@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.util.Arrays;
 
 @Getter
-public enum Formation {
+public enum MatchFormation {
     FOUR_THREE_THREE("4-3-3"),
     FOUR_FOUR_TWO("4-4-2"),
     FOUR_TWO_THREE_ONE("4-2-3-1"),
@@ -24,12 +24,12 @@ public enum Formation {
 
     private final String name;
 
-    Formation(String name) {
+    MatchFormation(String name) {
         this.name = name;
     }
 
-    public static Formation fromName(String name) {
-        return Arrays.stream(Formation.values())
+    public static MatchFormation fromName(String name) {
+        return Arrays.stream(MatchFormation.values())
                 .filter(f -> f.name.equals(name))
                 .findFirst()
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_VALID_FORMATION));

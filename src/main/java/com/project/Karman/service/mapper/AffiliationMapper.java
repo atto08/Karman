@@ -27,7 +27,7 @@ public class AffiliationMapper {
                 affiliation.getMember().getMemberId(),
                 affiliation.getMember().getName(),
                 affiliation.getBackNumber(),
-                affiliation.getPosition());
+                affiliation.getPlayerPosition());
     }
 
     public PlayerSelectListResponseDto toPlayerSelectListDto(UUID clubId, List<Affiliation> affiliations) {
@@ -46,7 +46,7 @@ public class AffiliationMapper {
         return PlayerInfoResponseDto.of(
                 affiliation.getMember().getName(),
                 affiliation.getBackNumber(),
-                affiliation.getPosition(),
+                affiliation.getPlayerPosition(),
                 affiliation.getMatchCount(),
                 affiliation.getGoal(),
                 affiliation.getAssist(),

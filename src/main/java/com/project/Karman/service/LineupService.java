@@ -33,7 +33,7 @@ public class LineupService {
         // 소속 선수 정보 파싱
         String playerRecords = playerInfoList.stream()
                 .map(player -> String.format("{ name: \"%s\", position: \"%s\", back_number: \"%s\"}",
-                        player.getMember().getName(), player.getPosition(), player.getBackNumber()))
+                        player.getMember().getName(), player.getPlayerPosition(), player.getBackNumber()))
                 .collect(Collectors.joining(",\n"));
         // 프롬프트 생성 - 사용자 요청
         Prompt prompt = openAiService.createPrompt(PromptMessage.RECOMMEND_LINEUP_SYSTEM, PromptMessage.RECOMMEND_LINEUP_USER, playerRecords, null);

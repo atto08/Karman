@@ -1,6 +1,6 @@
 package com.project.Karman.domain.entity;
 
-import com.project.Karman.domain.enums.AgeGroup;
+import com.project.Karman.domain.enums.ClubAgeGroup;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,7 +34,7 @@ public class Club extends BaseEntity {
 
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    private AgeGroup ageGroup;
+    private ClubAgeGroup clubAgeGroup;
 
     @Column(nullable = false)
     private Date foundationDate;
@@ -49,22 +49,22 @@ public class Club extends BaseEntity {
 
 
     // 엔터티 생성시 사용
-    public static Club of(Member member, String clubName, String area, AgeGroup ageGroup, Date foundationDate) {
+    public static Club of(Member member, String clubName, String area, ClubAgeGroup clubAgeGroup, Date foundationDate) {
 
         return Club.builder()
                 .member(member)
                 .clubName(clubName)
                 .area(area)
-                .ageGroup(ageGroup)
+                .clubAgeGroup(clubAgeGroup)
                 .foundationDate(foundationDate)
                 .build();
     }
 
     // 수정시 사용
-    public void update(String clubName, String area, AgeGroup ageGroup, Date foundationDate) {
+    public void update(String clubName, String area, ClubAgeGroup clubAgeGroup, Date foundationDate) {
         if (clubName != null) this.clubName = clubName;
         if (area != null) this.area = area;
-        if (ageGroup != null) this.ageGroup = ageGroup;
+        if (clubAgeGroup != null) this.clubAgeGroup = clubAgeGroup;
         if (foundationDate != null) this.foundationDate = foundationDate;
     }
 

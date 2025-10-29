@@ -2,7 +2,7 @@ package com.project.Karman.service;
 
 import com.project.Karman.domain.entity.*;
 import com.project.Karman.domain.enums.ClubPlayerRole;
-import com.project.Karman.domain.enums.Formation;
+import com.project.Karman.domain.enums.MatchFormation;
 import com.project.Karman.dto.request.*;
 import com.project.Karman.dto.response.MatchListResponseDto;
 import com.project.Karman.dto.response.MatchResponseDto;
@@ -54,9 +54,9 @@ public class MatchService {
         validateAffiliationIdsInSquad(requestDto.lineup(), requestDto.goalsInfo(), clubId);
         // [비즈니스 로직]
         // 포메이션 변환
-        Formation formation = Formation.fromName(requestDto.formation());
+        MatchFormation matchFormation = MatchFormation.fromName(requestDto.formation());
         // 쿼터 생성
-        MatchQuarter matchQuarter = matchMapper.toMatchQuarterEntity(requestDto, match, formation);
+        MatchQuarter matchQuarter = matchMapper.toMatchQuarterEntity(requestDto, match, matchFormation);
         // 쿼터 라인업 추가
         addQuarterLineup(requestDto.lineup(), matchQuarter);
         // 쿼터 득점 or 어시스트 MatchGoal 테이블 데이터 추가 - 기록 업데이트 필요한 선수들 정보
@@ -91,8 +91,8 @@ public class MatchService {
         Set<UUID> updatedAffiliations = addAffectedGoalOrAssistAffiliationIds(matchQuarter.getScoredGoals());
 
         // 포메이션 & 실점 업데이트
-        Formation updateFormation = requestDto.formation() != null ? Formation.fromName(requestDto.formation()) : null;
-        matchQuarter.update(updateFormation, requestDto.concededGoal());
+        MatchFormation updateMatchFormation = requestDto.formation() != null ? MatchFormation.fromName(requestDto.formation()) : null;
+        matchQuarter.update(updateMatchFormation, requestDto.concededGoal());
         // 기존 정보 제거
         matchQuarter.clearQuarterData();
         // 쿼터 라인업 추가

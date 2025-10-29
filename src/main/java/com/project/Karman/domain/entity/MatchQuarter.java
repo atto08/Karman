@@ -1,6 +1,6 @@
 package com.project.Karman.domain.entity;
 
-import com.project.Karman.domain.enums.Formation;
+import com.project.Karman.domain.enums.MatchFormation;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,7 +27,7 @@ public class MatchQuarter extends BaseEntity {
     @Builder.Default
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Formation formation = Formation.FOUR_THREE_THREE;
+    private MatchFormation matchFormation = MatchFormation.FOUR_THREE_THREE;
 
     @Builder.Default
     @Column(nullable = false)
@@ -46,12 +46,12 @@ public class MatchQuarter extends BaseEntity {
     private List<MatchGoal> scoredGoals = new ArrayList<>();
 
 
-    public static MatchQuarter of(UUID matchId, Integer quarter, Match match, Formation formation, Long concededGoal) {
+    public static MatchQuarter of(UUID matchId, Integer quarter, Match match, MatchFormation matchFormation, Long concededGoal) {
 
         return MatchQuarter.builder()
                 .matchQuarterId(MatchQuarterId.of(matchId, quarter))
                 .match(match)
-                .formation(formation)
+                .matchFormation(matchFormation)
                 .concededGoal(concededGoal)
                 .build();
     }
@@ -64,8 +64,8 @@ public class MatchQuarter extends BaseEntity {
         scoredGoals.add(goal);
     }
 
-    public void update(Formation formation, Long concededGoal) {
-        if(formation != null) this.formation = formation;
+    public void update(MatchFormation matchFormation, Long concededGoal) {
+        if(matchFormation != null) this.matchFormation = matchFormation;
         if(concededGoal != null) this.concededGoal = concededGoal;
     }
 

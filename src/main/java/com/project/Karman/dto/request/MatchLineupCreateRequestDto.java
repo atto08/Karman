@@ -1,6 +1,6 @@
 package com.project.Karman.dto.request;
 
-import com.project.Karman.domain.enums.Position;
+import com.project.Karman.domain.enums.ClubPlayerPosition;
 import jakarta.validation.constraints.*;
 
 import java.util.UUID;
@@ -12,7 +12,7 @@ public record MatchLineupCreateRequestDto(
         Integer positionNumber,
 
         @NotNull(message = "포지션은 필수 입력 값입니다.")
-        Position position,
+        ClubPlayerPosition position,
 
         UUID affiliationId,
 

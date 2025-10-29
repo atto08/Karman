@@ -1,6 +1,6 @@
 package com.project.Karman.dto.response;
 
-import com.project.Karman.domain.enums.Position;
+import com.project.Karman.domain.enums.ClubPlayerPosition;
 import lombok.AccessLevel;
 import lombok.Builder;
 
@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 public record PlayerInfoResponseDto(
         String name,
         Integer backNumber,
-        Position position,
+        ClubPlayerPosition position,
         Long matchCount,
         Long goal,
         Long assist,
@@ -19,13 +19,13 @@ public record PlayerInfoResponseDto(
         String playerRole
 ) {
 
-    public static PlayerInfoResponseDto of(String name, Integer backNumber, Position position, Long matchCount,
+    public static PlayerInfoResponseDto of(String name, Integer backNumber, ClubPlayerPosition clubPlayerPosition, Long matchCount,
                                            Long goal, Long assist, Long clear, BigDecimal point, String playerRole) {
 
         return PlayerInfoResponseDto.builder()
                 .name(name)
                 .backNumber(backNumber)
-                .position(position)
+                .position(clubPlayerPosition)
                 .matchCount(matchCount)
                 .goal(goal)
                 .assist(assist)

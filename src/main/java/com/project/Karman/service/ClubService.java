@@ -4,7 +4,7 @@ import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Match;
 import com.project.Karman.domain.entity.Member;
-import com.project.Karman.domain.enums.AgeGroup;
+import com.project.Karman.domain.enums.ClubAgeGroup;
 import com.project.Karman.domain.enums.ClubJoinStatus;
 import com.project.Karman.domain.enums.ClubPlayerRole;
 import com.project.Karman.domain.enums.MatchResult;
@@ -67,9 +67,9 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
 
-        AgeGroup updatedAgeGroup = requestDto.ageGroup() != null ? AgeGroup.fromDescription(requestDto.ageGroup()) : null;
+        ClubAgeGroup updatedClubAgeGroup = requestDto.ageGroup() != null ? ClubAgeGroup.fromDescription(requestDto.ageGroup()) : null;
         // 수정된 내용 적용 - 더티체킹
-        club.update(requestDto.clubName(), requestDto.area(), updatedAgeGroup, requestDto.foundationDate());
+        club.update(requestDto.clubName(), requestDto.area(), updatedClubAgeGroup, requestDto.foundationDate());
     }
 
     @Transactional

@@ -2,7 +2,7 @@ package com.project.Karman.service.mapper;
 
 import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Member;
-import com.project.Karman.domain.enums.AgeGroup;
+import com.project.Karman.domain.enums.ClubAgeGroup;
 import com.project.Karman.dto.response.ClubInfoResponseDto;
 import com.project.Karman.dto.request.ClubCreateRequestDto;
 import com.project.Karman.dto.response.ClubStaticsRecordsResponseDto;
@@ -17,7 +17,7 @@ public class ClubMapper {
                 member,
                 request.clubName(),
                 request.area(),
-                AgeGroup.fromDescription(request.ageGroup()),
+                ClubAgeGroup.fromDescription(request.ageGroup()),
                 request.foundationDate());
     }
 
@@ -27,7 +27,7 @@ public class ClubMapper {
                 club.getClubId(),
                 club.getClubName(),
                 club.getArea(),
-                club.getAgeGroup().toString(),
+                club.getClubAgeGroup().toString(),
                 club.getFoundationDate().toString()
         );
     }
