@@ -7,17 +7,16 @@ import com.project.Karman.dto.request.MatchQuarterUpdateRequestDto;
 import com.project.Karman.dto.response.ApiResponse;
 import com.project.Karman.dto.response.MatchListResponseDto;
 import com.project.Karman.dto.response.MatchResponseDto;
-import com.project.Karman.exception.SuccessMessage;
 import com.project.Karman.service.MatchService;
 import jakarta.validation.Valid;
 import org.springframework.data.repository.query.Param;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
+
+import static com.project.Karman.exception.SuccessMessage.*;
 
 @RestController
 @RequestMapping("/clubs/{club_id}/matches")
@@ -30,11 +29,13 @@ public class MatchController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createMatch(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<ApiResponse<Void>> createMatch(@AuthenticationPrincipal CustomUserDetails userDetails,
                                               @PathVariable(value = "club_id") UUID clubId,
                                               @Valid @RequestBody MatchCreateRequestDto requestDto) {
         matchService.createMatch(requestDto, clubId, userDetails.getMember());
-        return new ResponseEntity<>("경기 등록 완료", HttpStatus.OK);
+        return ResponseEntity
+                .status(CRATE_MATCH.getHttpStatus())
+                .body(ApiResponse.success(CRATE_MATCH.getMessage()));
     }
 
     @PostMapping("/{match_id}/quarters")
@@ -44,8 +45,8 @@ public class MatchController {
                                                                 @Valid @RequestBody MatchQuarterCreateRequestDto requestDto) {
         matchService.createMatchQuarter(requestDto, clubId, matchId, userDetails.getMember());
         return ResponseEntity
-                .status(SuccessMessage.CREATE_MATCH_QUARTER.getHttpStatus())
-                .body(ApiResponse.success(SuccessMessage.CREATE_MATCH_QUARTER.getMessage()));
+                .status(CREATE_MATCH_QUARTER.getHttpStatus())
+                .body(ApiResponse.success(CREATE_MATCH_QUARTER.getMessage()));
     }
 
     @PatchMapping("/{match_id}/quarters")
@@ -56,8 +57,8 @@ public class MatchController {
                                                                 @Valid @RequestBody MatchQuarterUpdateRequestDto requestDto) {
         matchService.updateMatchQuarter(requestDto, clubId, matchId, userDetails.getMember(), quarter);
         return ResponseEntity
-                .status(SuccessMessage.UPDATE_MATHC_QUARTER.getHttpStatus())
-                .body(ApiResponse.success(SuccessMessage.UPDATE_MATHC_QUARTER.getMessage()));
+                .status(UPDATE_MATCH_QUARTER.getHttpStatus())
+                .body(ApiResponse.success(UPDATE_MATCH_QUARTER.getMessage()));
     }
 
     // 매치 전체 조회
@@ -66,8 +67,8 @@ public class MatchController {
                                                                                 @PathVariable(value = "club_id") UUID clubId) {
        MatchListResponseDto matchAll = matchService.getMatchInfoAll(userDetails.getMember(), clubId);
         return ResponseEntity
-                .status(SuccessMessage.GET_ALL_MATCH_INFO.getHttpStatus())
-                .body(ApiResponse.success(SuccessMessage.GET_ALL_MATCH_INFO.getMessage(), matchAll));
+                .status(GET_ALL_MATCH_INFO.getHttpStatus())
+                .body(ApiResponse.success(GET_ALL_MATCH_INFO.getMessage(), matchAll));
     }
 
     // 매치 상세 조회
@@ -77,7 +78,7 @@ public class MatchController {
                                                                       @PathVariable(value = "match_id") UUID matchId) {
         MatchResponseDto matchResponseDto = matchService.getMatchInfo(userDetails.getMember(), clubId, matchId);
         return ResponseEntity
-                .status(SuccessMessage.GET_MATCH_DETAIL_INFO.getHttpStatus())
-                .body(ApiResponse.success(SuccessMessage.GET_MATCH_DETAIL_INFO.getMessage(), matchResponseDto));
+                .status(GET_MATCH_DETAIL_INFO.getHttpStatus())
+                .body(ApiResponse.success(GET_MATCH_DETAIL_INFO.getMessage(), matchResponseDto));
     }
 }
