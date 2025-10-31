@@ -6,7 +6,11 @@ import com.project.Karman.domain.enums.ClubAgeGroup;
 import com.project.Karman.dto.response.ClubInfoResponseDto;
 import com.project.Karman.dto.request.ClubCreateRequestDto;
 import com.project.Karman.dto.response.ClubStaticsRecordsResponseDto;
+import com.project.Karman.dto.response.MyClubInfoResponseDto;
+import com.project.Karman.dto.response.MyClubListResponseDto;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class ClubMapper {
@@ -41,5 +45,20 @@ public class ClubMapper {
                 lose,
                 scoreGoals,
                 concedeGoals);
+    }
+
+    public MyClubListResponseDto toMyClubListDto(List<Club> clubs) {
+        List<MyClubInfoResponseDto> clubInfoResponseDtoList = clubs.stream()
+                .map(this::toMyClubInfoDto)
+                .toList();
+
+        return MyClubListResponseDto.of(clubInfoResponseDtoList);
+    }
+
+    public MyClubInfoResponseDto toMyClubInfoDto(Club club) {
+
+        return MyClubInfoResponseDto.of(
+                club.getClubId(),
+                club.getClubName());
     }
 }

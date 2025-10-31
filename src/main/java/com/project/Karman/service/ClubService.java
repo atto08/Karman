@@ -227,4 +227,12 @@ public class ClubService {
         return clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
     }
+
+    @Transactional(readOnly = true)
+    public MyClubListResponseDto getMyClubList(Member member) {
+
+        List<Club> clubs = clubRepository.findAllByMemberId(member.getMemberId());
+
+        return clubMapper.toMyClubListDto(clubs);
+    }
 }

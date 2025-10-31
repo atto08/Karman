@@ -8,6 +8,7 @@ public enum SuccessMessage {
     // 회원가입, 로그인 성공
     SIGNUP(HttpStatus.OK, "회원가입 완료", 200),
     LOGIN(HttpStatus.OK, "로그인 성공", 200),
+    GET_MY_CLUBS(HttpStatus.OK, "나의 클럽목록 조회", 200),
 
     // 클럽 서비스
     CREATE_CLUB(HttpStatus.OK, "클럽 생성 완료", 200),
