@@ -5,7 +5,6 @@ import com.project.Karman.domain.enums.Weather;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.PositiveOrZero;
 
 import java.time.LocalDateTime;
 
@@ -14,12 +13,6 @@ public record MatchCreateRequestDto(
         @Pattern(regexp = "^[a-zA-Z0-9가-힣._&·!\\-]+$",
                 message = "클럽명은 한글, 영어, 숫자, 일부 특수문자(.-_&·!)만 입력 가능합니다.")
         String opponent,
-        @NotNull(message = "득점은 필수 입력 값입니다.")
-        @PositiveOrZero
-        Long scoredGoal,
-        @NotNull(message = "실점은 필수 입력 값입니다.")
-        @PositiveOrZero
-        Long concededGoal,
         @Pattern(regexp = "^[A-Za-z0-9가-힣\\- ]+$",
                 message = "위치는 영문, 한글, 숫자, 공백, '-'만 입력 가능합니다.")
         String location,

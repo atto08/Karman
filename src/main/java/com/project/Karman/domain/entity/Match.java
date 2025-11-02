@@ -61,14 +61,11 @@ public class Match extends BaseEntity {
     private List<MatchQuarter> matchQuarters = new ArrayList<>();
 
 
-    public static Match of(Club club, String opponent, Long scoredGoal, Long concededGoal,
-                           String location, LocalDateTime matchDate, Weather weather) {
+    public static Match of(Club club, String opponent, String location, LocalDateTime matchDate, Weather weather) {
 
         return Match.builder()
                 .club(club)
                 .opponent(opponent)
-                .scoredGoal(scoredGoal)
-                .concededGoal(concededGoal)
                 .location(location)
                 .matchDate(matchDate)
                 .weather(weather)

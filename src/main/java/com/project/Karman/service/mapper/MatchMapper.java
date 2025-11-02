@@ -19,8 +19,6 @@ public class MatchMapper {
         return Match.of(
                 club,
                 requestDto.opponent(),
-                requestDto.scoredGoal(),
-                requestDto.concededGoal(),
                 requestDto.location(),
                 requestDto.matchDate(),
                 requestDto.weather()
