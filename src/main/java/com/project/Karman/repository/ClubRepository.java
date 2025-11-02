@@ -19,4 +19,10 @@ public interface ClubRepository extends JpaRepository<Club, UUID> {
                 ORDER BY c.clubName ASC
             """)
     List<Club> findAllClubs(@Param("clubName") String clubName);
+
+    @Query("""
+            SELECT a.club FROM Affiliation a
+            WHERE a.member.memberId = :memberId
+            """)
+    List<Club> findAllByMemberId(@Param("memberId") UUID memberId);
 }
