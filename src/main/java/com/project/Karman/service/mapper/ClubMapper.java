@@ -31,7 +31,7 @@ public class ClubMapper {
                 club.getClubId(),
                 club.getClubName(),
                 club.getArea(),
-                club.getClubAgeGroup().toString(),
+                club.getClubAgeGroup().getDescription(),
                 club.getFoundationDate().toString()
         );
     }
