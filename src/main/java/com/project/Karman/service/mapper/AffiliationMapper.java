@@ -24,7 +24,7 @@ public class AffiliationMapper {
     public PlayerSelectResponseDto toPlayerSelectDto(Affiliation affiliation) {
 
         return PlayerSelectResponseDto.of(
-                affiliation.getMember().getMemberId(),
+                affiliation.getAffiliationId(),
                 affiliation.getMember().getName(),
                 affiliation.getBackNumber(),
                 affiliation.getPlayerPosition());
