@@ -23,8 +23,8 @@ public record ClubCreateRequestDto(
         String area,
 
         @NotBlank(message = "연령대는 필수 입력 값입니다.")
-        @Pattern(regexp = "^[0-9]{1,3}대-(초반|중반|후반)$",
-                message = "연령대는 '10대-초반', '20대-중반', '30대-후반' 형식으로 입력해야 합니다.")
+        @Pattern(regexp = "^[0-9]{1,3}대 (초반|중반|후반)$",
+                message = "연령대는 '10대 초반', '20대 중반', '30대 후반' 형식으로 입력해야 합니다.")
         String ageGroup,
 
         @NotNull(message = "창단일은 필수 입력 값입니다.")
