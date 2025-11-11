@@ -104,7 +104,7 @@ public class ClubController {
     public ResponseEntity<ApiResponse<Void>> updateClubJoinStatus(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                   @PathVariable(value = "club_id") UUID clubId,
                                                                   @PathVariable(value = "player_member_id") UUID playerMemberId,
-                                                                  @RequestBody JoinStatusUpdateRequestDto requestDto) {
+                                                                  @Valid @RequestBody JoinStatusUpdateRequestDto requestDto) {
         String message = clubService.updateClubJoinStatus(userDetails.getMember(), clubId, playerMemberId, requestDto);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -124,7 +124,7 @@ public class ClubController {
     public ResponseEntity<ApiResponse<Void>> updatePlayerInfo(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                               @PathVariable(value = "club_id") UUID clubId,
                                                               @PathVariable(value = "player_member_id") UUID playerMemberId,
-                                                              @RequestBody PlayerStatUpdateRequestDto requestDto) {
+                                                              @Valid @RequestBody PlayerStatUpdateRequestDto requestDto) {
         clubService.updatePlayerInfo(userDetails.getMember(), clubId, playerMemberId, requestDto);
         return ResponseEntity
                 .status(UPDATE_PLAYER_INFO.getHttpStatus())
@@ -133,10 +133,10 @@ public class ClubController {
 
     @GetMapping("/{club_id}/statics-records")
     public ResponseEntity<ApiResponse<ClubStaticsRecordsResponseDto>> getStaticsRecords(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                           @PathVariable(value = "club_id") UUID clubId) {
+                                                                                        @PathVariable(value = "club_id") UUID clubId) {
         ClubStaticsRecordsResponseDto clubStaticsRecordsResponseDto = clubService.getStaticsRecords(userDetails.getMember(), clubId);
         return ResponseEntity
                 .status(GET_CLUB_STATICS_RECORDS.getHttpStatus())
-                .body(ApiResponse.success(GET_CLUB_STATICS_RECORDS.getMessage() ,clubStaticsRecordsResponseDto));
+                .body(ApiResponse.success(GET_CLUB_STATICS_RECORDS.getMessage(), clubStaticsRecordsResponseDto));
     }
 }

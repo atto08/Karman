@@ -30,8 +30,8 @@ public class MatchController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> createMatch(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                              @PathVariable(value = "club_id") UUID clubId,
-                                              @Valid @RequestBody MatchCreateRequestDto requestDto) {
+                                                         @PathVariable(value = "club_id") UUID clubId,
+                                                         @Valid @RequestBody MatchCreateRequestDto requestDto) {
         matchService.createMatch(requestDto, clubId, userDetails.getMember());
         return ResponseEntity
                 .status(CRATE_MATCH.getHttpStatus())
@@ -64,8 +64,8 @@ public class MatchController {
     // 매치 전체 조회
     @GetMapping
     public ResponseEntity<ApiResponse<MatchListResponseDto>> getMatchInfoAll(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                                @PathVariable(value = "club_id") UUID clubId) {
-       MatchListResponseDto matchAll = matchService.getMatchInfoAll(userDetails.getMember(), clubId);
+                                                                             @PathVariable(value = "club_id") UUID clubId) {
+        MatchListResponseDto matchAll = matchService.getMatchInfoAll(userDetails.getMember(), clubId);
         return ResponseEntity
                 .status(GET_ALL_MATCH_INFO.getHttpStatus())
                 .body(ApiResponse.success(GET_ALL_MATCH_INFO.getMessage(), matchAll));
