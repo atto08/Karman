@@ -44,7 +44,7 @@ public class ClubService {
         // 클럽 객체생성 및 저장
         Club club = clubMapper.toClubEntity(user, requestDto);
         // 연관관계 객체생성
-        Affiliation owner = affiliationMapper.toAffiliationEntity(user, club, ClubPlayerRole.OWNER);
+        Affiliation owner = affiliationMapper.toAffiliationEntity(club, user, ClubPlayerRole.OWNER);
         club.addPlayer(owner);
         clubRepository.save(club);
     }
@@ -133,7 +133,7 @@ public class ClubService {
         Member user = memberRepository.findById(member.getMemberId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MEMBER));
         // 가입 신청
-        Affiliation requestJoinMember = affiliationMapper.toAffiliationEntity(user, club, ClubPlayerRole.USER);
+        Affiliation requestJoinMember = affiliationMapper.toAffiliationEntity(club, user, ClubPlayerRole.USER);
         club.addPlayer(requestJoinMember);
     }
 
@@ -208,9 +208,9 @@ public class ClubService {
         Long win = 0L, draw = 0L, lose = 0L;
         Long scoreGoals = 0L, concedeGoals = 0L;
         for (Match match : club.getMatches()) {
-            if(match.getMatchResult().equals(MatchResult.WIN)) {
+            if (match.getMatchResult().equals(MatchResult.WIN)) {
                 win++;
-            } else if(match.getMatchResult().equals(MatchResult.DRAW)) {
+            } else if (match.getMatchResult().equals(MatchResult.DRAW)) {
                 draw++;
             } else {
                 lose++;

@@ -23,7 +23,6 @@ public interface AffiliationRepository extends JpaRepository<Affiliation, UUID> 
 
     @Query("""
             SELECT a FROM Affiliation a
-            JOIN FETCH a.member
             WHERE a.club.clubId = :clubId
             """)
     List<Affiliation> findAllByClub_ClubId(@Param("clubId") UUID clubId);

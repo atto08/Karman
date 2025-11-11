@@ -23,12 +23,15 @@ public class Affiliation extends BaseEntity {
     private UUID affiliationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", columnDefinition = "uuid", nullable = false, updatable = false)
-    private Member member;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id", columnDefinition = "uuid", nullable = false, updatable = false)
     private Club club;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", columnDefinition = "uuid")
+    private Member member;
+
+    @Column(nullable = false, length = 50)
+    private String playerName;
 
     @Builder.Default
     @Column(nullable = false, length = 10)
@@ -69,12 +72,13 @@ public class Affiliation extends BaseEntity {
     private ClubJoinStatus joinStatus = ClubJoinStatus.PENDING;
 
 
-    public static Affiliation of(Member member, Club club, ClubPlayerRole playerRole) {
+    public static Affiliation of(Club club, Member member, ClubPlayerRole playerRole) {
         ClubJoinStatus status = playerRole.equals(ClubPlayerRole.OWNER) ? ClubJoinStatus.APPROVED : ClubJoinStatus.PENDING;
 
         return Affiliation.builder()
-                .member(member)
                 .club(club)
+                .member(member)
+                .playerName(member.getName())
                 .playerRole(playerRole)
                 .joinStatus(status)
                 .build();

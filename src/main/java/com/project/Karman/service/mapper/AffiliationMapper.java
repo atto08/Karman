@@ -16,16 +16,16 @@ import java.util.UUID;
 @Component
 public class AffiliationMapper {
 
-    public Affiliation toAffiliationEntity(Member member, Club club, ClubPlayerRole playerRole) {
+    public Affiliation toAffiliationEntity(Club club, Member member, ClubPlayerRole playerRole) {
 
-        return Affiliation.of(member, club, playerRole);
+        return Affiliation.of(club, member, playerRole);
     }
 
     public PlayerSelectResponseDto toPlayerSelectDto(Affiliation affiliation) {
 
         return PlayerSelectResponseDto.of(
                 affiliation.getAffiliationId(),
-                affiliation.getMember().getName(),
+                affiliation.getPlayerName(),
                 affiliation.getBackNumber(),
                 affiliation.getPlayerPosition());
     }
@@ -44,7 +44,7 @@ public class AffiliationMapper {
     public PlayerInfoResponseDto toPlayerInfoDto(Affiliation affiliation) {
 
         return PlayerInfoResponseDto.of(
-                affiliation.getMember().getName(),
+                affiliation.getPlayerName(),
                 affiliation.getBackNumber(),
                 affiliation.getPlayerPosition(),
                 affiliation.getMatchCount(),
