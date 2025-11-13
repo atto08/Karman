@@ -1,6 +1,7 @@
 package com.project.Karman.repository;
 
 import com.project.Karman.domain.entity.Affiliation;
+import com.project.Karman.domain.enums.ClubJoinStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,9 +24,10 @@ public interface AffiliationRepository extends JpaRepository<Affiliation, UUID> 
 
     @Query("""
             SELECT a FROM Affiliation a
-            WHERE a.club.clubId = :clubId
+            WHERE a.club.clubId = :clubId AND a.join_status = :joinStatus
             """)
-    List<Affiliation> findAllByClub_ClubId(@Param("clubId") UUID clubId);
+    List<Affiliation> findAllByClub_ClubId(@Param("clubId") UUID clubId,
+                                           @Param("joinStatus") ClubJoinStatus joinStatus);
 
     @Query("""
             SELECT a FROM Affiliation a
