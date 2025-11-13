@@ -2,6 +2,7 @@ package com.project.Karman.service;
 
 import com.project.Karman.domain.enums.PromptMessage;
 import com.project.Karman.dto.request.AskTacticsRequestDto;
+import com.project.Karman.dto.response.AiCoachResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -26,7 +27,7 @@ public class TacticsService {
     }
 
     @Transactional
-    public String askTacticalCoach(AskTacticsRequestDto request) {
+    public AiCoachResponseDto askTacticalCoach(AskTacticsRequestDto request) {
 
         // 1) 키워드 추출
         // 프롬프트 생성 - 키워드 추출
@@ -48,6 +49,7 @@ public class TacticsService {
         // 프롬프트 생성 - 사용자 요청
         Prompt prompt = openAiService.createPrompt(PromptMessage.ASK_TACTICS_SYSTEM, PromptMessage.ASK_TACTICS_USER, request.ask(), context.toString());
         // Ai 응답 생성 - 사용자 요청
-        return openAiService.askChatModel(prompt).getResult().getOutput().getText();
+        String aiCoachResponse = openAiService.askChatModel(prompt).getResult().getOutput().getText();
+        return AiCoachResponseDto.of(aiCoachResponse);
     }
 }

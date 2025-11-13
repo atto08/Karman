@@ -31,7 +31,11 @@ public enum SuccessMessage {
     GET_ALL_MATCH_INFO(HttpStatus.OK, "매치 전체 기록 조회", 200),
     GET_MATCH_DETAIL_INFO(HttpStatus.OK, "매치 상세 기록 조회", 200),
     CREATE_MATCH_QUARTER(HttpStatus.OK, "쿼터 기록 등록 완료", 200),
-    UPDATE_MATCH_QUARTER(HttpStatus.OK, "쿼터 기록 수정 완료", 200);
+    UPDATE_MATCH_QUARTER(HttpStatus.OK, "쿼터 기록 수정 완료", 200),
+
+    // AI 서비스
+    GET_AI_LINEUP_RECOMMEND_RESPONSE(HttpStatus.OK, "라인업 추천 응답 완료", 200),
+    GET_AI_SEARCH_TACTICS_RESPONSE(HttpStatus.OK,"전술 검색 응답 완료", 200);
 
     private final HttpStatus httpStatus;
     private final String message;

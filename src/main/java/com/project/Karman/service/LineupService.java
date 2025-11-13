@@ -2,6 +2,7 @@ package com.project.Karman.service;
 
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.enums.PromptMessage;
+import com.project.Karman.dto.response.AiCoachResponseDto;
 import com.project.Karman.exception.CustomException;
 import com.project.Karman.exception.ExceptionMessage;
 import com.project.Karman.repository.AffiliationRepository;
@@ -23,7 +24,7 @@ public class LineupService {
     private final AffiliationRepository affiliationRepository;
 
     @Transactional(readOnly = true)
-    public String recommendLineup(UUID clubId, List<UUID> attendPlayers) {
+    public AiCoachResponseDto recommendLineup(UUID clubId, List<UUID> attendPlayers) {
         // 클럽 조회
         if (!clubRepository.existsById(clubId)) {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
@@ -38,6 +39,7 @@ public class LineupService {
         // 프롬프트 생성 - 사용자 요청
         Prompt prompt = openAiService.createPrompt(PromptMessage.RECOMMEND_LINEUP_SYSTEM, PromptMessage.RECOMMEND_LINEUP_USER, playerRecords, null);
         // Ai 응답 생성 - 사용자 요청
-        return openAiService.askChatModel(prompt).getResult().getOutput().getText();
+        String aiCoachResponse = openAiService.askChatModel(prompt).getResult().getOutput().getText();
+        return AiCoachResponseDto.of(aiCoachResponse);
     }
 }
