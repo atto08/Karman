@@ -20,6 +20,7 @@ public enum SuccessMessage {
     ACCEPT_JOIN_CLUB_REQUEST(HttpStatus.OK, "클럽 가입 요청 승인", 200),
     REJECT_JOIN_CLUB_REQUEST(HttpStatus.OK, "클럽 가입 요청 거부", 200),
     WITHDRAW_CLUB(HttpStatus.OK, "클럽 탈퇴 완료.", 200),
+    ADD_PLAYER_IN_CLUB(HttpStatus.OK, "선수 추가 완료", 200),
     GET_PLAYER_SELECT_IN_CLUB(HttpStatus.OK, "선수 선택목록 조회", 200),
     UPDATE_PLAYER_INFO(HttpStatus.OK, "선수 정보 수정 완료", 200),
     GET_PLAYERS_INFO_IN_CLUB(HttpStatus.OK, "클럽 소속선수 전체기록 조회", 200),

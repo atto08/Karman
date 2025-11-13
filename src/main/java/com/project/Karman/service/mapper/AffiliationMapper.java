@@ -3,6 +3,8 @@ package com.project.Karman.service.mapper;
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Member;
+import com.project.Karman.domain.enums.ClubJoinStatus;
+import com.project.Karman.domain.enums.ClubPlayerPosition;
 import com.project.Karman.domain.enums.ClubPlayerRole;
 import com.project.Karman.dto.response.PlayerInfoListResponseDto;
 import com.project.Karman.dto.response.PlayerInfoResponseDto;
@@ -16,9 +18,17 @@ import java.util.UUID;
 @Component
 public class AffiliationMapper {
 
-    public Affiliation toAffiliationEntity(Club club, Member member, ClubPlayerRole playerRole) {
+    public Affiliation toAffiliationEntity(Club club, Member member, String playerName, Integer backNumber,
+                                           ClubPlayerPosition playerPosition, ClubPlayerRole playerRole, ClubJoinStatus joinStatus) {
 
-        return Affiliation.of(club, member, playerRole);
+        return Affiliation.of(
+                club,
+                member,
+                playerName,
+                backNumber,
+                playerPosition,
+                playerRole,
+                joinStatus);
     }
 
     public PlayerSelectResponseDto toPlayerSelectDto(Affiliation affiliation) {

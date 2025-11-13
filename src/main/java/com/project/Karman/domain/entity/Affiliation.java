@@ -33,14 +33,12 @@ public class Affiliation extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String playerName;
 
-    @Builder.Default
+    @Column(nullable = false)
+    private Integer backNumber;
+
     @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    private ClubPlayerPosition playerPosition = ClubPlayerPosition.GK;
-
-    @Builder.Default
-    @Column(nullable = false)
-    private Integer backNumber = 0;
+    private ClubPlayerPosition playerPosition;
 
     @Builder.Default
     @Column(nullable = false)
@@ -66,21 +64,22 @@ public class Affiliation extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ClubPlayerRole playerRole;
 
-    @Builder.Default
     @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    private ClubJoinStatus joinStatus = ClubJoinStatus.PENDING;
+    private ClubJoinStatus joinStatus;
 
 
-    public static Affiliation of(Club club, Member member, ClubPlayerRole playerRole) {
-        ClubJoinStatus status = playerRole.equals(ClubPlayerRole.OWNER) ? ClubJoinStatus.APPROVED : ClubJoinStatus.PENDING;
+    public static Affiliation of(Club club, Member member, String playerName, Integer backNumber,
+                                 ClubPlayerPosition playerPosition, ClubPlayerRole playerRole, ClubJoinStatus joinStatus) {
 
         return Affiliation.builder()
                 .club(club)
                 .member(member)
-                .playerName(member.getName())
+                .playerName(playerName)
+                .backNumber(backNumber)
+                .playerPosition(playerPosition)
                 .playerRole(playerRole)
-                .joinStatus(status)
+                .joinStatus(joinStatus)
                 .build();
     }
 

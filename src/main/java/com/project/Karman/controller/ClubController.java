@@ -1,10 +1,7 @@
 package com.project.Karman.controller;
 
 import com.project.Karman.config.security.CustomUserDetails;
-import com.project.Karman.dto.request.ClubCreateRequestDto;
-import com.project.Karman.dto.request.ClubUpdateRequestDto;
-import com.project.Karman.dto.request.JoinStatusUpdateRequestDto;
-import com.project.Karman.dto.request.PlayerStatUpdateRequestDto;
+import com.project.Karman.dto.request.*;
 import com.project.Karman.dto.response.*;
 import com.project.Karman.service.ClubService;
 import jakarta.validation.Valid;
@@ -138,5 +135,15 @@ public class ClubController {
         return ResponseEntity
                 .status(GET_CLUB_STATICS_RECORDS.getHttpStatus())
                 .body(ApiResponse.success(GET_CLUB_STATICS_RECORDS.getMessage(), clubStaticsRecordsResponseDto));
+    }
+
+    @PostMapping("/{club_id}/player")
+    public ResponseEntity<ApiResponse<Void>> createPlayer(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                    @PathVariable(value = "club_id") UUID clubId,
+                                                                    @Valid @RequestBody PlayerCreateRequestDto requestDto) {
+        clubService.addPlayerWithoutMember(userDetails.getMember(), clubId, requestDto);
+        return ResponseEntity
+                .status(ADD_PLAYER_IN_CLUB.getHttpStatus())
+                .body(ApiResponse.success(ADD_PLAYER_IN_CLUB.getMessage()));
     }
 }
