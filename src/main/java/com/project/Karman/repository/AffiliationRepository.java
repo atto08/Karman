@@ -24,7 +24,7 @@ public interface AffiliationRepository extends JpaRepository<Affiliation, UUID> 
 
     @Query("""
             SELECT a FROM Affiliation a
-            WHERE a.club.clubId = :clubId AND a.join_status = :joinStatus
+            WHERE a.club.clubId = :clubId AND a.joinStatus = :joinStatus
             """)
     List<Affiliation> findAllByClub_ClubId(@Param("clubId") UUID clubId,
                                            @Param("joinStatus") ClubJoinStatus joinStatus);
