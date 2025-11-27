@@ -6,10 +6,7 @@ import com.project.Karman.domain.entity.Member;
 import com.project.Karman.domain.enums.ClubJoinStatus;
 import com.project.Karman.domain.enums.ClubPlayerPosition;
 import com.project.Karman.domain.enums.ClubPlayerRole;
-import com.project.Karman.dto.response.PlayerInfoListResponseDto;
-import com.project.Karman.dto.response.PlayerInfoResponseDto;
-import com.project.Karman.dto.response.PlayerSelectListResponseDto;
-import com.project.Karman.dto.response.PlayerSelectResponseDto;
+import com.project.Karman.dto.response.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -74,5 +71,23 @@ public class AffiliationMapper {
         return PlayerInfoListResponseDto.of(
                 clubId,
                 playerInfoResponseDtoList);
+    }
+
+    public ClubJoinRequestResponseDto toClubJoinRequestDto(Affiliation affiliation) {
+
+        return ClubJoinRequestResponseDto.of(
+                affiliation.getAffiliationId(),
+                affiliation.getPlayerName());
+    }
+
+    public ClubJoinRequestListResponseDto toClubJoinRequestListDto(UUID clubId, List<Affiliation> affiliations) {
+
+        List<ClubJoinRequestResponseDto> clubJoinRequestResponseDtoList = affiliations.stream()
+                .map(this::toClubJoinRequestDto)
+                .toList();
+
+        return ClubJoinRequestListResponseDto.of(
+                clubId,
+                clubJoinRequestResponseDtoList);
     }
 }

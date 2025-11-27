@@ -25,6 +25,7 @@ public enum SuccessMessage {
     UPDATE_PLAYER_INFO(HttpStatus.OK, "선수 정보 수정 완료", 200),
     GET_PLAYERS_INFO_IN_CLUB(HttpStatus.OK, "클럽 소속선수 전체기록 조회", 200),
     GET_CLUB_STATICS_RECORDS(HttpStatus.OK, "클럽 통계 기록 조회", 200),
+    GET_CLUB_JOIN_REQUESTS(HttpStatus.OK, "가입요청 선수목록 조회",200 ),
 
     // 매치 서비스
     CRATE_MATCH(HttpStatus.OK, "신규 매치등록 완료", 200),

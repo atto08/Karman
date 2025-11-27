@@ -146,4 +146,13 @@ public class ClubController {
                 .status(ADD_PLAYER_IN_CLUB.getHttpStatus())
                 .body(ApiResponse.success(ADD_PLAYER_IN_CLUB.getMessage()));
     }
+
+    @GetMapping("/{club_id}/join-requests")
+    public ResponseEntity<ApiResponse<ClubJoinRequestListResponseDto>> getClubJoinRequests(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                                           @PathVariable(value = "club_id") UUID clubId) {
+        ClubJoinRequestListResponseDto clubJoinRequestListResponseDto = clubService.getClubJoinRequests(userDetails.getMember(), clubId);
+        return ResponseEntity
+                .status(GET_CLUB_JOIN_REQUESTS.getHttpStatus())
+                .body(ApiResponse.success(GET_CLUB_JOIN_REQUESTS.getMessage(), clubJoinRequestListResponseDto));
+    }
 }

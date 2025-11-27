@@ -231,6 +231,19 @@ public class ClubService {
         return clubMapper.toMyClubListDto(clubs);
     }
 
+    @Transactional(readOnly = true)
+    public ClubJoinRequestListResponseDto getClubJoinRequests(Member member, UUID clubId) {
+        // 클럽 조회
+        if(!clubRepository.existsById(clubId)) {
+            throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
+        }
+        // 권한 체크
+        validateUserClubRoleIsManagement(clubId, member.getMemberId());
+        // 가입요청 보낸 선수 목록
+        List<Affiliation> clubJoinRequestAffiliations = affiliationRepository.findAllByClub_ClubId(clubId, ClubJoinStatus.PENDING);
+        return affiliationMapper.toClubJoinRequestListDto(clubId, clubJoinRequestAffiliations);
+    }
+
     // 클럽 상세조회
     private Club findClubById(UUID clubId) {
         return clubRepository.findById(clubId)
