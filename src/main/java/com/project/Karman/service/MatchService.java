@@ -84,7 +84,7 @@ public class MatchService {
         // 5) 라인업 선수 소속 여부 검증
         validateAffiliationIdsInSquad(requestDto.lineup(), requestDto.goalsInfo(), clubId);
         // 쿼터 조회
-        MatchQuarter matchQuarter = matchRepository.findMatchQuarterByMatchIdAndQuarter(matchId, quarter)
+        MatchQuarter matchQuarter = matchRepository.findByMatchQuarterId_MatchIdAndMatchQuarterId_Quarter(matchId, quarter)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH_QUARTER));
 
         // 기록되어있던 골/도움 기록한 선수 정보
@@ -112,7 +112,7 @@ public class MatchService {
         if (!affiliationIdsToValidate.isEmpty()) {
             // 실존하는 affiliationId 객체만 리스트로 반환
             List<Affiliation> validAffiliations = affiliationRepository
-                    .findAllByClub_ClubIdAndAffiliationIds(clubId, new ArrayList<>(affiliationIdsToValidate));
+                    .findAllByClub_ClubIdAndAffiliationIdIn(clubId, new ArrayList<>(affiliationIdsToValidate));
             // 아이디 수가 일치하지 않으면 정상적이지 않은 affiliationId가 포함된 상황
             if (validAffiliations.size() != affiliationIdsToValidate.size()) {
                 throw new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB);
@@ -210,7 +210,7 @@ public class MatchService {
         // 클럽 조회
         checkClubIsExist(clubId);
         // 클럽 전체 매치 기록 조회
-        List<Match> matchList = matchRepository.findAllByClubId(clubId);
+        List<Match> matchList = matchRepository.findAllByClub_ClubId(clubId);
 
         return matchMapper.toMatchListResponseDto(matchList);
     }

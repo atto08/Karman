@@ -30,7 +30,7 @@ public class LineupService {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
         // 소속 선수 정보 조회
-        List<Affiliation> playerInfoList = affiliationRepository.findAllByClub_ClubIdAndAffiliationIds(clubId, attendPlayers);
+        List<Affiliation> playerInfoList = affiliationRepository.findAllByClub_ClubIdAndAffiliationIdIn(clubId, attendPlayers);
         // 소속 선수 정보 파싱
         String playerRecords = playerInfoList.stream()
                 .map(player -> String.format("{ name: \"%s\", position: \"%s\", back_number: \"%s\"}",

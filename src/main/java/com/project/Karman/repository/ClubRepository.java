@@ -12,17 +12,7 @@ import java.util.UUID;
 @Repository
 public interface ClubRepository extends JpaRepository<Club, UUID> {
 
-    @Query("""
-                SELECT c
-                FROM Club c
-                WHERE c.clubName LIKE CONCAT('%', :clubName, '%')
-                ORDER BY c.clubName ASC
-            """)
-    List<Club> findAllClubs(@Param("clubName") String clubName);
+    List<Club> findByClubNameContainingOrderByClubNameAsc(String clubName);
 
-    @Query("""
-            SELECT a.club FROM Affiliation a
-            WHERE a.member.memberId = :memberId
-            """)
-    List<Club> findAllByMemberId(@Param("memberId") UUID memberId);
+    List<Club> findAllByMember_MemberId(UUID memberId);
 }

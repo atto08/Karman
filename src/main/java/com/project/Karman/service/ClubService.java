@@ -81,7 +81,7 @@ public class ClubService {
 
     @Transactional(readOnly = true)
     public List<SearchClubResponseDto> searchClub(String param) {
-        List<Club> searchClubs = clubRepository.findAllClubs(param);
+        List<Club> searchClubs = clubRepository.findByClubNameContainingOrderByClubNameAsc(param);
 
         List<SearchClubResponseDto> searchClubInfos = new ArrayList<>();
         for (Club club : searchClubs) {
@@ -98,7 +98,7 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
 
-        List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubId(clubId, ClubJoinStatus.APPROVED);
+        List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatus(clubId, ClubJoinStatus.APPROVED);
 
         return affiliationMapper.toPlayerInfoListDto(clubId, affiliations);
     }
@@ -110,7 +110,7 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
         // 클럽에 속한 선수 목록 조회
-        List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubId(clubId, ClubJoinStatus.APPROVED);
+        List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatus(clubId, ClubJoinStatus.APPROVED);
 
         return affiliationMapper.toPlayerSelectListDto(clubId, affiliations);
     }
@@ -226,7 +226,7 @@ public class ClubService {
     @Transactional(readOnly = true)
     public MyClubListResponseDto getMyClubList(Member member) {
 
-        List<Club> clubs = clubRepository.findAllByMemberId(member.getMemberId());
+        List<Club> clubs = clubRepository.findAllByMember_MemberId(member.getMemberId());
 
         return clubMapper.toMyClubListDto(clubs);
     }
@@ -240,7 +240,7 @@ public class ClubService {
         // 권한 체크
         validateUserClubRoleIsManagement(clubId, member.getMemberId());
         // 가입요청 보낸 선수 목록
-        List<Affiliation> clubJoinRequestAffiliations = affiliationRepository.findAllByClub_ClubId(clubId, ClubJoinStatus.PENDING);
+        List<Affiliation> clubJoinRequestAffiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatus(clubId, ClubJoinStatus.PENDING);
         return affiliationMapper.toClubJoinRequestListDto(clubId, clubJoinRequestAffiliations);
     }
 

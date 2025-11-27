@@ -14,11 +14,7 @@ import java.util.UUID;
 @Repository
 public interface MatchRepository extends JpaRepository<Match, UUID> {
 
-    @Query("""
-            SELECT m FROM Match m
-            WHERE m.club.clubId = :clubId
-            """)
-    List<Match> findAllByClubId(@Param("clubId") UUID clubId);
+    List<Match> findAllByClub_ClubId(UUID clubId);
 
     @Query("""
             SELECT COUNT(mg) FROM MatchGoal mg
@@ -44,11 +40,12 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
             """)
     Long countAssistsByAffiliationId(@Param("affiliationId") UUID affiliationId);
 
+    // matchQuarter Repository 생성 보류
     @Query("""
             SELECT mq FROM MatchQuarter mq
             WHERE mq.matchQuarterId.matchId = :matchId
             AND mq.matchQuarterId.quarter = :quarter
             """)
-    Optional<MatchQuarter> findMatchQuarterByMatchIdAndQuarter(@Param("matchId") UUID matchId,
-                                                               @Param("quarter") Integer quarter);
+    Optional<MatchQuarter> findByMatchQuarterId_MatchIdAndMatchQuarterId_Quarter(@Param("matchId") UUID matchId,
+                                                                                 @Param("quarter") Integer quarter);
 }
