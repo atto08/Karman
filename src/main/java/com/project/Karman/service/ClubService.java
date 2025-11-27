@@ -140,11 +140,7 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
         // 소속팀에서 로그인 유저의 권한 확인
-        Affiliation loginUser = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId())
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
-        if (loginUser.getPlayerRole().equals(ClubPlayerRole.USER)) {
-            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
-        }
+        validateUserClubRoleIsManagement(clubId, member.getMemberId());
         // 가입 요청한 선수 정보
         Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, playerMemberId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
@@ -175,11 +171,7 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
         // 소속팀에서 로그인 유저의 권한 확인
-        Affiliation loginUser = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId())
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
-        if (loginUser.getPlayerRole().equals(ClubPlayerRole.USER)) {
-            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
-        }
+        validateUserClubRoleIsManagement(clubId, member.getMemberId());
         // TODO - 구단주 권한으로 수정 요청 -> 체계적인 수정 필요
         // 구단주로 변경 요청은 거부
         if (requestDto.playerRole() != null) {
@@ -223,22 +215,12 @@ public class ClubService {
         // Club 조회
         Club club = findClubById(clubId);
         // 유저 권한 조회
-        Affiliation loginUser = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId())
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
-        if (loginUser.getPlayerRole().equals(ClubPlayerRole.USER)) {
-            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
-        }
+        validateUserClubRoleIsManagement(clubId, member.getMemberId());
         // 선수 객체 생성
         Affiliation affiliation = affiliationMapper.toAffiliationEntity(club, null, requestDto.playerName(), requestDto.backNumber(),
                 requestDto.position(), ClubPlayerRole.USER, ClubJoinStatus.APPROVED);
         // 선수 추가
         club.addPlayer(affiliation);
-    }
-
-    // 클럽 상세조회
-    private Club findClubById(UUID clubId) {
-        return clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
     }
 
     @Transactional(readOnly = true)
@@ -247,5 +229,21 @@ public class ClubService {
         List<Club> clubs = clubRepository.findAllByMemberId(member.getMemberId());
 
         return clubMapper.toMyClubListDto(clubs);
+    }
+
+    // 클럽 상세조회
+    private Club findClubById(UUID clubId) {
+        return clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
+    }
+
+    private void validateUserClubRoleIsManagement(UUID clubId, UUID memberId) {
+        // 로그인 유저 클럽 소속여부 확인
+        Affiliation loginUser = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
+        // 권한 체크
+        if (loginUser.getPlayerRole().equals(ClubPlayerRole.USER)) {
+            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
+        }
     }
 }
