@@ -14,7 +14,7 @@ import java.util.UUID;
 @Repository
 public interface MatchRepository extends JpaRepository<Match, UUID> {
 
-    List<Match> findAllByClub_ClubId(UUID clubId);
+    List<Match> findAllByClub_ClubIdOrderByMatchDateDesc(UUID clubId);
 
     @Query("""
             SELECT COUNT(mg) FROM MatchGoal mg

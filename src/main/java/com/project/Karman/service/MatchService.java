@@ -210,7 +210,7 @@ public class MatchService {
         // 클럽 조회
         checkClubIsExist(clubId);
         // 클럽 전체 매치 기록 조회
-        List<Match> matchList = matchRepository.findAllByClub_ClubId(clubId);
+        List<Match> matchList = matchRepository.findAllByClub_ClubIdOrderByMatchDateDesc(clubId);
 
         return matchMapper.toMatchListResponseDto(matchList);
     }
