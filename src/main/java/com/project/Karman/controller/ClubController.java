@@ -97,12 +97,12 @@ public class ClubController {
                 .body(ApiResponse.success(REQUEST_JOIN_CLUB.getMessage()));
     }
 
-    @PatchMapping("/{club_id}/join-requests/{player_member_id}")
+    @PatchMapping("/{club_id}/join-requests/{player_id}")
     public ResponseEntity<ApiResponse<Void>> updateClubJoinStatus(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                   @PathVariable(value = "club_id") UUID clubId,
-                                                                  @PathVariable(value = "player_member_id") UUID playerMemberId,
+                                                                  @PathVariable(value = "player_id") UUID playerId,
                                                                   @Valid @RequestBody JoinStatusUpdateRequestDto requestDto) {
-        String message = clubService.updateClubJoinStatus(userDetails.getMember(), clubId, playerMemberId, requestDto);
+        String message = clubService.updateClubJoinStatus(userDetails.getMember(), clubId, playerId, requestDto);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(message));

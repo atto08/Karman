@@ -134,7 +134,7 @@ public class ClubService {
     }
 
     @Transactional
-    public String updateClubJoinStatus(Member member, UUID clubId, UUID playerMemberId, JoinStatusUpdateRequestDto requestDto) {
+    public String updateClubJoinStatus(Member member, UUID clubId, UUID affiliationId, JoinStatusUpdateRequestDto requestDto) {
         // 클럽 조회
         if (!clubRepository.existsById(clubId)) {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
@@ -142,7 +142,7 @@ public class ClubService {
         // 소속팀에서 로그인 유저의 권한 확인
         validateUserClubRoleIsManagement(clubId, member.getMemberId());
         // 가입 요청한 선수 정보
-        Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, playerMemberId)
+        Affiliation player = affiliationRepository.findById(affiliationId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
         // 가입 상태 수정
         player.updateJoinStatus(requestDto.joinStatus());
