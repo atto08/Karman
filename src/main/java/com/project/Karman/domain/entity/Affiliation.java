@@ -93,6 +93,10 @@ public class Affiliation extends BaseEntity {
         this.playerRole = updatedPlayerRole == null ? this.playerRole : updatedPlayerRole;
     }
 
+    public void updateMatchCount(Long updatedMatchCount) {
+        this.matchCount = updatedMatchCount;
+    }
+
     public void updateGoal(Long updatedGoal) {
         this.goal = updatedGoal;
     }

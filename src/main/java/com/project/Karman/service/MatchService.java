@@ -57,11 +57,12 @@ public class MatchService {
         MatchFormation matchFormation = MatchFormation.fromName(requestDto.formation());
         // 쿼터 생성
         MatchQuarter matchQuarter = matchMapper.toMatchQuarterEntity(requestDto, match, matchFormation);
-        // 쿼터 라인업 추가
-        addQuarterLineup(requestDto.lineup(), matchQuarter);
-        // 쿼터 득점 or 어시스트 MatchGoal 테이블 데이터 추가 - 기록 업데이트 필요한 선수들 정보
+        // 기록 업데이트 필요한 선수들 정보
         Set<UUID> updatedAffiliations = new HashSet<>();
-        addGoalOrAssistInfo(updatedAffiliations, requestDto.goalsInfo(), matchQuarter);
+        // 쿼터 라인업(matchLineup) 추가
+        addQuarterLineup(updatedAffiliations, requestDto.lineup(), matchQuarter);
+        // 쿼터 득점&도움(matchGoal) 추가
+        addQuarterGoalAndAssist(requestDto.goalsInfo(), matchQuarter);
         // 매치에 쿼터 추가
         match.addMatchQuarter(matchQuarter);
         // 득점 계산 - Match 테이블 필드
@@ -95,10 +96,10 @@ public class MatchService {
         matchQuarter.update(updateMatchFormation, requestDto.concededGoal());
         // 기존 정보 제거
         matchQuarter.clearQuarterData();
-        // 쿼터 라인업 추가
-        addQuarterLineup(requestDto.lineup(), matchQuarter);
-        // 쿼터 득점 or 어시스트 MatchGoal 테이블 데이터 추가 - 기록 업데이트 필요한 선수들 정보
-        addGoalOrAssistInfo(updatedAffiliations, requestDto.goalsInfo(), matchQuarter);
+        // 쿼터 라인업(matchLineup) 추가
+        addQuarterLineup(updatedAffiliations, requestDto.lineup(), matchQuarter);
+        // 쿼터 득점&도움(matchGoal) 추가
+        addQuarterGoalAndAssist(requestDto.goalsInfo(), matchQuarter);
         // 득점 계산 - Match 테이블 필드
         calculateMatchScore(match);
         // 득점 & 도움 계산 - Affiliation 테이블 업데이트
@@ -151,29 +152,33 @@ public class MatchService {
         match.updateScore(updatedScoredGoal, updatedConcededGoal);
     }
 
-    private void addQuarterLineup(List<MatchLineupCreateRequestDto> lineup, MatchQuarter matchQuarter) {
+    private void addQuarterLineup(Set<UUID> updatedAffiliations, List<MatchLineupCreateRequestDto> lineup, MatchQuarter matchQuarter) {
         for (MatchLineupCreateRequestDto lineupDto : lineup) {
             // 출전선수 정보 생성
             MatchLineup playerInLineup = matchMapper.toMatchLineupEntity(matchQuarter, lineupDto);
             matchQuarter.addLineup(playerInLineup);
+            // 소속 선수
+            if (lineupDto.affiliationId() != null) {
+                updatedAffiliations.add(lineupDto.affiliationId());
+            }
         }
     }
 
-    private void addGoalOrAssistInfo(Set<UUID> updatedAffiliations, List<MatchGoalCreateRequestDto> goalsInfo, MatchQuarter matchQuarter) {
+    private void addQuarterGoalAndAssist(List<MatchGoalCreateRequestDto> goalsInfo, MatchQuarter matchQuarter) {
 
         for (MatchGoalCreateRequestDto goalDto : goalsInfo) {
             // 득점 정보 객체 생성 및 저장
             MatchGoal scoreInfo = matchMapper.toMatchGoalEntity(matchQuarter, goalDto);
             matchQuarter.addScoredGoal(scoreInfo);
 
-            // 득점한 선수가 소속 선수
-            if (goalDto.scorerAffiliationId() != null) {
-                updatedAffiliations.add(goalDto.scorerAffiliationId());
-            }
-            // 어시스트 한 선수가 소속 선수
-            if (goalDto.assistPlayerAffiliationId() != null) {
-                updatedAffiliations.add(goalDto.assistPlayerAffiliationId());
-            }
+//            // 득점한 선수가 소속 선수
+//            if (goalDto.scorerAffiliationId() != null) {
+//                updatedAffiliations.add(goalDto.scorerAffiliationId());
+//            }
+//            // 어시스트 한 선수가 소속 선수
+//            if (goalDto.assistPlayerAffiliationId() != null) {
+//                updatedAffiliations.add(goalDto.assistPlayerAffiliationId());
+//            }
         }
     }
 
@@ -182,8 +187,10 @@ public class MatchService {
             Affiliation updatePlayer = affiliationRepository.findById(updateAffiliationId)
                     .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
 
+            Long updatedMatches = matchRepository.countPlayedMatchesByAffiliationId(updateAffiliationId);
             Long updatedGoals = matchRepository.countGoalsByAffiliationId(updateAffiliationId);
             Long updatedAssists = matchRepository.countAssistsByAffiliationId(updateAffiliationId);
+            updatePlayer.updateMatchCount(updatedMatches);
             updatePlayer.updateGoal(updatedGoals);
             updatePlayer.updateAssist(updatedAssists);
         }

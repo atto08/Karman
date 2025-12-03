@@ -40,6 +40,12 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
             """)
     Long countAssistsByAffiliationId(@Param("affiliationId") UUID affiliationId);
 
+    @Query("""
+            SELECT COUNT(DISTINCT(ml.matchQuarter.matchQuarterId.matchId)) FROM MatchLineup ml
+            WHERE ml.playerInfo.affiliationId = :affiliationId
+            """)
+    Long countPlayedMatchesByAffiliationId(@Param("affiliationId") UUID affiliationId);
+
     // matchQuarter Repository 생성 보류
     @Query("""
             SELECT mq FROM MatchQuarter mq
