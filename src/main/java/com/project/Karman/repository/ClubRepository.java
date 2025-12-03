@@ -14,5 +14,11 @@ public interface ClubRepository extends JpaRepository<Club, UUID> {
 
     List<Club> findByClubNameContainingOrderByClubNameAsc(String clubName);
 
-    List<Club> findAllByMember_MemberId(UUID memberId);
+    @Query("""
+            SELECT DISTINCT c FROM Club c
+            JOIN c.affiliationPlayers ap
+            WHERE ap.member.memberId = :memberId
+            AND ap.joinStatus = 'APPROVED'
+            """)
+    List<Club> findClubsByMemberBelongsTo(@Param("memberId") UUID memberId);
 }

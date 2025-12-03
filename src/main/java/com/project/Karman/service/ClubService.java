@@ -226,7 +226,7 @@ public class ClubService {
     @Transactional(readOnly = true)
     public MyClubListResponseDto getMyClubList(Member member) {
 
-        List<Club> clubs = clubRepository.findAllByMember_MemberId(member.getMemberId());
+        List<Club> clubs = clubRepository.findClubsByMemberBelongsTo(member.getMemberId());
 
         return clubMapper.toMyClubListDto(clubs);
     }
