@@ -57,18 +57,18 @@ public class MatchService {
         MatchFormation matchFormation = MatchFormation.fromName(requestDto.formation());
         // 쿼터 생성
         MatchQuarter matchQuarter = matchMapper.toMatchQuarterEntity(requestDto, match, matchFormation);
-        // 기록 업데이트 필요한 선수들 정보
+        // 기록 갱신이 필요한 선수들 ID
         Set<UUID> updatedAffiliations = new HashSet<>();
-        // 쿼터 라인업(matchLineup) 추가
+        // 쿼터 라인업 - MatchLineup 테이블 추가
         addQuarterLineup(updatedAffiliations, requestDto.lineup(), matchQuarter);
-        // 쿼터 득점&도움(matchGoal) 추가
+        // 쿼터 (득점 & 도움) - MatchGoal 테이블 추가
         addQuarterGoalAndAssist(requestDto.goalsInfo(), matchQuarter);
         // 매치에 쿼터 추가
         match.addMatchQuarter(matchQuarter);
-        // 득점 계산 - Match 테이블 필드
+        // (득점 & 실점) 계산 - Match 테이블 갱신
         calculateMatchScore(match);
-        // 득점 & 도움 계산 - Affiliation 테이블 업데이트
-        updateAffiliationStats(updatedAffiliations);
+        // (출전 경기수 & 득점 & 도움) 계산 - Affiliation 테이블 갱신
+        calculateAffiliationStats(updatedAffiliations);
     }
 
     @Transactional
@@ -87,23 +87,23 @@ public class MatchService {
         // 쿼터 조회
         MatchQuarter matchQuarter = matchRepository.findByMatchQuarterId_MatchIdAndMatchQuarterId_Quarter(matchId, quarter)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH_QUARTER));
-
-        // 기록되어있던 골/도움 기록한 선수 정보
-        Set<UUID> updatedAffiliations = addAffectedGoalOrAssistAffiliationIds(matchQuarter.getScoredGoals());
-
-        // 포메이션 & 실점 업데이트
+        // 기록 갱신이 필요한 선수들 ID
+        Set<UUID> updatedAffiliations = new HashSet<>();
+        // 수정전 라인업 포함 선수 ID 추가
+        addAffectedAffiliationIds(updatedAffiliations, matchQuarter.getLineup());
+        // 포메이션 & 실점 - Match 테이블 갱신
         MatchFormation updateMatchFormation = requestDto.formation() != null ? MatchFormation.fromName(requestDto.formation()) : null;
         matchQuarter.update(updateMatchFormation, requestDto.concededGoal());
         // 기존 정보 제거
         matchQuarter.clearQuarterData();
-        // 쿼터 라인업(matchLineup) 추가
+        // 쿼터 라인업 - MatchLineup 테이블 추가
         addQuarterLineup(updatedAffiliations, requestDto.lineup(), matchQuarter);
-        // 쿼터 득점&도움(matchGoal) 추가
+        // 쿼터 (득점 & 도움) - MatchGoal 테이블 추가
         addQuarterGoalAndAssist(requestDto.goalsInfo(), matchQuarter);
-        // 득점 계산 - Match 테이블 필드
+        // (득점 & 실점) 계산 - Match 테이블 갱신
         calculateMatchScore(match);
-        // 득점 & 도움 계산 - Affiliation 테이블 업데이트
-        updateAffiliationStats(updatedAffiliations);
+        // (출전 경기수 & 득점 & 도움) 계산 - Affiliation 테이블 갱신
+        calculateAffiliationStats(updatedAffiliations);
     }
 
     private void validateAffiliationIdsInSquad(List<MatchLineupCreateRequestDto> lineupRequestDto, List<MatchGoalCreateRequestDto> goalsInfoRequestDto, UUID clubId) {
@@ -170,19 +170,10 @@ public class MatchService {
             // 득점 정보 객체 생성 및 저장
             MatchGoal scoreInfo = matchMapper.toMatchGoalEntity(matchQuarter, goalDto);
             matchQuarter.addScoredGoal(scoreInfo);
-
-//            // 득점한 선수가 소속 선수
-//            if (goalDto.scorerAffiliationId() != null) {
-//                updatedAffiliations.add(goalDto.scorerAffiliationId());
-//            }
-//            // 어시스트 한 선수가 소속 선수
-//            if (goalDto.assistPlayerAffiliationId() != null) {
-//                updatedAffiliations.add(goalDto.assistPlayerAffiliationId());
-//            }
         }
     }
 
-    private void updateAffiliationStats(Set<UUID> updateAffiliationIds) {
+    private void calculateAffiliationStats(Set<UUID> updateAffiliationIds) {
         for (UUID updateAffiliationId : updateAffiliationIds) {
             Affiliation updatePlayer = affiliationRepository.findById(updateAffiliationId)
                     .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
@@ -196,20 +187,13 @@ public class MatchService {
         }
     }
 
-    private Set<UUID> addAffectedGoalOrAssistAffiliationIds(List<MatchGoal> matchGoalsInfo) {
-        Set<UUID> updatedAffiliations = new HashSet<>();
-        for (MatchGoal mg : matchGoalsInfo) {
-            if (mg.getScorePlayer().getAffiliationId() != null) {
-                updatedAffiliations.add(mg.getScorePlayer().getAffiliationId());
-            }
+    private void addAffectedAffiliationIds(Set<UUID> updatedAffiliations, List<MatchLineup> matchLineup) {
 
-            if (mg.getAssistPlayer() != null) {
-                if (mg.getAssistPlayer().getAffiliationId() != null) {
-                    updatedAffiliations.add(mg.getAssistPlayer().getAffiliationId());
-                }
+        for(MatchLineup ml : matchLineup){
+            if(ml.getPlayerInfo().getAffiliationId() != null) {
+                updatedAffiliations.add(ml.getPlayerInfo().getAffiliationId());
             }
         }
-        return updatedAffiliations;
     }
 
     @Transactional(readOnly = true)

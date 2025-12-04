@@ -100,6 +100,7 @@ public class MatchMapper {
     public MatchLineupResponseDto toMatchLineupDto(MatchLineup matchLineup) {
 
         return MatchLineupResponseDto.of(
+                matchLineup.getPlayerInfo().getAffiliationId(),
                 matchLineup.getPlayerInfo().getName(),
                 matchLineup.getClubPlayerPosition(),
                 matchLineup.getPositionNumber(),
@@ -111,7 +112,11 @@ public class MatchMapper {
 
         return MatchGoalResponseDto.of(
                 matchGoal.getScorePlayer().getName(),
-                matchGoal.getAssistPlayer() != null ? matchGoal.getAssistPlayer().getName() : null
+                matchGoal.getScorePlayer().getAffiliationId() != null ? matchGoal.getScorePlayer().getAffiliationId() : null,
+                matchGoal.getAssistPlayer() != null ? matchGoal.getAssistPlayer().getName() : null,
+                matchGoal.getAssistPlayer() != null ?
+                        (matchGoal.getAssistPlayer().getAffiliationId() != null ? matchGoal.getAssistPlayer().getAffiliationId() : null)
+                        : null
         );
     }
 
