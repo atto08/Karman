@@ -98,9 +98,9 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
 
-        List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatus(clubId, ClubJoinStatus.APPROVED);
+        List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatusOrderByBackNumberAsc(clubId, ClubJoinStatus.APPROVED);
 
-        return affiliationMapper.toPlayerInfoListDto(clubId, affiliations);
+        return affiliationMapper.toPlayerInfoListDto(clubId, getAffiliationsSortedByPlayerRole(affiliations));
     }
 
     @Transactional(readOnly = true)
@@ -110,7 +110,7 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
         // 클럽에 속한 선수 목록 조회
-        List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatus(clubId, ClubJoinStatus.APPROVED);
+        List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatusOrderByBackNumberAsc(clubId, ClubJoinStatus.APPROVED);
 
         return affiliationMapper.toPlayerSelectListDto(clubId, affiliations);
     }
@@ -234,13 +234,13 @@ public class ClubService {
     @Transactional(readOnly = true)
     public ClubJoinRequestListResponseDto getClubJoinRequests(Member member, UUID clubId) {
         // 클럽 조회
-        if(!clubRepository.existsById(clubId)) {
+        if (!clubRepository.existsById(clubId)) {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
         // 권한 체크
         validateUserClubRoleIsManagement(clubId, member.getMemberId());
         // 가입요청 보낸 선수 목록
-        List<Affiliation> clubJoinRequestAffiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatus(clubId, ClubJoinStatus.PENDING);
+        List<Affiliation> clubJoinRequestAffiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatusOrderByBackNumberAsc(clubId, ClubJoinStatus.PENDING);
         return affiliationMapper.toClubJoinRequestListDto(clubId, clubJoinRequestAffiliations);
     }
 
@@ -258,5 +258,14 @@ public class ClubService {
         if (loginUser.getPlayerRole().equals(ClubPlayerRole.USER)) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
+    }
+
+    private List<Affiliation> getAffiliationsSortedByPlayerRole(List<Affiliation> players) {
+
+        return players.stream()
+                .sorted(Comparator
+                        .comparing((Affiliation a) -> a.getPlayerRole().ordinal())
+                        .thenComparing(Affiliation::getBackNumber))
+                .toList();
     }
 }
