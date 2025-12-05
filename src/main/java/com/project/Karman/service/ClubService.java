@@ -80,15 +80,10 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public List<SearchClubResponseDto> searchClub(String param) {
+    public SearchClubListResponseDto searchClub(String param) {
         List<Club> searchClubs = clubRepository.findByClubNameContainingOrderByClubNameAsc(param);
 
-        List<SearchClubResponseDto> searchClubInfos = new ArrayList<>();
-        for (Club club : searchClubs) {
-            searchClubInfos.add(new SearchClubResponseDto(club.getClubId(), club.getClubName()));
-        }
-
-        return searchClubInfos;
+        return clubMapper.toSearchClubListDto(searchClubs);
     }
 
     @Transactional(readOnly = true)

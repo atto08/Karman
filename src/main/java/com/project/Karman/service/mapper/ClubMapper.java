@@ -3,11 +3,8 @@ package com.project.Karman.service.mapper;
 import com.project.Karman.domain.entity.Club;
 import com.project.Karman.domain.entity.Member;
 import com.project.Karman.domain.enums.ClubAgeGroup;
-import com.project.Karman.dto.response.ClubInfoResponseDto;
+import com.project.Karman.dto.response.*;
 import com.project.Karman.dto.request.ClubCreateRequestDto;
-import com.project.Karman.dto.response.ClubStaticsRecordsResponseDto;
-import com.project.Karman.dto.response.MyClubInfoResponseDto;
-import com.project.Karman.dto.response.MyClubListResponseDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -60,5 +57,21 @@ public class ClubMapper {
         return MyClubInfoResponseDto.of(
                 club.getClubId(),
                 club.getClubName());
+    }
+
+    public SearchClubListResponseDto toSearchClubListDto(List<Club> clubs) {
+        List<SearchClubResponseDto> searchClubResponseDtoList = clubs.stream()
+                .map(this::toSearchClubDto)
+                .toList();
+
+        return SearchClubListResponseDto.of(searchClubResponseDtoList);
+    }
+
+    public SearchClubResponseDto toSearchClubDto(Club club) {
+
+        return SearchClubResponseDto.of(
+                club.getClubId(),
+                club.getClubName(),
+                club.getArea());
     }
 }

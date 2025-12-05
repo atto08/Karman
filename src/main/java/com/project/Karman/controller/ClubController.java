@@ -64,8 +64,8 @@ public class ClubController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<SearchClubResponseDto>>> searchClub(@RequestParam(name = "clubName") String param) {
-        List<SearchClubResponseDto> searchClubDtoList = clubService.searchClub(param);
+    public ResponseEntity<ApiResponse<SearchClubListResponseDto>> searchClubs(@RequestParam(name = "clubName") String param) {
+        SearchClubListResponseDto searchClubDtoList = clubService.searchClub(param);
         return ResponseEntity
                 .status(SEARCH_CLUB.getHttpStatus())
                 .body(ApiResponse.success(SEARCH_CLUB.getMessage(), searchClubDtoList));
@@ -139,8 +139,8 @@ public class ClubController {
 
     @PostMapping("/{club_id}/player")
     public ResponseEntity<ApiResponse<Void>> createPlayer(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                    @PathVariable(value = "club_id") UUID clubId,
-                                                                    @Valid @RequestBody PlayerCreateRequestDto requestDto) {
+                                                          @PathVariable(value = "club_id") UUID clubId,
+                                                          @Valid @RequestBody PlayerCreateRequestDto requestDto) {
         clubService.addPlayerWithoutMember(userDetails.getMember(), clubId, requestDto);
         return ResponseEntity
                 .status(ADD_PLAYER_IN_CLUB.getHttpStatus())
