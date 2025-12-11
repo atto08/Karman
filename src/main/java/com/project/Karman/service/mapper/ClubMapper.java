@@ -22,14 +22,15 @@ public class ClubMapper {
                 request.foundationDate());
     }
 
-    public ClubInfoResponseDto toClubInfoDto(Club club) {
+    public ClubInfoResponseDto toClubInfoDto(Club club, Boolean isAssociated) {
 
         return ClubInfoResponseDto.of(
                 club.getClubId(),
                 club.getClubName(),
                 club.getArea(),
                 club.getClubAgeGroup().getDescription(),
-                club.getFoundationDate().toString()
+                club.getFoundationDate().toString(),
+                isAssociated
         );
     }
 

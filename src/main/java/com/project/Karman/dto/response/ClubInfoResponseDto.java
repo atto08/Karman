@@ -11,10 +11,11 @@ public record ClubInfoResponseDto(
         String clubName,
         String area,
         String ageGroup,
-        String foundationDate
+        String foundationDate,
+        Boolean isAssociated
 ) {
 
-    public static ClubInfoResponseDto of(UUID clubId, String clubName, String area, String ageGroup, String foundationDate) {
+    public static ClubInfoResponseDto of(UUID clubId, String clubName, String area, String ageGroup, String foundationDate, Boolean isAssociated) {
 
         return ClubInfoResponseDto.builder()
                 .clubId(clubId)
@@ -22,6 +23,7 @@ public record ClubInfoResponseDto(
                 .area(area)
                 .ageGroup(ageGroup)
                 .foundationDate(foundationDate)
+                .isAssociated(isAssociated)
                 .build();
     }
 }

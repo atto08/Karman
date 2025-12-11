@@ -48,9 +48,10 @@ public class ClubService {
     public ClubInfoResponseDto getClubInfo(Member member, UUID clubId) {
         // 클럽 상세조회
         Club club = findClubById(clubId);
-        // TODO - 클럽에 소속한 선수는 디테일 정보 열람가능하도록 수정
+        // 로그인 유저 조회 클럽 가입여부 판단
+        Boolean isAssociated = affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatus(clubId, member.getMemberId(), ClubJoinStatus.APPROVED);
 
-        return clubMapper.toClubInfoDto(club);
+        return clubMapper.toClubInfoDto(club, isAssociated);
     }
 
     @Transactional
