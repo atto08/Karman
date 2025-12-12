@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 import static com.project.Karman.exception.SuccessMessage.*;
@@ -121,7 +120,7 @@ public class ClubController {
     public ResponseEntity<ApiResponse<Void>> updatePlayerInfo(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                               @PathVariable(value = "club_id") UUID clubId,
                                                               @PathVariable(value = "player_member_id") UUID playerMemberId,
-                                                              @Valid @RequestBody PlayerStatUpdateRequestDto requestDto) {
+                                                              @Valid @RequestBody PlayerInfoUpdateRequestDto requestDto) {
         clubService.updatePlayerInfo(userDetails.getMember(), clubId, playerMemberId, requestDto);
         return ResponseEntity
                 .status(UPDATE_PLAYER_INFO.getHttpStatus())

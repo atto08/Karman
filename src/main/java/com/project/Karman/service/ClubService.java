@@ -161,26 +161,18 @@ public class ClubService {
     }
 
     @Transactional
-    public void updatePlayerInfo(Member member, UUID clubId, UUID playerMemberId, PlayerStatUpdateRequestDto requestDto) {
+    public void updatePlayerInfo(Member member, UUID clubId, UUID affiliationId, PlayerInfoUpdateRequestDto requestDto) {
         // 클럽 조회
         if (!clubRepository.existsById(clubId)) {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
         // 소속팀에서 로그인 유저의 권한 확인
         validateUserClubRoleIsManagement(clubId, member.getMemberId());
-        // TODO - 구단주 권한으로 수정 요청 -> 체계적인 수정 필요
-        // 구단주로 변경 요청은 거부
-        if (requestDto.playerRole() != null) {
-            if (requestDto.playerRole().equals(ClubPlayerRole.OWNER)) {
-                throw new CustomException(ExceptionMessage.NOT_ALLOWED_OWNER_ROLE);
-            }
-        }
-
-        // 가입 요청한 선수 정보
-        Affiliation player = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, playerMemberId)
+        // 타겟 선수
+        Affiliation player = affiliationRepository.findById(affiliationId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
         // 선수 정보수정
-        player.updatePlayerInfo(requestDto.position(), requestDto.backNumber(), requestDto.playerRole());
+        player.updatePlayerInfo(requestDto.position(), requestDto.backNumber());
     }
 
     @Transactional(readOnly = true)

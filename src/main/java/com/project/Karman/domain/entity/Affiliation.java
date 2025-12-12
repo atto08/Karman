@@ -87,10 +87,9 @@ public class Affiliation extends BaseEntity {
         this.joinStatus = updatedStatus;
     }
 
-    public void updatePlayerInfo(ClubPlayerPosition updatedPlayerPosition, Integer updatedBackNumber, ClubPlayerRole updatedPlayerRole) {
+    public void updatePlayerInfo(ClubPlayerPosition updatedPlayerPosition, Integer updatedBackNumber) {
         this.playerPosition = updatedPlayerPosition == null ? this.playerPosition : updatedPlayerPosition;
         this.backNumber = updatedBackNumber == null ? this.backNumber : updatedBackNumber;
-        this.playerRole = updatedPlayerRole == null ? this.playerRole : updatedPlayerRole;
     }
 
     public void updateMatchCount(Long updatedMatchCount) {
