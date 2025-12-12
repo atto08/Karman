@@ -2,9 +2,11 @@ package com.project.Karman.repository;
 
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.enums.ClubJoinStatus;
+import com.project.Karman.domain.enums.ClubPlayerRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,4 +21,6 @@ public interface AffiliationRepository extends JpaRepository<Affiliation, UUID> 
     Optional<Affiliation> findByClub_ClubIdAndMember_MemberId(UUID clubId, UUID memberId);
 
     Boolean existsByClub_ClubIdAndMember_MemberIdAndJoinStatus(UUID clubId, UUID memberId, ClubJoinStatus joinStatus);
+
+    Boolean existsByClub_ClubIdAndMember_MemberIdAndPlayerRoleIn(UUID clubId, UUID memberId, Collection<ClubPlayerRole> playerRoles);
 }
