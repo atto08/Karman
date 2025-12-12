@@ -19,7 +19,8 @@ public enum ExceptionMessage {
     NOT_ALLOWED_OWNER_ROLE(HttpStatus.BAD_REQUEST, "구단주 권한은 허용되지 않습니다.", 400),
     NOT_FOUND_CLUB(HttpStatus.NOT_FOUND, "찾을 수 없는 클럽(팀) 입니다.", 404),
     NOT_FOUND_PLAYER_IN_CLUB(HttpStatus.NOT_FOUND, "클럽(팀)에 소속되지 않은 선수 입니다.", 404),
-    NOT_USER_IN_CLUB(HttpStatus.FORBIDDEN, "선수 정보는 클럽의 소속만 볼 수 있습니다.", 403),
+    PERMISSION_DENIED_USER_GET_CLUB(HttpStatus.FORBIDDEN, "클럽 정보 조회 권한이 없는 유저입니다.", 403),
+    PERMISSION_DENIED_USER_UPDATE_CLUB(HttpStatus.FORBIDDEN, "클럽 수정 권한이 없는 유저입니다.", 403),
 
     // Match
     NOT_VALID_FORMATION(HttpStatus.BAD_REQUEST, "등록되지 않은 포메이션입니다.", 400),
