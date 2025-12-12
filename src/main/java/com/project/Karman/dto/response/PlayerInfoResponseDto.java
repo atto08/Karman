@@ -5,9 +5,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record PlayerInfoResponseDto(
+        UUID affiliationId,
         String name,
         Integer backNumber,
         ClubPlayerPosition position,
@@ -19,10 +21,11 @@ public record PlayerInfoResponseDto(
         String playerRole
 ) {
 
-    public static PlayerInfoResponseDto of(String name, Integer backNumber, ClubPlayerPosition clubPlayerPosition, Long matchCount,
-                                           Long goal, Long assist, Long clear, BigDecimal point, String playerRole) {
+    public static PlayerInfoResponseDto of(UUID affiliationId, String name, Integer backNumber, ClubPlayerPosition clubPlayerPosition,
+                                           Long matchCount, Long goal, Long assist, Long clear, BigDecimal point, String playerRole) {
 
         return PlayerInfoResponseDto.builder()
+                .affiliationId(affiliationId)
                 .name(name)
                 .backNumber(backNumber)
                 .position(clubPlayerPosition)

@@ -116,12 +116,12 @@ public class ClubController {
                 .body(ApiResponse.success(WITHDRAW_CLUB.getMessage()));
     }
 
-    @PatchMapping("/{club_id}/players/{player_member_id}")
+    @PatchMapping("/{club_id}/players/{player_id}")
     public ResponseEntity<ApiResponse<Void>> updatePlayerInfo(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                               @PathVariable(value = "club_id") UUID clubId,
-                                                              @PathVariable(value = "player_member_id") UUID playerMemberId,
+                                                              @PathVariable(value = "player_id") UUID playerId,
                                                               @Valid @RequestBody PlayerInfoUpdateRequestDto requestDto) {
-        clubService.updatePlayerInfo(userDetails.getMember(), clubId, playerMemberId, requestDto);
+        clubService.updatePlayerInfo(userDetails.getMember(), clubId, playerId, requestDto);
         return ResponseEntity
                 .status(UPDATE_PLAYER_INFO.getHttpStatus())
                 .body(ApiResponse.success(UPDATE_PLAYER_INFO.getMessage()));

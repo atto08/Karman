@@ -51,6 +51,7 @@ public class AffiliationMapper {
     public PlayerInfoResponseDto toPlayerInfoDto(Affiliation affiliation) {
 
         return PlayerInfoResponseDto.of(
+                affiliation.getAffiliationId(),
                 affiliation.getPlayerName(),
                 affiliation.getBackNumber(),
                 affiliation.getPlayerPosition(),
