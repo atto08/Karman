@@ -25,6 +25,7 @@ public enum ExceptionMessage {
     // Match
     NOT_VALID_FORMATION(HttpStatus.BAD_REQUEST, "등록되지 않은 포메이션입니다.", 400),
     MATCH_NOT_BELONG_TO_CLUB(HttpStatus.BAD_REQUEST, "해당 클럽의 매치정보가 아닙니다.", 400),
+    PERMISSION_DENIED_USER_ACCESS_MATCH_DATA(HttpStatus.FORBIDDEN, "클럽 매치정보에 접근 권한이 없는 유저입니다.", 403),
     NOT_FOUND_MATCH(HttpStatus.NOT_FOUND, "찾을 수 없는 매치정보 입니다.", 404),
     NOT_FOUND_MATCH_QUARTER(HttpStatus.NOT_FOUND, "찾을 수 없는 매치의 쿼터정보 입니다.", 404),
     NOT_INCLUDED_PLAYER_IN_LINEUP(HttpStatus.NOT_FOUND, "라인업에 포함되지 않은 선수입니다.", 404);

@@ -1,6 +1,7 @@
 package com.project.Karman.service;
 
 import com.project.Karman.domain.entity.*;
+import com.project.Karman.domain.enums.ClubJoinStatus;
 import com.project.Karman.domain.enums.ClubPlayerRole;
 import com.project.Karman.domain.enums.MatchFormation;
 import com.project.Karman.dto.request.*;
@@ -189,8 +190,8 @@ public class MatchService {
 
     private void addAffectedAffiliationIds(Set<UUID> updatedAffiliations, List<MatchLineup> matchLineup) {
 
-        for(MatchLineup ml : matchLineup){
-            if(ml.getPlayerInfo().getAffiliationId() != null) {
+        for (MatchLineup ml : matchLineup) {
+            if (ml.getPlayerInfo().getAffiliationId() != null) {
                 updatedAffiliations.add(ml.getPlayerInfo().getAffiliationId());
             }
         }
@@ -202,8 +203,10 @@ public class MatchService {
         checkClubIsExist(clubId);
         // 클럽 전체 매치 기록 조회
         List<Match> matchList = matchRepository.findAllByClub_ClubIdOrderByMatchDateDesc(clubId);
+        // 로그인 유저 운영진(Owner or Coach) 여부 판단
+        Boolean isStaff = validateManagementPermission(clubId, member.getMemberId());
 
-        return matchMapper.toMatchListResponseDto(matchList);
+        return matchMapper.toMatchListResponseDto(matchList, isStaff);
     }
 
     @Transactional(readOnly = true)
@@ -214,8 +217,14 @@ public class MatchService {
         Match match = findMatchById(matchId);
         // 클럽 경기 여부
         checkMatchBelongToClub(match.getClub().getClubId(), clubId);
+        // 로그인 유저 클럽 소속 여부 체크
+        if(!isMemberOfClub(clubId, member.getMemberId())) {
+            throw new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB);
+        }
+        // 로그인 유저 운영진(Owner or Coach) 여부 판단
+        Boolean isStaff = validateManagementPermission(clubId, member.getMemberId());
         // Dto 반환
-        return matchMapper.toMatchDto(match);
+        return matchMapper.toMatchDto(match, isStaff);
     }
 
     private Club findClubById(UUID clubId) {
@@ -240,13 +249,28 @@ public class MatchService {
         }
     }
 
+    private Boolean isMemberOfClub(UUID clubId, UUID memberId) {
+        return affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatus(
+                clubId,
+                memberId,
+                ClubJoinStatus.APPROVED);
+    }
+
+    private Boolean validateManagementPermission(UUID clubId, UUID memberId) {
+        return affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndPlayerRoleIn(
+                clubId,
+                memberId,
+                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH));
+    }
+
     private void validateUserClubRoleIsManagement(UUID clubId, UUID memberId) {
-        // 로그인 유저 클럽 소속여부 확인
-        Affiliation loginUser = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, memberId)
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
-        // 권한 체크
-        if (loginUser.getPlayerRole().equals(ClubPlayerRole.USER)) {
-            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
+        // 로그인 유저 클럽 소속여부 체크
+        if (!isMemberOfClub(clubId, memberId)) {
+            throw new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB);
+        }
+        // 클럽에서 로그인 유저 권한 체크
+        if (!validateManagementPermission(clubId, memberId)) {
+            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_USER_ACCESS_MATCH_DATA);
         }
     }
 }

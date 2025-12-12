@@ -59,12 +59,13 @@ public class MatchMapper {
         );
     }
 
-    public MatchResponseDto toMatchDto(Match match) {
+    public MatchResponseDto toMatchDto(Match match, Boolean isStaff) {
         List<MatchQuarterResponseDto> matchQuarterResponseDtoList = match.getMatchQuarters().stream()
                 .map(this::toMatchQuarterDto)
                 .toList();
 
         return MatchResponseDto.of(
+                isStaff,
                 match.getMatchId(),
                 match.getOpponent(),
                 match.getScoredGoal(),
@@ -121,15 +122,15 @@ public class MatchMapper {
     }
 
 
-    public MatchListResponseDto toMatchListResponseDto(List<Match> matchList) {
+    public MatchListResponseDto toMatchListResponseDto(List<Match> matchList, Boolean isStaff) {
 
         List<MatchSummaryResponseDto> matchSummaryResponseDtoList = matchList.stream()
                 .map(this::toMatchSummaryResponseDto)
                 .toList();
 
         return MatchListResponseDto.of(
-                matchSummaryResponseDtoList
-        );
+                isStaff,
+                matchSummaryResponseDtoList);
     }
 
     public MatchSummaryResponseDto toMatchSummaryResponseDto(Match match) {

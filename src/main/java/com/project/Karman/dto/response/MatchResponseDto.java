@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record MatchResponseDto(
+        Boolean isStaff,
         UUID matchId,
         String opponent,
         Long totalScoredGoal,
@@ -21,10 +22,11 @@ public record MatchResponseDto(
         List<MatchQuarterResponseDto> matchQuarters
 ) {
 
-    public static MatchResponseDto of(UUID matchId, String opponent, Long totalScoredGoal, Long totalConcededGoal, String location
-    , LocalDateTime matchDate, String weather, String matchResult, List<MatchQuarterResponseDto> matchQuarters) {
+    public static MatchResponseDto of(Boolean isStaff, UUID matchId, String opponent, Long totalScoredGoal, Long totalConcededGoal,
+                                      String location, LocalDateTime matchDate, String weather, String matchResult, List<MatchQuarterResponseDto> matchQuarters) {
 
         return MatchResponseDto.builder()
+                .isStaff(isStaff)
                 .matchId(matchId)
                 .opponent(opponent)
                 .totalScoredGoal(totalScoredGoal)
