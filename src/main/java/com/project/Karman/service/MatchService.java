@@ -219,7 +219,7 @@ public class MatchService {
         checkMatchBelongToClub(match.getClub().getClubId(), clubId);
         // 로그인 유저 클럽 소속 여부 체크
         if(!isMemberOfClub(clubId, member.getMemberId())) {
-            throw new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB);
+            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_USER_ACCESS_MATCH_DATA);
         }
         // 로그인 유저 운영진(Owner or Coach) 여부 판단
         Boolean isStaff = validateManagementPermission(clubId, member.getMemberId());
