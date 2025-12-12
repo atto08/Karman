@@ -89,14 +89,20 @@ public class ClubService {
 
     @Transactional(readOnly = true)
     public PlayerInfoListResponseDto getPlayerInfoList(Member member, UUID clubId) {
-
+        // 로그인 유저 클럽 소속여부 판단
+        if(!isMemberOfClub(clubId, member.getMemberId())) {
+            throw new CustomException(ExceptionMessage.NOT_USER_IN_CLUB);
+        }
+        // 클럽 존재여부 판단
         if (!clubRepository.existsById(clubId)) {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
-
+        // 선수단 조회
         List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatusOrderByBackNumberAsc(clubId, ClubJoinStatus.APPROVED);
+        // 로그인 유저 운영진(Owner or Coach) 여부 판단
+        Boolean isStaff = validateManagementPermission(clubId, member.getMemberId());
 
-        return affiliationMapper.toPlayerInfoListDto(clubId, getAffiliationsSortedByPlayerRole(affiliations));
+        return affiliationMapper.toPlayerInfoListDto(clubId, isStaff, getAffiliationsSortedByPlayerRole(affiliations));
     }
 
     @Transactional(readOnly = true)
@@ -236,6 +242,21 @@ public class ClubService {
     private Club findClubById(UUID clubId) {
         return clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
+    }
+
+    private Boolean isMemberOfClub(UUID clubId, UUID memberId) {
+
+        return affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatus(
+                clubId,
+                memberId,
+                ClubJoinStatus.APPROVED);
+    }
+
+    private Boolean validateManagementPermission(UUID clubId, UUID memberId) {
+        return affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndPlayerRoleIn(
+                clubId,
+                memberId,
+                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH));
     }
 
     private void validateUserClubRoleIsManagement(UUID clubId, UUID memberId) {

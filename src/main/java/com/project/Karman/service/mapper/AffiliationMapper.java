@@ -62,7 +62,7 @@ public class AffiliationMapper {
                 affiliation.getPlayerRole().toString());
     }
 
-    public PlayerInfoListResponseDto toPlayerInfoListDto(UUID clubId, List<Affiliation> affiliations) {
+    public PlayerInfoListResponseDto toPlayerInfoListDto(UUID clubId, Boolean isStaff, List<Affiliation> affiliations) {
 
         List<PlayerInfoResponseDto> playerInfoResponseDtoList = affiliations.stream()
                 .map(this::toPlayerInfoDto)
@@ -70,6 +70,7 @@ public class AffiliationMapper {
 
         return PlayerInfoListResponseDto.of(
                 clubId,
+                isStaff,
                 playerInfoResponseDtoList);
     }
 
