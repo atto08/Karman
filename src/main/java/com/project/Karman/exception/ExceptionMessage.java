@@ -28,7 +28,9 @@ public enum ExceptionMessage {
     PERMISSION_DENIED_USER_ACCESS_MATCH_DATA(HttpStatus.FORBIDDEN, "클럽 매치정보에 접근 권한이 없는 유저입니다.", 403),
     NOT_FOUND_MATCH(HttpStatus.NOT_FOUND, "찾을 수 없는 매치정보 입니다.", 404),
     NOT_FOUND_MATCH_QUARTER(HttpStatus.NOT_FOUND, "찾을 수 없는 매치의 쿼터정보 입니다.", 404),
-    NOT_INCLUDED_PLAYER_IN_LINEUP(HttpStatus.NOT_FOUND, "라인업에 포함되지 않은 선수입니다.", 404);
+    NOT_INCLUDED_PLAYER_IN_LINEUP(HttpStatus.NOT_FOUND, "라인업에 포함되지 않은 선수입니다.", 404),
+
+    CREATE_AI_RESPONSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ai 응답생성 중 문제가 발생했습니다.", 500);
 
     private final HttpStatus httpStatus;
     private final String message;
