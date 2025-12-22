@@ -8,6 +8,7 @@ public record LineupPlayerInfo(
         UUID affiliationId,
         String name,
         ClubPlayerPosition position,
-        Integer backNumber
+        Integer backNumber,
+        Integer positionNumber
 ) {
 }

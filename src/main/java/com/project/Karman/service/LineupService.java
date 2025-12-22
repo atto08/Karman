@@ -83,6 +83,7 @@ public class LineupService {
      * - affiliationId가 유효한 UUID인지 확인
      * - affiliationId가 참석 선수 목록에 포함되어 있는지 확인
      * - 중복된 선수가 선택되지 않았는지 확인
+     * - positionNumber가 1~11 범위 내에 있고 중복되지 않는지 확인
      */
     private void validateAiLineupResponse(LineupRecommendResponseDto response, List<UUID> attendPlayers) {
         if (response == null || response.startingXI() == null) {
@@ -101,6 +102,7 @@ public class LineupService {
 
         // 중복 확인을 위한 Set
         Set<UUID> usedAffiliationIds = new HashSet<>();
+        Set<Integer> usedPositionNumbers = new HashSet<>();
 
         for (LineupPlayerInfo player : startingXI) {
             UUID affiliationId = player.affiliationId();
@@ -120,6 +122,30 @@ public class LineupService {
             if (!attendPlayerSet.contains(affiliationId)) {
                 throw new CustomException(ExceptionMessage.CREATE_AI_RESPONSE_ERROR);
             }
+
+            // 4. positionNumber 검증
+            Integer positionNumber = player.positionNumber();
+            if (positionNumber == null) {
+                throw new CustomException(ExceptionMessage.CREATE_AI_RESPONSE_ERROR);
+            }
+
+            // 4-1. positionNumber가 1~11 범위 내에 있는지 확인
+            if (positionNumber < 1 || positionNumber > 11) {
+                throw new CustomException(ExceptionMessage.CREATE_AI_RESPONSE_ERROR);
+            }
+
+            // 4-2. positionNumber 중복 확인
+            if (usedPositionNumbers.contains(positionNumber)) {
+                throw new CustomException(ExceptionMessage.CREATE_AI_RESPONSE_ERROR);
+            }
+            usedPositionNumbers.add(positionNumber);
+        }
+
+        // 5. positionNumber가 1~11 모두 포함되어 있는지 확인 (선택사항)
+        // 만약 AI가 1, 2, 3, 5, 6, ... 이런 식으로 건너뛰면 문제가 될 수 있으므로
+        // 하지만 프론트에서 사용할 때는 문제없을 수도 있으니 선택적으로 검증
+        if (usedPositionNumbers.size() != 11) {
+            throw new CustomException(ExceptionMessage.CREATE_AI_RESPONSE_ERROR);
         }
     }
 }

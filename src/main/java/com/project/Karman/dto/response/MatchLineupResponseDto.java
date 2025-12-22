@@ -15,7 +15,7 @@ public record MatchLineupResponseDto(
         Boolean isSub
 ) {
 
-    public static MatchLineupResponseDto of(UUID affiliationId,String playerName, ClubPlayerPosition clubPlayerPosition, Integer positionNumber, Boolean isSub) {
+    public static MatchLineupResponseDto of(UUID affiliationId, String playerName, ClubPlayerPosition clubPlayerPosition, Integer positionNumber, Boolean isSub) {
 
         return MatchLineupResponseDto.builder()
                 .affiliationId(affiliationId)
