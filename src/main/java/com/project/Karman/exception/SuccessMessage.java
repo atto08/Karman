@@ -25,7 +25,7 @@ public enum SuccessMessage {
     UPDATE_PLAYER_INFO(HttpStatus.OK, "선수 정보 수정 완료", 200),
     GET_PLAYERS_INFO_IN_CLUB(HttpStatus.OK, "클럽 소속선수 전체기록 조회", 200),
     GET_CLUB_STATICS_RECORDS(HttpStatus.OK, "클럽 통계 기록 조회", 200),
-    GET_CLUB_JOIN_REQUESTS(HttpStatus.OK, "가입요청 선수목록 조회",200 ),
+    GET_CLUB_JOIN_REQUESTS(HttpStatus.OK, "가입요청 선수목록 조회", 200),
 
     // 매치 서비스
     CRATE_MATCH(HttpStatus.OK, "신규 매치등록 완료", 200),
@@ -36,7 +36,8 @@ public enum SuccessMessage {
 
     // AI 서비스
     GET_AI_LINEUP_RECOMMEND_RESPONSE(HttpStatus.OK, "라인업 추천 응답 완료", 200),
-    GET_AI_SEARCH_TACTICS_RESPONSE(HttpStatus.OK,"전술 검색 응답 완료", 200);
+    GET_AI_SEARCH_TACTICS_RESPONSE(HttpStatus.OK, "전술 검색 응답 완료", 200),
+    INDEXING_SUCCESS_RESPONSE(HttpStatus.OK, "전술 데이터 인덱싱 완료", 200);
 
     private final HttpStatus httpStatus;
     private final String message;

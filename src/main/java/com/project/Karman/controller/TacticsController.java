@@ -17,9 +17,11 @@ public class TacticsController {
     private final TacticsService tacticsService;
 
     @PostMapping("/tactics/index")
-    public ResponseEntity<String> indexTactics(@RequestBody String request) {
+    public ResponseEntity<ApiResponse<Void>> indexTactics(@RequestBody String request) {
         tacticsService.indexTactics(request);
-        return ResponseEntity.ok("인덱싱 성공");
+        return ResponseEntity
+                .status(INDEXING_SUCCESS_RESPONSE.getHttpStatus())
+                .body(ApiResponse.success(INDEXING_SUCCESS_RESPONSE.getMessage()));
     }
 
     @PostMapping("/tactics/ask")
