@@ -4,24 +4,6 @@ import lombok.Getter;
 
 @Getter
 public enum PromptMessage {
-    EXTRACT_KEYWORD_SYSTEM("""
-            너는 '축구 포메이션 정규화'.
-            반드시 아래 정규화 규칙에 따라 문자열만 출력한다.
-
-            반환 : 포메이션 문자열
-
-            정규화 규칙:
-            - "433", "4 3 3", "4-3-3" → "4-3-3"
-            - "442", "4 4 2", "4-4-2" → "4-4-2"
-            - formation은 숫자-숫자-숫자 형태만 확정.
-
-            출력은 포메이션 정보 한 줄만 제공.
-            """),
-
-    EXTRACT_KEYWORD_USER("""
-            다음은 사용자의 요청입니다:
-            %s
-            """),
 
     ASK_TACTICS_SYSTEM("""
             너는 아마추어 축구팀의 전술 코치다. 한국어로 답한다.
@@ -44,6 +26,9 @@ public enum PromptMessage {
             %s
             [ask]사용자 질문:
             %s
+            """),
+    ASK_TACTICS_FORMATION("""
+            검색 결과를 토대로 설명 부탁해.
             """),
 
     RECOMMEND_LINEUP_SYSTEM("""

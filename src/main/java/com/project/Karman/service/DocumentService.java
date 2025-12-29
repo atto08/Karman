@@ -1,5 +1,8 @@
 package com.project.Karman.service;
 
+import com.project.Karman.dto.request.AskTacticsRequestDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -11,6 +14,7 @@ import java.util.*;
 @Service
 public class DocumentService {
 
+    private static final Logger log = LoggerFactory.getLogger(DocumentService.class);
     private final VectorStore vectorStore;
 
     public DocumentService(VectorStore vectorStore) {
@@ -70,16 +74,60 @@ public class DocumentService {
     }
 
     @Transactional(readOnly = true)
-    public List<Document> similaritySearch(String ask, String subtopic, String formation) {
-        SearchRequest searchRequest = SearchRequest
-                .builder()
-                .query(ask)
-                .topK(5)
-                .filterExpression(String.format("""
-                        "subtopic" == '%s' AND
-                        "formation" == '%s'
-                        """, subtopic, formation))
-                .build();
+    public List<Document> similaritySearch(AskTacticsRequestDto requestDto) {
+
+        SearchRequest searchRequest;
+        // 포메이션
+        if (requestDto.category().equals("formation")) {
+            // subtopic == "individual-role"
+            // position 포함
+            if (requestDto.subtopic().equals("individual-role")) {
+                searchRequest = SearchRequest
+                        .builder()
+                        .query("설명해줘")
+                        .topK(5)
+                        .filterExpression(String.format("""
+                                        "formation" == '%s' AND
+                                        "subtopic" == '%s' AND
+                                        "position" == '%s'
+                                        """,
+                                requestDto.formation(), requestDto.subtopic(), requestDto.position()))
+                        .build();
+                log.info("--subtopic: individual-role");
+            }
+            // subtopic == "how-to-play"
+            // style 포함
+            else if (requestDto.subtopic().equals("how-to-play")) {
+                searchRequest = SearchRequest
+                        .builder()
+                        .query("설명해줘")
+                        .topK(5)
+                        .filterExpression(String.format("""
+                                        "formation" == '%s' AND
+                                        "subtopic" == '%s' AND
+                                        "style" == '%s'
+                                        """,
+                                requestDto.formation(), requestDto.subtopic(), requestDto.style()))
+                        .build();
+                log.info("--subtopic: how-to-play");
+            } else {
+                searchRequest = SearchRequest
+                        .builder()
+                        .query("설명해줘")
+                        .topK(5)
+                        .filterExpression(String.format("""
+                                        "formation" == '%s' AND
+                                        "subtopic" == '%s'
+                                        """,
+                                requestDto.formation(), requestDto.subtopic()))
+                        .build();
+                log.info("--subtopic: others");
+            }
+        }
+        // 전술
+        else {
+            searchRequest = new SearchRequest();
+        }
 
         return vectorStore.similaritySearch(searchRequest);
     }
