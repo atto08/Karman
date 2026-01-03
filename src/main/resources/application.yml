@@ -28,6 +28,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_batch_fetch_size: 50
         # 연결 유지 설정
         connection:
           provider_disables_autocommit: false

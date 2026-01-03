@@ -214,11 +214,12 @@ public class MatchService {
         // 클럽 조회
         checkClubIsExist(clubId);
         // 매치 조회
-        Match match = findMatchById(matchId);
+        Match match = matchRepository.findByIdWithQuarters(matchId)
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH));
         // 클럽 경기 여부
         checkMatchBelongToClub(match.getClub().getClubId(), clubId);
         // 로그인 유저 클럽 소속 여부 체크
-        if(!isMemberOfClub(clubId, member.getMemberId())) {
+        if (!isMemberOfClub(clubId, member.getMemberId())) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_USER_ACCESS_MATCH_DATA);
         }
         // 로그인 유저 운영진(Owner or Coach) 여부 판단
