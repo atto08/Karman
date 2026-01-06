@@ -32,13 +32,12 @@ public class ClubService {
 
     @Transactional
     public void createClub(Member member, ClubCreateRequestDto requestDto) {
-        // 유저 정보 영속성 컨텍스트
-        Member user = memberRepository.findById(member.getMemberId())
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MEMBER));
+        // 프록시 객체 생성
+        Member ownerMember = memberRepository.getReferenceById(member.getMemberId());
         // 클럽 객체생성 및 저장
-        Club club = clubMapper.toClubEntity(user, requestDto);
+        Club club = clubMapper.toClubEntity(ownerMember, requestDto);
         // 연관관계 객체생성
-        Affiliation owner = affiliationMapper.toAffiliationEntity(club, user, user.getName(), 0,
+        Affiliation owner = affiliationMapper.toAffiliationEntity(club, ownerMember, member.getName(), 0,
                 ClubPlayerPosition.GK, ClubPlayerRole.OWNER, ClubJoinStatus.APPROVED);
         club.addPlayer(owner);
         clubRepository.save(club);
@@ -130,11 +129,10 @@ public class ClubService {
         if (player.isPresent()) {
             throw new CustomException(ExceptionMessage.ALREADY_JOINED_PLAYER);
         }
-        // 연관관계 객체생성
-        Member user = memberRepository.findById(member.getMemberId())
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MEMBER));
+        // 프록시 객체 생성
+        Member joinRequestMember = memberRepository.getReferenceById(member.getMemberId());
         // 가입 신청
-        Affiliation requestJoinMember = affiliationMapper.toAffiliationEntity(club, user, user.getName(), 0,
+        Affiliation requestJoinMember = affiliationMapper.toAffiliationEntity(club, joinRequestMember, member.getName(), 0,
                 ClubPlayerPosition.GK, ClubPlayerRole.USER, ClubJoinStatus.PENDING);
         club.addPlayer(requestJoinMember);
     }
