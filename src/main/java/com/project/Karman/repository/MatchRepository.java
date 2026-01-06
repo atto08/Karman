@@ -17,6 +17,14 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
     List<Match> findAllByClub_ClubIdOrderByMatchDateDesc(UUID clubId);
 
     @Query("""
+            SELECT DISTINCT m FROM Match m
+            LEFT JOIN FETCH m.matchQuarters mq
+            WHERE m.matchId = :matchId
+            ORDER BY mq.matchQuarterId.quarter ASC
+            """)
+    Optional<Match> findByIdWithQuarters(@Param("matchId") UUID matchId);
+
+    @Query("""
             SELECT COUNT(mg) FROM MatchGoal mg
             WHERE mg.matchQuarter.matchQuarterId.matchId = :matchId
             """)
