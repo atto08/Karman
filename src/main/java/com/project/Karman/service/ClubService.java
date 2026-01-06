@@ -100,7 +100,11 @@ public class ClubService {
         // 선수단 조회
         List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatusOrderByBackNumberAsc(clubId, ClubJoinStatus.APPROVED);
         // 로그인 유저 운영진(Owner or Coach) 여부 판단
-        Boolean isStaff = validateManagementPermission(clubId, member.getMemberId());
+        Boolean isStaff = affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
+                clubId,
+                member.getMemberId(),
+                ClubJoinStatus.APPROVED,
+                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH));
 
         return affiliationMapper.toPlayerInfoListDto(clubId, isStaff, getAffiliationsSortedByPlayerRole(affiliations));
     }
@@ -142,7 +146,7 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
         // 로그인 유저 권한 체크
-        validateUserClubRoleIsManagement(clubId, member.getMemberId());
+        validateMemberIsManagement(clubId, member.getMemberId());
         // 가입 요청한 선수 정보
         Affiliation player = affiliationRepository.findById(affiliationId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
@@ -173,7 +177,7 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
         // 로그인 유저 권한 체크
-        validateUserClubRoleIsManagement(clubId, member.getMemberId());
+        validateMemberIsManagement(clubId, member.getMemberId());
         // 타겟 선수
         Affiliation player = affiliationRepository.findById(affiliationId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
@@ -209,7 +213,7 @@ public class ClubService {
         // Club 조회
         Club club = findClubById(clubId);
         // 로그인 유저 권한 체크
-        validateUserClubRoleIsManagement(clubId, member.getMemberId());
+        validateMemberIsManagement(clubId, member.getMemberId());
         // 선수 객체 생성
         Affiliation affiliation = affiliationMapper.toAffiliationEntity(club, null, requestDto.playerName(), requestDto.backNumber(),
                 requestDto.position(), ClubPlayerRole.USER, ClubJoinStatus.APPROVED);
@@ -232,7 +236,7 @@ public class ClubService {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
         // 로그인 유저 권한 체크
-        validateUserClubRoleIsManagement(clubId, member.getMemberId());
+        validateMemberIsManagement(clubId, member.getMemberId());
         // 가입요청 보낸 선수 목록
         List<Affiliation> clubJoinRequestAffiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatusOrderByBackNumberAsc(clubId, ClubJoinStatus.PENDING);
         return affiliationMapper.toClubJoinRequestListDto(clubId, clubJoinRequestAffiliations);
@@ -251,21 +255,13 @@ public class ClubService {
                 ClubJoinStatus.APPROVED);
     }
 
-    private Boolean validateManagementPermission(UUID clubId, UUID memberId) {
-        return affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndPlayerRoleIn(
+    private void validateMemberIsManagement(UUID clubId, UUID memberId) {
+        if (!affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
                 clubId,
                 memberId,
-                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH));
-    }
-
-    private void validateUserClubRoleIsManagement(UUID clubId, UUID memberId) {
-        // 로그인 유저 클럽 소속여부 체크
-        if (!isMemberOfClub(clubId, memberId)) {
-            throw new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB);
-        }
-        // 클럽에서 로그인 유저 권한 체크
-        if (!validateManagementPermission(clubId, memberId)) {
-            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_USER_UPDATE_CLUB);
+                ClubJoinStatus.APPROVED,
+                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH))) {
+            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
     }
 

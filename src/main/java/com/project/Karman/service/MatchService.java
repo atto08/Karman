@@ -33,7 +33,13 @@ public class MatchService {
         // 클럽 조회
         Club club = findClubById(clubId);
         // 클럽 소속 선수 여부 & 권한 체크
-        validateUserClubRoleIsManagement(clubId, member.getMemberId());
+        if (!affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
+                clubId,
+                member.getMemberId(),
+                ClubJoinStatus.APPROVED,
+                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH))) {
+            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
+        }
         // 매치 객체 생성 & 저장
         Match match = matchMapper.toMatchEntity(requestDto, club);
         matchRepository.save(match);
@@ -44,8 +50,14 @@ public class MatchService {
         // [검증 로직]
         // 1) 클럽 조회
         checkClubIsExist(clubId);
-        // 2) 클럽 소속 여부 & 권한 체크(운영진 이삼만 쿼터생성 가능)
-        validateUserClubRoleIsManagement(clubId, member.getMemberId());
+        // 2) 클럽 소속 여부 & 권한 체크(운영진 이상부터 생성가능)
+        if (!affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
+                clubId,
+                member.getMemberId(),
+                ClubJoinStatus.APPROVED,
+                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH))) {
+            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
+        }
         // 3) 매치 조회 - 존재 여부 판단 + 영속성 컨텍스트 저장
         Match match = findMatchById(matchId);
         // 4) 클럽 경기 여부
@@ -78,7 +90,13 @@ public class MatchService {
         // 1) 클럽 조회
         checkClubIsExist(clubId);
         // 2) 클럽 소속 여부 & 권한 체크(운영진 이삼만 쿼터생성 가능)
-        validateUserClubRoleIsManagement(clubId, member.getMemberId());
+        if (!affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
+                clubId,
+                member.getMemberId(),
+                ClubJoinStatus.APPROVED,
+                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH))) {
+            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
+        }
         // 3) 매치 조회 - 존재 여부 판단 + 영속성 컨텍스트 저장
         Match match = findMatchById(matchId);
         // 4) 클럽 경기 여부
@@ -204,7 +222,11 @@ public class MatchService {
         // 클럽 전체 매치 기록 조회
         List<Match> matchList = matchRepository.findAllByClub_ClubIdOrderByMatchDateDesc(clubId);
         // 로그인 유저 운영진(Owner or Coach) 여부 판단
-        Boolean isStaff = validateManagementPermission(clubId, member.getMemberId());
+        Boolean isStaff = affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
+                clubId,
+                member.getMemberId(),
+                ClubJoinStatus.APPROVED,
+                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH));
 
         return matchMapper.toMatchListResponseDto(matchList, isStaff);
     }
@@ -218,12 +240,12 @@ public class MatchService {
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH));
         // 클럽 경기 여부
         checkMatchBelongToClub(match.getClub().getClubId(), clubId);
-        // 로그인 유저 클럽 소속 여부 체크
-        if (!isMemberOfClub(clubId, member.getMemberId())) {
-            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_USER_ACCESS_MATCH_DATA);
-        }
-        // 로그인 유저 운영진(Owner or Coach) 여부 판단
-        Boolean isStaff = validateManagementPermission(clubId, member.getMemberId());
+        // 로그인 유저 클럽 소속 여부 체크 + 운영진(Owner or Coach) 여부 판단
+        Boolean isStaff = affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
+                clubId,
+                member.getMemberId(),
+                ClubJoinStatus.APPROVED,
+                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH));
         // Dto 반환
         return matchMapper.toMatchDto(match, isStaff);
     }
@@ -247,31 +269,6 @@ public class MatchService {
     private void checkMatchBelongToClub(UUID matchClubId, UUID clubId) {
         if (!matchClubId.equals(clubId)) {
             throw new CustomException(ExceptionMessage.MATCH_NOT_BELONG_TO_CLUB);
-        }
-    }
-
-    private Boolean isMemberOfClub(UUID clubId, UUID memberId) {
-        return affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatus(
-                clubId,
-                memberId,
-                ClubJoinStatus.APPROVED);
-    }
-
-    private Boolean validateManagementPermission(UUID clubId, UUID memberId) {
-        return affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndPlayerRoleIn(
-                clubId,
-                memberId,
-                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH));
-    }
-
-    private void validateUserClubRoleIsManagement(UUID clubId, UUID memberId) {
-        // 로그인 유저 클럽 소속여부 체크
-        if (!isMemberOfClub(clubId, memberId)) {
-            throw new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB);
-        }
-        // 클럽에서 로그인 유저 권한 체크
-        if (!validateManagementPermission(clubId, memberId)) {
-            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_USER_ACCESS_MATCH_DATA);
         }
     }
 }
