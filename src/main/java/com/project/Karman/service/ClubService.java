@@ -88,13 +88,16 @@ public class ClubService {
 
     @Transactional(readOnly = true)
     public PlayerInfoListResponseDto getPlayerInfoList(Member member, UUID clubId) {
-        // 로그인 유저 클럽 소속여부 판단
-        if (!isMemberOfClub(clubId, member.getMemberId())) {
-            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_USER_GET_CLUB);
-        }
         // 클럽 존재여부 판단
         if (!clubRepository.existsById(clubId)) {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
+        }
+        // 로그인 유저 클럽 소속여부 판단
+        if (!affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatus(
+                clubId,
+                member.getMemberId(),
+                ClubJoinStatus.APPROVED)) {
+            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_USER_GET_CLUB);
         }
         // 선수단 조회
         List<Affiliation> affiliations = affiliationRepository.findAllByClub_ClubIdAndJoinStatusOrderByBackNumberAsc(clubId, ClubJoinStatus.APPROVED);
@@ -244,13 +247,6 @@ public class ClubService {
     private Club findClubById(UUID clubId) {
         return clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
-    }
-
-    private Boolean isMemberOfClub(UUID clubId, UUID memberId) {
-        return affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatus(
-                clubId,
-                memberId,
-                ClubJoinStatus.APPROVED);
     }
 
     private void validateMemberIsManagement(UUID clubId, UUID memberId) {
