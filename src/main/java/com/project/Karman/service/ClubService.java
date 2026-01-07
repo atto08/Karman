@@ -2,13 +2,13 @@ package com.project.Karman.service;
 
 import com.project.Karman.domain.entity.Affiliation;
 import com.project.Karman.domain.entity.Club;
-import com.project.Karman.domain.entity.Match;
 import com.project.Karman.domain.entity.Member;
 import com.project.Karman.domain.enums.*;
 import com.project.Karman.dto.request.*;
 import com.project.Karman.dto.response.*;
 import com.project.Karman.exception.CustomException;
 import com.project.Karman.exception.ExceptionMessage;
+import com.project.Karman.repository.MatchRepository;
 import com.project.Karman.repository.MemberRepository;
 import com.project.Karman.service.mapper.AffiliationMapper;
 import com.project.Karman.repository.AffiliationRepository;
@@ -26,6 +26,7 @@ public class ClubService {
     private final ClubRepository clubRepository;
     private final MemberRepository memberRepository;
     private final AffiliationRepository affiliationRepository;
+    private final MatchRepository matchRepository;
     private final AffiliationMapper affiliationMapper;
     private final ClubMapper clubMapper;
 
@@ -189,24 +190,10 @@ public class ClubService {
     @Transactional(readOnly = true)
     public ClubStaticsRecordsResponseDto getStaticsRecords(Member member, UUID clubId) {
         // 클럽 조회
-        Club club = findClubById(clubId);
-        // 수치 계산
-        Long matchCount = (long) club.getMatches().size();
-        Long win = 0L, draw = 0L, lose = 0L;
-        Long scoreGoals = 0L, concedeGoals = 0L;
-        for (Match match : club.getMatches()) {
-            if (match.getMatchResult().equals(MatchResult.WIN)) {
-                win++;
-            } else if (match.getMatchResult().equals(MatchResult.DRAW)) {
-                draw++;
-            } else {
-                lose++;
-            }
-            scoreGoals += match.getScoredGoal();
-            concedeGoals += match.getConcededGoal();
+        if (!clubRepository.existsById(clubId)) {
+            throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
-
-        return clubMapper.toClubStaticsRecordsDto(matchCount, win, draw, lose, scoreGoals, concedeGoals);
+        return matchRepository.findClubMatchStatisticsByClubId(clubId, MatchResult.WIN, MatchResult.DRAW, MatchResult.LOSE);
     }
 
     @Transactional

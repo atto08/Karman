@@ -2,6 +2,8 @@ package com.project.Karman.repository;
 
 import com.project.Karman.domain.entity.Match;
 import com.project.Karman.domain.entity.MatchQuarter;
+import com.project.Karman.domain.enums.MatchResult;
+import com.project.Karman.dto.response.ClubStaticsRecordsResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -62,4 +64,20 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
             """)
     Optional<MatchQuarter> findByMatchQuarterId_MatchIdAndMatchQuarterId_Quarter(@Param("matchId") UUID matchId,
                                                                                  @Param("quarter") Integer quarter);
+
+    @Query("""
+            SELECT COUNT(m),
+                SUM(CASE WHEN m.matchResult = :win THEN 1 ELSE 0 END),
+                SUM(CASE WHEN m.matchResult = :draw THEN 1 ELSE 0 END),
+                SUM(CASE WHEN m.matchResult = :lose THEN 1 ELSE 0 END),
+                COALESCE(SUM(m.scoredGoal), 0),
+                COALESCE(SUM(m.concededGoal), 0)
+            FROM Match m
+            WHERE m.club.clubId = :clubId
+            """)
+    ClubStaticsRecordsResponseDto findClubMatchStatisticsByClubId(
+            UUID clubId,
+            @Param("win") MatchResult win,
+            @Param("draw") MatchResult draw,
+            @Param("lose") MatchResult lose);
 }
