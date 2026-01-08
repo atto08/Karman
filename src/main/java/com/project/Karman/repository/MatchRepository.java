@@ -3,7 +3,7 @@ package com.project.Karman.repository;
 import com.project.Karman.domain.entity.Match;
 import com.project.Karman.domain.entity.MatchQuarter;
 import com.project.Karman.domain.enums.MatchResult;
-import com.project.Karman.dto.response.ClubStaticsRecordsResponseDto;
+import com.project.Karman.repository.projection.ClubMatchStatisticsProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -66,16 +66,17 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
                                                                                  @Param("quarter") Integer quarter);
 
     @Query("""
-            SELECT COUNT(m),
-                COALESCE(SUM(CASE WHEN m.matchResult = :win THEN 1 ELSE 0 END), 0),
-                COALESCE(SUM(CASE WHEN m.matchResult = :draw THEN 1 ELSE 0 END), 0),
-                COALESCE(SUM(CASE WHEN m.matchResult = :lose THEN 1 ELSE 0 END), 0),
-                COALESCE(SUM(m.scoredGoal), 0),
-                COALESCE(SUM(m.concededGoal), 0)
+            SELECT
+                COUNT(m) as matchCount,
+                COALESCE(SUM(CASE WHEN m.matchResult = :win THEN 1 ELSE 0 END), 0) as win,
+                COALESCE(SUM(CASE WHEN m.matchResult = :draw THEN 1 ELSE 0 END), 0) as draw,
+                COALESCE(SUM(CASE WHEN m.matchResult = :lose THEN 1 ELSE 0 END), 0) as lose,
+                COALESCE(SUM(m.scoredGoal), 0) as totalScoreGoal,
+                COALESCE(SUM(m.concededGoal), 0) as totalConcedeGoal
             FROM Match m
             WHERE m.club.clubId = :clubId
             """)
-    ClubStaticsRecordsResponseDto findClubMatchStatisticsByClubId(
+    ClubMatchStatisticsProjection findClubMatchStatisticsByClubId(
             @Param("clubId") UUID clubId,
             @Param("win") MatchResult win,
             @Param("draw") MatchResult draw,

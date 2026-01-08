@@ -4,11 +4,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
-public record ClubStaticsRecordsResponseDto(
-        // 총 경기수
-        // 총 승,무,패 수
-        // 총 득점
-        // 총 실점
+public record ClubStatisticsRecordsResponseDto(
         Long matchCount,
         Long win,
         Long draw,
@@ -17,9 +13,9 @@ public record ClubStaticsRecordsResponseDto(
         Long totalConcedeGoal
 ) {
 
-    public static ClubStaticsRecordsResponseDto of(Long matchCount, Long win, Long draw, Long lose, Long totalScoreGoal, Long totalConcedeGoal) {
+    public static ClubStatisticsRecordsResponseDto of(Long matchCount, Long win, Long draw, Long lose, Long totalScoreGoal, Long totalConcedeGoal) {
 
-        return ClubStaticsRecordsResponseDto.builder()
+        return ClubStatisticsRecordsResponseDto.builder()
                 .matchCount(matchCount)
                 .win(win)
                 .draw(draw)

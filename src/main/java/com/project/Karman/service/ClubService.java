@@ -10,6 +10,7 @@ import com.project.Karman.exception.CustomException;
 import com.project.Karman.exception.ExceptionMessage;
 import com.project.Karman.repository.MatchRepository;
 import com.project.Karman.repository.MemberRepository;
+import com.project.Karman.repository.projection.ClubMatchStatisticsProjection;
 import com.project.Karman.service.mapper.AffiliationMapper;
 import com.project.Karman.repository.AffiliationRepository;
 import com.project.Karman.repository.ClubRepository;
@@ -188,12 +189,14 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public ClubStaticsRecordsResponseDto getStaticsRecords(Member member, UUID clubId) {
+    public ClubStatisticsRecordsResponseDto getStaticsRecords(Member member, UUID clubId) {
         // 클럽 조회
         if (!clubRepository.existsById(clubId)) {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
         }
-        return matchRepository.findClubMatchStatisticsByClubId(clubId, MatchResult.WIN, MatchResult.DRAW, MatchResult.LOSE);
+        ClubMatchStatisticsProjection statistics = matchRepository.findClubMatchStatisticsByClubId(clubId, MatchResult.WIN, MatchResult.DRAW, MatchResult.LOSE);
+
+        return clubMapper.toClubStatisticsRecordsDto(statistics);
     }
 
     @Transactional

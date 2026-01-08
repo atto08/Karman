@@ -128,12 +128,12 @@ public class ClubController {
     }
 
     @GetMapping("/{club_id}/statics-records")
-    public ResponseEntity<ApiResponse<ClubStaticsRecordsResponseDto>> getStaticsRecords(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                                        @PathVariable(value = "club_id") UUID clubId) {
-        ClubStaticsRecordsResponseDto clubStaticsRecordsResponseDto = clubService.getStaticsRecords(userDetails.getMember(), clubId);
+    public ResponseEntity<ApiResponse<ClubStatisticsRecordsResponseDto>> getStaticsRecords(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                                           @PathVariable(value = "club_id") UUID clubId) {
+        ClubStatisticsRecordsResponseDto clubStatisticsRecordsResponseDto = clubService.getStaticsRecords(userDetails.getMember(), clubId);
         return ResponseEntity
                 .status(GET_CLUB_STATICS_RECORDS.getHttpStatus())
-                .body(ApiResponse.success(GET_CLUB_STATICS_RECORDS.getMessage(), clubStaticsRecordsResponseDto));
+                .body(ApiResponse.success(GET_CLUB_STATICS_RECORDS.getMessage(), clubStatisticsRecordsResponseDto));
     }
 
     @PostMapping("/{club_id}/player")

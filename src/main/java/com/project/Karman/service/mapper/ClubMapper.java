@@ -5,6 +5,7 @@ import com.project.Karman.domain.entity.Member;
 import com.project.Karman.domain.enums.ClubAgeGroup;
 import com.project.Karman.dto.response.*;
 import com.project.Karman.dto.request.ClubCreateRequestDto;
+import com.project.Karman.repository.projection.ClubMatchStatisticsProjection;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -30,19 +31,18 @@ public class ClubMapper {
                 club.getArea(),
                 club.getClubAgeGroup().getDescription(),
                 club.getFoundationDate().toString(),
-                isAssociated
-        );
+                isAssociated);
     }
 
-    public ClubStaticsRecordsResponseDto toClubStaticsRecordsDto(Long matchCount, Long win, Long draw, Long lose, Long scoreGoals, Long concedeGoals) {
+    public ClubStatisticsRecordsResponseDto toClubStatisticsRecordsDto(ClubMatchStatisticsProjection clubStatistics) {
 
-        return ClubStaticsRecordsResponseDto.of(
-                matchCount,
-                win,
-                draw,
-                lose,
-                scoreGoals,
-                concedeGoals);
+        return ClubStatisticsRecordsResponseDto.of(
+                clubStatistics.getMatchCount(),
+                clubStatistics.getWin(),
+                clubStatistics.getDraw(),
+                clubStatistics.getLose(),
+                clubStatistics.getTotalScoreGoal(),
+                clubStatistics.getTotalConcedeGoal());
     }
 
     public MyClubListResponseDto toMyClubListDto(List<Club> clubs) {
