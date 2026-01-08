@@ -22,5 +22,9 @@ public interface AffiliationRepository extends JpaRepository<Affiliation, UUID> 
 
     Boolean existsByClub_ClubIdAndMember_MemberIdAndJoinStatus(UUID clubId, UUID memberId, ClubJoinStatus joinStatus);
 
-    Boolean existsByClub_ClubIdAndMember_MemberIdAndPlayerRoleIn(UUID clubId, UUID memberId, Collection<ClubPlayerRole> playerRoles);
+    boolean existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
+            UUID clubId,
+            UUID memberId,
+            ClubJoinStatus joinStatus,
+            Collection<ClubPlayerRole> roles);
 }
