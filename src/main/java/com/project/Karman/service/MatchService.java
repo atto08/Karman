@@ -31,7 +31,8 @@ public class MatchService {
     @Transactional
     public void createMatch(MatchCreateRequestDto requestDto, UUID clubId, Member member) {
         // 클럽 조회
-        Club club = findClubById(clubId);
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
         // 클럽 소속 선수 여부 & 권한 체크
         if (!affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
                 clubId,
@@ -248,11 +249,6 @@ public class MatchService {
                 List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH));
         // Dto 반환
         return matchMapper.toMatchDto(match, isStaff);
-    }
-
-    private Club findClubById(UUID clubId) {
-        return clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_CLUB));
     }
 
     private void checkClubIsExist(UUID clubId) {
