@@ -67,16 +67,16 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
 
     @Query("""
             SELECT COUNT(m),
-                SUM(CASE WHEN m.matchResult = :win THEN 1 ELSE 0 END),
-                SUM(CASE WHEN m.matchResult = :draw THEN 1 ELSE 0 END),
-                SUM(CASE WHEN m.matchResult = :lose THEN 1 ELSE 0 END),
+                COALESCE(SUM(CASE WHEN m.matchResult = :win THEN 1 ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN m.matchResult = :draw THEN 1 ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN m.matchResult = :lose THEN 1 ELSE 0 END), 0),
                 COALESCE(SUM(m.scoredGoal), 0),
                 COALESCE(SUM(m.concededGoal), 0)
             FROM Match m
             WHERE m.club.clubId = :clubId
             """)
     ClubStaticsRecordsResponseDto findClubMatchStatisticsByClubId(
-            UUID clubId,
+            @Param("clubId") UUID clubId,
             @Param("win") MatchResult win,
             @Param("draw") MatchResult draw,
             @Param("lose") MatchResult lose);
