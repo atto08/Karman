@@ -59,6 +59,7 @@ public class MatchService {
                 List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH))) {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
+
         // 3) 매치 조회 - 존재 여부 판단 + 영속성 컨텍스트 저장
         Match match = findMatchById(matchId);
         // 4) 클럽 경기 여부
@@ -236,17 +237,23 @@ public class MatchService {
     public MatchResponseDto getMatchInfo(Member member, UUID clubId, UUID matchId) {
         // 클럽 조회
         checkClubIsExist(clubId);
+        // 클럽 경기 여부 판단
+        if (!matchRepository.existsByClub_ClubIdAndMatchId(clubId, matchId)) {
+            throw new CustomException(ExceptionMessage.MATCH_NOT_BELONG_TO_CLUB);
+        }
+        // 로그인 유저 소속 여부 판단
+        Affiliation loginUser = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, member.getMemberId())
+                .orElseThrow(() -> new CustomException(ExceptionMessage.PERMISSION_DENIED_USER_GET_CLUB));
+        // 승인 처리된 선수만 가능
+        if (loginUser.getJoinStatus() != ClubJoinStatus.APPROVED) {
+            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_USER_GET_CLUB);
+        }
         // 매치 조회
         Match match = matchRepository.findByIdWithQuarters(matchId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH));
-        // 클럽 경기 여부
-        checkMatchBelongToClub(match.getClub().getClubId(), clubId);
-        // 로그인 유저 클럽 소속 여부 체크 + 운영진(Owner or Coach) 여부 판단
-        Boolean isStaff = affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
-                clubId,
-                member.getMemberId(),
-                ClubJoinStatus.APPROVED,
-                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH));
+        // 운영진 여부 판단
+        Boolean isStaff = loginUser.getPlayerRole() == ClubPlayerRole.OWNER
+                || loginUser.getPlayerRole() == ClubPlayerRole.COACH;
         // Dto 반환
         return matchMapper.toMatchDto(match, isStaff);
     }

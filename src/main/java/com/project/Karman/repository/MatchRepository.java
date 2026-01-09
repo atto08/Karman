@@ -26,6 +26,8 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
             """)
     Optional<Match> findByIdWithQuarters(@Param("matchId") UUID matchId);
 
+    boolean existsByClub_ClubIdAndMatchId(UUID clubId, UUID matchId);
+
     @Query("""
             SELECT COUNT(mg) FROM MatchGoal mg
             WHERE mg.matchQuarter.matchQuarterId.matchId = :matchId
