@@ -29,6 +29,7 @@ public enum ExceptionMessage {
     NOT_FOUND_MATCH(HttpStatus.NOT_FOUND, "찾을 수 없는 매치정보 입니다.", 404),
     NOT_FOUND_MATCH_QUARTER(HttpStatus.NOT_FOUND, "찾을 수 없는 매치의 쿼터정보 입니다.", 404),
     NOT_INCLUDED_PLAYER_IN_LINEUP(HttpStatus.NOT_FOUND, "라인업에 포함되지 않은 선수입니다.", 404),
+    PLAYER_NOT_IN_LINEUP_FOR_GOAL_RECORD(HttpStatus.BAD_REQUEST, "골 기록은 라인업에 포함된 선수만 가능합니다.", 400),
 
     CREATE_AI_RESPONSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ai 응답생성 중 문제가 발생했습니다.", 500);
 

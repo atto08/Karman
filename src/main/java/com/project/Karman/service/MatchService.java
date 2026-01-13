@@ -4,6 +4,8 @@ import com.project.Karman.domain.entity.*;
 import com.project.Karman.domain.enums.ClubJoinStatus;
 import com.project.Karman.domain.enums.ClubPlayerRole;
 import com.project.Karman.domain.enums.MatchFormation;
+import com.project.Karman.domain.vo.MatchScoreDelta;
+import com.project.Karman.domain.vo.PlayerStatsDelta;
 import com.project.Karman.dto.request.*;
 import com.project.Karman.dto.response.MatchListResponseDto;
 import com.project.Karman.dto.response.MatchResponseDto;
@@ -14,6 +16,8 @@ import com.project.Karman.repository.ClubRepository;
 import com.project.Karman.repository.MatchRepository;
 import com.project.Karman.service.mapper.MatchMapper;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +27,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class MatchService {
 
+    private static final Logger log = LoggerFactory.getLogger(MatchService.class);
     private final ClubRepository clubRepository;
     private final MatchRepository matchRepository;
     private final AffiliationRepository affiliationRepository;
@@ -48,10 +53,10 @@ public class MatchService {
 
     @Transactional
     public void createMatchQuarter(MatchQuarterCreateRequestDto requestDto, UUID clubId, UUID matchId, Member member) {
-        // [검증 로직]
-        // 1) 클럽 조회
+        // 1) 클럽 존재
         checkClubIsExist(clubId);
-        // 2) 클럽 소속 여부 & 권한 체크(운영진 이상부터 생성가능)
+
+        // 2) 권한(운영진)
         if (!affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
                 clubId,
                 member.getMemberId(),
@@ -60,30 +65,97 @@ public class MatchService {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
 
-        // 3) 매치 조회 - 존재 여부 판단 + 영속성 컨텍스트 저장
-        Match match = findMatchById(matchId);
+        // 3) 매치 조회
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH));
+
         // 4) 클럽 경기 여부
         checkMatchBelongToClub(match.getClub().getClubId(), clubId);
-        // TODO - MVP 구현 후 A안 B안 속도 비교
-        // 5) 라인업 선수 소속 여부 검증 - A안
+
+        // 5) 요청 라인업/골에 포함된 affiliationId가 클럽에 속해있는지 검증
         validateAffiliationIdsInSquad(requestDto.lineup(), requestDto.goalsInfo(), clubId);
-        // [비즈니스 로직]
-        // 포메이션 변환
-        MatchFormation matchFormation = MatchFormation.fromName(requestDto.formation());
-        // 쿼터 생성
-        MatchQuarter matchQuarter = matchMapper.toMatchQuarterEntity(requestDto, match, matchFormation);
-        // 기록 갱신이 필요한 선수들 ID
-        Set<UUID> updatedAffiliations = new HashSet<>();
-        // 쿼터 라인업 - MatchLineup 테이블 추가
-        addQuarterLineup(updatedAffiliations, requestDto.lineup(), matchQuarter);
-        // 쿼터 (득점 & 도움) - MatchGoal 테이블 추가
-        addQuarterGoalAndAssist(requestDto.goalsInfo(), matchQuarter);
-        // 매치에 쿼터 추가
+
+        // 6) matchId 기준으로 "이미 출전한 선수" Set 확보 (matchCount 중복 증가 방지)
+        Set<UUID> playedAffiliationIds = matchRepository.findPlayedAffiliationIdsByMatchId(matchId);
+
+        // 7) 쿼터 생성
+        MatchQuarter matchQuarter = matchMapper.toMatchQuarterEntity(
+                requestDto, match, MatchFormation.fromName(requestDto.formation()));
+
+        // 8) 델타 준비
+        MatchScoreDelta matchScoreDelta = new MatchScoreDelta(requestDto.goalsInfo().size(), requestDto.concededGoal());
+        Map<UUID, PlayerStatsDelta> playerStatsDeltaMap = new HashMap<>();
+
+        // 9) 라인업 저장 + (matchCountDelta 계산)
+        for (MatchLineupCreateRequestDto playerInfo : requestDto.lineup()) {
+            MatchLineup matchLineup = matchMapper.toMatchLineupEntity(matchQuarter, playerInfo);
+            matchQuarter.addLineup(matchLineup);
+
+            UUID affiliationId = playerInfo.affiliationId();
+            if (affiliationId == null) continue;
+
+            // deltaMap 엔트리 확보
+            playerStatsDeltaMap.putIfAbsent(affiliationId, new PlayerStatsDelta(0, 0, 0));
+
+            // 해당 match에서 처음 출전이면 matchCount +1
+            if (!playedAffiliationIds.contains(affiliationId)) {
+                playerStatsDeltaMap.get(affiliationId).addMatchCount();
+                playedAffiliationIds.add(affiliationId); // 같은 요청에서 중복 방지
+            }
+        }
+
+        // 10) 득점/도움 저장 + (goal/assistDelta 계산)
+        for (MatchGoalCreateRequestDto goalInfo : requestDto.goalsInfo()) {
+            MatchGoal matchGoal = matchMapper.toMatchGoalEntity(matchQuarter, goalInfo);
+            matchQuarter.addScoredGoal(matchGoal);
+
+            UUID scorerId = goalInfo.scorerAffiliationId();
+            if (scorerId != null) {
+                if (!playerStatsDeltaMap.containsKey(scorerId)) {
+                    throw new CustomException(ExceptionMessage.PLAYER_NOT_IN_LINEUP_FOR_GOAL_RECORD);
+                }
+                playerStatsDeltaMap.get(scorerId).addGoal();
+            }
+
+            UUID assistId = goalInfo.assistPlayerAffiliationId();
+            if (assistId != null) {
+                if (!playerStatsDeltaMap.containsKey(assistId)) {
+                    throw new CustomException(ExceptionMessage.PLAYER_NOT_IN_LINEUP_FOR_GOAL_RECORD);
+                }
+                playerStatsDeltaMap.get(assistId).addAssist();
+            }
+        }
+
+        // 11) match에 쿼터 추가
         match.addMatchQuarter(matchQuarter);
-        // (득점 & 실점) 계산 - Match 테이블 갱신
-        calculateMatchScore(match);
-        // (출전 경기수 & 득점 & 도움) 계산 - Affiliation 테이블 갱신
-        calculateAffiliationStats(updatedAffiliations);
+
+        // 12) Match 스코어 증분 반영
+        match.updateScore(matchScoreDelta.getScoreGoal(), matchScoreDelta.getConcedeGoal());
+
+        // 13) Affiliation 스탯 증분 반영 (한 번에 조회 후 더티체킹)
+        applyAffiliationDeltas(playerStatsDeltaMap);
+    }
+
+    private void applyAffiliationDeltas(Map<UUID, PlayerStatsDelta> deltaMap) {
+        if (deltaMap.isEmpty()) return;
+
+        List<UUID> deltaIds = new ArrayList<>(deltaMap.keySet());
+        List<Affiliation> affiliations = affiliationRepository.findAllById(deltaIds);
+
+        Map<UUID, Affiliation> affiliationMap = new HashMap<>();
+        for (Affiliation affiliation : affiliations) {
+            affiliationMap.put(affiliation.getAffiliationId(), affiliation);
+        }
+
+        for (Map.Entry<UUID, PlayerStatsDelta> entry : deltaMap.entrySet()) {
+            UUID affiliationId = entry.getKey();
+            PlayerStatsDelta delta = entry.getValue();
+
+            Affiliation affiliation = affiliationMap.get(affiliationId);
+            if (affiliation == null) continue;
+
+            affiliation.applyDelta(delta);
+        }
     }
 
     @Transactional
@@ -122,14 +194,34 @@ public class MatchService {
         // 쿼터 (득점 & 도움) - MatchGoal 테이블 추가
         addQuarterGoalAndAssist(requestDto.goalsInfo(), matchQuarter);
         // (득점 & 실점) 계산 - Match 테이블 갱신
-        calculateMatchScore(match);
+
         // (출전 경기수 & 득점 & 도움) 계산 - Affiliation 테이블 갱신
-        calculateAffiliationStats(updatedAffiliations);
+
     }
 
     private void validateAffiliationIdsInSquad(List<MatchLineupCreateRequestDto> lineupRequestDto, List<MatchGoalCreateRequestDto> goalsInfoRequestDto, UUID clubId) {
         // 입력받은 affiliationId 목록
-        Set<UUID> affiliationIdsToValidate = getAffiliationIdsFromDto(lineupRequestDto, goalsInfoRequestDto);
+        Set<UUID> affiliationIdsToValidate = new HashSet<>();
+
+        // 라인업에서 수집
+        for (MatchLineupCreateRequestDto lineupDto : lineupRequestDto) {
+            if (lineupDto.affiliationId() != null) {
+                affiliationIdsToValidate.add(lineupDto.affiliationId());
+            }
+        }
+
+        // 득점/어시스트 정보에서 수집
+        if (goalsInfoRequestDto != null) {
+            for (MatchGoalCreateRequestDto goalDto : goalsInfoRequestDto) {
+                if (goalDto.scorerAffiliationId() != null) {
+                    affiliationIdsToValidate.add(goalDto.scorerAffiliationId());
+                }
+                if (goalDto.assistPlayerAffiliationId() != null) {
+                    affiliationIdsToValidate.add(goalDto.assistPlayerAffiliationId());
+                }
+            }
+        }
+
         // 검증
         if (!affiliationIdsToValidate.isEmpty()) {
             // 실존하는 affiliationId 객체만 리스트로 반환
@@ -142,38 +234,20 @@ public class MatchService {
         }
     }
 
-    private Set<UUID> getAffiliationIdsFromDto(List<MatchLineupCreateRequestDto> lineupRequestDto, List<MatchGoalCreateRequestDto> goalsInfoRequestDto) {
-        Set<UUID> affiliationIdsToValidate = new HashSet<>();
-        // 라인업에서 수집
-        for (MatchLineupCreateRequestDto lineupDto : lineupRequestDto) {
-            if (lineupDto.affiliationId() != null) {
-                affiliationIdsToValidate.add(lineupDto.affiliationId());
-            }
-        }
-        // 득점/어시스트 정보에서 수집
-        if (goalsInfoRequestDto != null) {
-            for (MatchGoalCreateRequestDto goalDto : goalsInfoRequestDto) {
-                if (goalDto.scorerAffiliationId() != null) {
-                    affiliationIdsToValidate.add(goalDto.scorerAffiliationId());
-                }
-                if (goalDto.assistPlayerAffiliationId() != null) {
-                    affiliationIdsToValidate.add(goalDto.assistPlayerAffiliationId());
-                }
-            }
-        }
-        return affiliationIdsToValidate;
+    private void calculateMatchScore(Match match, MatchScoreDelta matchScoreDelta) {
+        log.info("매치 점수 계산합니다잉");
+        // 업데이트 스코어
+        match.updateScore(matchScoreDelta.getScoreGoal(), matchScoreDelta.getConcedeGoal());
     }
 
-    private void calculateMatchScore(Match match) {
-        // 득점
-        Long updatedScoredGoal = matchRepository.countGoalsByMatchId(match.getMatchId());
-        // 실점
-        Long updatedConcededGoal = matchRepository.countConcededGoalsByMatchId(match.getMatchId());
-        // 업데이트 스코어
-        match.updateScore(updatedScoredGoal, updatedConcededGoal);
+    private void calculateAffiliationStats(Set<UUID> updateAffiliationIds) {
+
+        log.info("#### 선수 스탯 업데이트 시작합니다잉####");
+
     }
 
     private void addQuarterLineup(Set<UUID> updatedAffiliations, List<MatchLineupCreateRequestDto> lineup, MatchQuarter matchQuarter) {
+        log.info("#####---쿼터 라인업 생성 및 추가---#####");
         for (MatchLineupCreateRequestDto lineupDto : lineup) {
             // 출전선수 정보 생성
             MatchLineup playerInLineup = matchMapper.toMatchLineupEntity(matchQuarter, lineupDto);
@@ -186,25 +260,11 @@ public class MatchService {
     }
 
     private void addQuarterGoalAndAssist(List<MatchGoalCreateRequestDto> goalsInfo, MatchQuarter matchQuarter) {
-
+        log.info("#####---쿼터 골/도움 기록 생성 및 추가---#####");
         for (MatchGoalCreateRequestDto goalDto : goalsInfo) {
             // 득점 정보 객체 생성 및 저장
             MatchGoal scoreInfo = matchMapper.toMatchGoalEntity(matchQuarter, goalDto);
             matchQuarter.addScoredGoal(scoreInfo);
-        }
-    }
-
-    private void calculateAffiliationStats(Set<UUID> updateAffiliationIds) {
-        for (UUID updateAffiliationId : updateAffiliationIds) {
-            Affiliation updatePlayer = affiliationRepository.findById(updateAffiliationId)
-                    .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
-
-            Long updatedMatches = matchRepository.countPlayedMatchesByAffiliationId(updateAffiliationId);
-            Long updatedGoals = matchRepository.countGoalsByAffiliationId(updateAffiliationId);
-            Long updatedAssists = matchRepository.countAssistsByAffiliationId(updateAffiliationId);
-            updatePlayer.updateMatchCount(updatedMatches);
-            updatePlayer.updateGoal(updatedGoals);
-            updatePlayer.updateAssist(updatedAssists);
         }
     }
 

@@ -77,16 +77,16 @@ public class Match extends BaseEntity {
         matchQuarters.add(matchQuarter);
     }
 
-
     public void updateScore(Long updateScoredGoal, Long updatedConcededGoal) {
-        if (updateScoredGoal > updatedConcededGoal) {
+        this.scoredGoal += updateScoredGoal;
+        this.concededGoal += updatedConcededGoal;
+
+        if (this.scoredGoal > this.concededGoal) {
             this.matchResult = MatchResult.WIN;
-        } else if (updateScoredGoal < updatedConcededGoal) {
+        } else if (this.scoredGoal < this.concededGoal) {
             this.matchResult = MatchResult.LOSE;
         } else {
             this.matchResult = MatchResult.DRAW;
         }
-        this.scoredGoal = updateScoredGoal;
-        this.concededGoal = updatedConcededGoal;
     }
 }

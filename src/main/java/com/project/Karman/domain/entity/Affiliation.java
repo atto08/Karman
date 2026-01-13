@@ -3,6 +3,7 @@ package com.project.Karman.domain.entity;
 import com.project.Karman.domain.enums.ClubJoinStatus;
 import com.project.Karman.domain.enums.ClubPlayerPosition;
 import com.project.Karman.domain.enums.ClubPlayerRole;
+import com.project.Karman.domain.vo.PlayerStatsDelta;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -92,15 +93,9 @@ public class Affiliation extends BaseEntity {
         this.backNumber = updatedBackNumber == null ? this.backNumber : updatedBackNumber;
     }
 
-    public void updateMatchCount(Long updatedMatchCount) {
-        this.matchCount = updatedMatchCount;
-    }
-
-    public void updateGoal(Long updatedGoal) {
-        this.goal = updatedGoal;
-    }
-
-    public void updateAssist(Long updatedAssist) {
-        this.assist = updatedAssist;
+    public void applyDelta(PlayerStatsDelta delta) {
+        this.matchCount += delta.getMatchCount();
+        this.goal += delta.getGoal();
+        this.assist += delta.getAssist();
     }
 }

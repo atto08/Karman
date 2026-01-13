@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -29,34 +30,12 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
     boolean existsByClub_ClubIdAndMatchId(UUID clubId, UUID matchId);
 
     @Query("""
-            SELECT COUNT(mg) FROM MatchGoal mg
-            WHERE mg.matchQuarter.matchQuarterId.matchId = :matchId
-            """)
-    Long countGoalsByMatchId(@Param("matchId") UUID matchId);
-
-    @Query("""
-            SELECT COALESCE(SUM(mq.concededGoal), 0) FROM MatchQuarter mq
+            SELECT DISTINCT ml.playerInfo.affiliationId FROM MatchLineup ml
+            JOIN ml.matchQuarter mq
             WHERE mq.matchQuarterId.matchId = :matchId
+            AND ml.playerInfo.affiliationId IS NOT NULL
             """)
-    Long countConcededGoalsByMatchId(@Param("matchId") UUID matchId);
-
-    @Query("""
-            SELECT COUNT(mg) FROM MatchGoal mg
-            WHERE mg.scorePlayer.affiliationId = :affiliationId
-            """)
-    Long countGoalsByAffiliationId(@Param("affiliationId") UUID affiliationId);
-
-    @Query("""
-            SELECT COUNT(mg) FROM MatchGoal mg
-            WHERE mg.assistPlayer.affiliationId = :affiliationId
-            """)
-    Long countAssistsByAffiliationId(@Param("affiliationId") UUID affiliationId);
-
-    @Query("""
-            SELECT COUNT(DISTINCT(ml.matchQuarter.matchQuarterId.matchId)) FROM MatchLineup ml
-            WHERE ml.playerInfo.affiliationId = :affiliationId
-            """)
-    Long countPlayedMatchesByAffiliationId(@Param("affiliationId") UUID affiliationId);
+    Set<UUID> findPlayedAffiliationIdsByMatchId(@Param("matchId") UUID matchId);
 
     // matchQuarter Repository 생성 보류
     @Query("""
