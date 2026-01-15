@@ -65,14 +65,11 @@ public class MatchService {
             throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
         }
 
-        // 3) 매치 조회
-        Match match = matchRepository.findById(matchId)
+        // 3) 매치 조회 - 클럽 매치 여부 통합(4)
+        Match match = matchRepository.findByClub_ClubIdAndMatchId(clubId, matchId)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH));
 
-        // 4) 클럽 경기 여부
-        checkMatchBelongToClub(match.getClub().getClubId(), clubId);
-
-        // 5) 요청 라인업/골에 포함된 affiliationId가 클럽에 속해있는지 검증
+        // 5) 라인업/골에 포함된 affiliationId가 클럽 소속선수 ID인지 검증
         validateAffiliationIdsInSquad(requestDto.lineup(), requestDto.goalsInfo(), clubId);
 
         // 6) matchId 기준으로 "이미 출전한 선수" Set 확보 (matchCount 중복 증가 방지)
@@ -160,42 +157,7 @@ public class MatchService {
 
     @Transactional
     public void updateMatchQuarter(MatchQuarterUpdateRequestDto requestDto, UUID clubId, UUID matchId, Member member, Integer quarter) {
-        // [검증 로직]
-        // 1) 클럽 조회
-        checkClubIsExist(clubId);
-        // 2) 클럽 소속 여부 & 권한 체크(운영진 이삼만 쿼터생성 가능)
-        if (!affiliationRepository.existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
-                clubId,
-                member.getMemberId(),
-                ClubJoinStatus.APPROVED,
-                List.of(ClubPlayerRole.OWNER, ClubPlayerRole.COACH))) {
-            throw new CustomException(ExceptionMessage.PERMISSION_DENIED_MEMBER);
-        }
-        // 3) 매치 조회 - 존재 여부 판단 + 영속성 컨텍스트 저장
-        Match match = findMatchById(matchId);
-        // 4) 클럽 경기 여부
-        checkMatchBelongToClub(match.getClub().getClubId(), clubId);
-        // 5) 라인업 선수 소속 여부 검증
-        validateAffiliationIdsInSquad(requestDto.lineup(), requestDto.goalsInfo(), clubId);
-        // 쿼터 조회
-        MatchQuarter matchQuarter = matchRepository.findByMatchQuarterId_MatchIdAndMatchQuarterId_Quarter(matchId, quarter)
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH_QUARTER));
-        // 기록 갱신이 필요한 선수들 ID
-        Set<UUID> updatedAffiliations = new HashSet<>();
-        // 수정전 라인업 포함 선수 ID 추가
-        addAffectedAffiliationIds(updatedAffiliations, matchQuarter.getLineup());
-        // 포메이션 & 실점 - Match 테이블 갱신
-        MatchFormation updateMatchFormation = requestDto.formation() != null ? MatchFormation.fromName(requestDto.formation()) : null;
-        matchQuarter.update(updateMatchFormation, requestDto.concededGoal());
-        // 기존 정보 제거
-        matchQuarter.clearQuarterData();
-        // 쿼터 라인업 - MatchLineup 테이블 추가
-        addQuarterLineup(updatedAffiliations, requestDto.lineup(), matchQuarter);
-        // 쿼터 (득점 & 도움) - MatchGoal 테이블 추가
-        addQuarterGoalAndAssist(requestDto.goalsInfo(), matchQuarter);
-        // (득점 & 실점) 계산 - Match 테이블 갱신
 
-        // (출전 경기수 & 득점 & 도움) 계산 - Affiliation 테이블 갱신
 
     }
 
@@ -321,17 +283,6 @@ public class MatchService {
     private void checkClubIsExist(UUID clubId) {
         if (!clubRepository.existsById(clubId)) {
             throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
-        }
-    }
-
-    private Match findMatchById(UUID matchId) {
-        return matchRepository.findById(matchId)
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH));
-    }
-
-    private void checkMatchBelongToClub(UUID matchClubId, UUID clubId) {
-        if (!matchClubId.equals(clubId)) {
-            throw new CustomException(ExceptionMessage.MATCH_NOT_BELONG_TO_CLUB);
         }
     }
 }

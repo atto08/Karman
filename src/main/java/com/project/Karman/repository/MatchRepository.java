@@ -17,6 +17,8 @@ import java.util.UUID;
 @Repository
 public interface MatchRepository extends JpaRepository<Match, UUID> {
 
+    Optional<Match> findByClub_ClubIdAndMatchId(UUID clubId, UUID matchId);
+
     List<Match> findAllByClub_ClubIdOrderByMatchDateDesc(UUID clubId);
 
     @Query("""
