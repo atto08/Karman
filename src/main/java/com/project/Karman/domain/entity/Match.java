@@ -77,7 +77,7 @@ public class Match extends BaseEntity {
         matchQuarters.add(matchQuarter);
     }
 
-    public void updateScore(Long updateScoredGoal, Long updatedConcededGoal) {
+    public void addScore(Long updateScoredGoal, Long updatedConcededGoal) {
         this.scoredGoal += updateScoredGoal;
         this.concededGoal += updatedConcededGoal;
 

@@ -25,14 +25,13 @@ public class MatchMapper {
         );
     }
 
-    public MatchQuarter toMatchQuarterEntity(MatchQuarterCreateRequestDto requestDto, Match match, MatchFormation matchFormation) {
+    public MatchQuarter toMatchQuarterEntity(Match match, Integer quarter, MatchFormation matchFormation) {
 
         return MatchQuarter.of(
                 match.getMatchId(),
-                requestDto.quarter(),
+                quarter,
                 match,
-                matchFormation,
-                requestDto.concededGoal()
+                matchFormation
         );
     }
 

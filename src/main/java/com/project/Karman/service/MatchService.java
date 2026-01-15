@@ -77,7 +77,7 @@ public class MatchService {
 
         // 7) 쿼터 생성
         MatchQuarter matchQuarter = matchMapper.toMatchQuarterEntity(
-                requestDto, match, MatchFormation.fromName(requestDto.formation()));
+                match, requestDto.quarter(), MatchFormation.fromName(requestDto.formation()));
 
         // 8) 델타 준비
         MatchScoreDelta matchScoreDelta = new MatchScoreDelta(requestDto.goalsInfo().size(), requestDto.concededGoal());
@@ -123,11 +123,13 @@ public class MatchService {
             }
         }
 
+        matchQuarter.updateScore(matchScoreDelta.getScoreGoal(), matchScoreDelta.getConcedeGoal());
+
         // 11) match에 쿼터 추가
         match.addMatchQuarter(matchQuarter);
 
         // 12) Match 스코어 증분 반영
-        match.updateScore(matchScoreDelta.getScoreGoal(), matchScoreDelta.getConcedeGoal());
+        match.addScore(matchScoreDelta.getScoreGoal(), matchScoreDelta.getConcedeGoal());
 
         // 13) Affiliation 스탯 증분 반영 (한 번에 조회 후 더티체킹)
         applyAffiliationDeltas(playerStatsDeltaMap);
@@ -157,7 +159,6 @@ public class MatchService {
 
     @Transactional
     public void updateMatchQuarter(MatchQuarterUpdateRequestDto requestDto, UUID clubId, UUID matchId, Member member, Integer quarter) {
-
 
     }
 
@@ -192,49 +193,6 @@ public class MatchService {
             // 아이디 수가 일치하지 않으면 정상적이지 않은 affiliationId가 포함된 상황
             if (validAffiliations.size() != affiliationIdsToValidate.size()) {
                 throw new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB);
-            }
-        }
-    }
-
-    private void calculateMatchScore(Match match, MatchScoreDelta matchScoreDelta) {
-        log.info("매치 점수 계산합니다잉");
-        // 업데이트 스코어
-        match.updateScore(matchScoreDelta.getScoreGoal(), matchScoreDelta.getConcedeGoal());
-    }
-
-    private void calculateAffiliationStats(Set<UUID> updateAffiliationIds) {
-
-        log.info("#### 선수 스탯 업데이트 시작합니다잉####");
-
-    }
-
-    private void addQuarterLineup(Set<UUID> updatedAffiliations, List<MatchLineupCreateRequestDto> lineup, MatchQuarter matchQuarter) {
-        log.info("#####---쿼터 라인업 생성 및 추가---#####");
-        for (MatchLineupCreateRequestDto lineupDto : lineup) {
-            // 출전선수 정보 생성
-            MatchLineup playerInLineup = matchMapper.toMatchLineupEntity(matchQuarter, lineupDto);
-            matchQuarter.addLineup(playerInLineup);
-            // 소속 선수
-            if (lineupDto.affiliationId() != null) {
-                updatedAffiliations.add(lineupDto.affiliationId());
-            }
-        }
-    }
-
-    private void addQuarterGoalAndAssist(List<MatchGoalCreateRequestDto> goalsInfo, MatchQuarter matchQuarter) {
-        log.info("#####---쿼터 골/도움 기록 생성 및 추가---#####");
-        for (MatchGoalCreateRequestDto goalDto : goalsInfo) {
-            // 득점 정보 객체 생성 및 저장
-            MatchGoal scoreInfo = matchMapper.toMatchGoalEntity(matchQuarter, goalDto);
-            matchQuarter.addScoredGoal(scoreInfo);
-        }
-    }
-
-    private void addAffectedAffiliationIds(Set<UUID> updatedAffiliations, List<MatchLineup> matchLineup) {
-
-        for (MatchLineup ml : matchLineup) {
-            if (ml.getPlayerInfo().getAffiliationId() != null) {
-                updatedAffiliations.add(ml.getPlayerInfo().getAffiliationId());
             }
         }
     }

@@ -46,13 +46,12 @@ public class MatchQuarter extends BaseEntity {
     private List<MatchGoal> scoredGoals = new ArrayList<>();
 
 
-    public static MatchQuarter of(UUID matchId, Integer quarter, Match match, MatchFormation matchFormation, Long concededGoal) {
+    public static MatchQuarter of(UUID matchId, Integer quarter, Match match, MatchFormation matchFormation) {
 
         return MatchQuarter.builder()
                 .matchQuarterId(MatchQuarterId.of(matchId, quarter))
                 .match(match)
                 .matchFormation(matchFormation)
-                .concededGoal(concededGoal)
                 .build();
     }
 
@@ -64,13 +63,8 @@ public class MatchQuarter extends BaseEntity {
         scoredGoals.add(goal);
     }
 
-    public void update(MatchFormation matchFormation, Long concededGoal) {
-        if(matchFormation != null) this.matchFormation = matchFormation;
-        if(concededGoal != null) this.concededGoal = concededGoal;
-    }
-
-    public void clearQuarterData() {
-        this.lineup.clear();
-        this.scoredGoals.clear();
+    public void updateScore(Long scoredGoal, Long concededGoal) {
+        this.scoredGoal = scoredGoal;
+        this.concededGoal = concededGoal;
     }
 }
