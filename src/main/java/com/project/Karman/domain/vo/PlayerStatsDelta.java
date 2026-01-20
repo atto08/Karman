@@ -26,4 +26,16 @@ public class PlayerStatsDelta {
     public void addAssist() {
         this.assist++;
     }
+
+    public void minusMatchCount() {
+        this.matchCount--;
+    }
+
+    public void minusGoal() {
+        this.goal--;
+    }
+
+    public void minusAssist() {
+        this.assist--;
+    }
 }

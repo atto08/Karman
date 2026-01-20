@@ -21,29 +21,43 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
 
     List<Match> findAllByClub_ClubIdOrderByMatchDateDesc(UUID clubId);
 
+    boolean existsByClub_ClubIdAndMatchId(UUID clubId, UUID matchId);
+
     @Query("""
-            SELECT DISTINCT m FROM Match m
+            SELECT DISTINCT m
+            FROM Match m
             LEFT JOIN FETCH m.matchQuarters mq
             WHERE m.matchId = :matchId
             ORDER BY mq.matchQuarterId.quarter ASC
             """)
     Optional<Match> findByIdWithQuarters(@Param("matchId") UUID matchId);
 
-    boolean existsByClub_ClubIdAndMatchId(UUID clubId, UUID matchId);
-
     @Query("""
-            SELECT DISTINCT ml.playerInfo.affiliationId FROM MatchLineup ml
+            SELECT DISTINCT ml.playerInfo.affiliationId
+            FROM MatchLineup ml
             JOIN ml.matchQuarter mq
             WHERE mq.matchQuarterId.matchId = :matchId
-            AND ml.playerInfo.affiliationId IS NOT NULL
+                AND ml.playerInfo.affiliationId IS NOT NULL
             """)
     Set<UUID> findPlayedAffiliationIdsByMatchId(@Param("matchId") UUID matchId);
 
+    @Query("""
+            SELECT DISTINCT ml.playerInfo.affiliationId
+            FROM MatchLineup ml
+            WHERE ml.matchQuarter.matchQuarterId.matchId = :matchId
+              AND ml.matchQuarter.matchQuarterId.quarter <> :quarter
+              AND ml.playerInfo.affiliationId IS NOT NULL
+            """)
+    Set<UUID> findPlayedAffiliationIdsInOtherQuarters(
+            @Param("matchId") UUID matchId,
+            @Param("quarter") Integer quarter);
+
     // matchQuarter Repository 생성 보류
     @Query("""
-            SELECT mq FROM MatchQuarter mq
+            SELECT mq
+            FROM MatchQuarter mq
             WHERE mq.matchQuarterId.matchId = :matchId
-            AND mq.matchQuarterId.quarter = :quarter
+                AND mq.matchQuarterId.quarter = :quarter
             """)
     Optional<MatchQuarter> findByMatchQuarterId_MatchIdAndMatchQuarterId_Quarter(@Param("matchId") UUID matchId,
                                                                                  @Param("quarter") Integer quarter);

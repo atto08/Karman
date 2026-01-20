@@ -67,4 +67,8 @@ public class MatchQuarter extends BaseEntity {
         this.scoredGoal = scoredGoal;
         this.concededGoal = concededGoal;
     }
+
+    public void updateFormation(MatchFormation formation) {
+        this.matchFormation = formation;
+    }
 }
