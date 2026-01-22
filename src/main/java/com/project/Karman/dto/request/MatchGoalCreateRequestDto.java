@@ -16,8 +16,8 @@ public record MatchGoalCreateRequestDto(
 
         @Size(max = 50, message = "어시스트 선수 이름은 50자 이하여야 합니다.")
         @Pattern(regexp = "^[가-힣a-zA-Z0-9\\s]+$", message = "어시스트 선수 이름은 한글, 영어, 숫자만 입력 가능합니다.")
-        String assistPlayerName,
+        String assistName,
 
-        UUID assistPlayerAffiliationId
+        UUID assistAffiliationId
 ) {
 }

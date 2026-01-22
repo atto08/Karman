@@ -113,7 +113,7 @@ public class MatchService {
                 playerStatsDeltaMap.get(scorerId).addGoal();
             }
 
-            UUID assistId = goalInfo.assistPlayerAffiliationId();
+            UUID assistId = goalInfo.assistAffiliationId();
             if (assistId != null) {
                 if (!playerStatsDeltaMap.containsKey(assistId)) {
                     throw new CustomException(ExceptionMessage.PLAYER_NOT_IN_LINEUP_FOR_GOAL_RECORD);
@@ -172,6 +172,9 @@ public class MatchService {
         }
 
         // TODO - fetch join 고려 -> MatchQuarter 정보
+        // 클럽 매치 조회
+        Match match = matchRepository.findByClub_ClubIdAndMatchId(clubId, matchId)
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH));
         // 매치 쿼터 조회
         MatchQuarter matchQuarter = matchRepository.findByMatchQuarterId_MatchIdAndMatchQuarterId_Quarter(matchId, quarter)
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_MATCH_QUARTER));
@@ -217,7 +220,8 @@ public class MatchService {
                 playerStatsDeltaMap.get(scorerId).minusGoal();
             }
 
-            UUID assistId = beforeGoal.getAssistPlayer().getAffiliationId();
+            MatchPlayerInfo assistPlayer = beforeGoal.getAssistPlayer();
+            UUID assistId = (assistPlayer != null) ? assistPlayer.getAffiliationId() : null;
             if (assistId != null) {
                 if (!playerStatsDeltaMap.containsKey(assistId)) {
                     playerStatsDeltaMap.put(assistId, new PlayerStatsDelta(0, 0, 0));
@@ -293,7 +297,7 @@ public class MatchService {
                 }
             }
 
-            UUID assistId = goalInfo.assistPlayerAffiliationId();
+            UUID assistId = goalInfo.assistAffiliationId();
             if (assistId != null) {
                 if (playerStatsDeltaMap.containsKey(assistId)) {
                     playerStatsDeltaMap.get(assistId).addAssist();
@@ -306,7 +310,6 @@ public class MatchService {
 
         // 7) 엔티티 상태 최종 반영
         // 경기 전체 스코어 증분 반영
-        Match match = matchRepository.getReferenceById(matchId);
         match.addScore(matchScoreDelta.getScoreGoal(), matchScoreDelta.getConcedeGoal());
         // 쿼터 정보 업데이트
         matchQuarter.updateScore(afterScores, afterConcedes);
@@ -333,8 +336,8 @@ public class MatchService {
                 if (goalDto.scorerAffiliationId() != null) {
                     affiliationIdsToValidate.add(goalDto.scorerAffiliationId());
                 }
-                if (goalDto.assistPlayerAffiliationId() != null) {
-                    affiliationIdsToValidate.add(goalDto.assistPlayerAffiliationId());
+                if (goalDto.assistAffiliationId() != null) {
+                    affiliationIdsToValidate.add(goalDto.assistAffiliationId());
                 }
             }
         }
