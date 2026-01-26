@@ -5,7 +5,6 @@ import com.project.Karman.domain.enums.MatchFormation;
 import com.project.Karman.dto.request.MatchCreateRequestDto;
 import com.project.Karman.dto.request.MatchGoalCreateRequestDto;
 import com.project.Karman.dto.request.MatchLineupCreateRequestDto;
-import com.project.Karman.dto.request.MatchQuarterCreateRequestDto;
 import com.project.Karman.dto.response.*;
 import org.springframework.stereotype.Component;
 
@@ -53,8 +52,8 @@ public class MatchMapper {
                 matchQuarter,
                 goalDto.scorerName(),
                 goalDto.scorerAffiliationId(),
-                goalDto.assistPlayerName(),
-                goalDto.assistPlayerAffiliationId()
+                goalDto.assistName(),
+                goalDto.assistAffiliationId()
         );
     }
 
