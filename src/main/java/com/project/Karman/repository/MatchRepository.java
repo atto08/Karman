@@ -5,6 +5,7 @@ import com.project.Karman.domain.entity.MatchQuarter;
 import com.project.Karman.domain.enums.MatchResult;
 import com.project.Karman.repository.projection.ClubMatchStatisticsProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -78,4 +79,26 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
             @Param("win") MatchResult win,
             @Param("draw") MatchResult draw,
             @Param("lose") MatchResult lose);
+
+    // 쿼터 모든 골 기록 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("""
+            DELETE FROM MatchGoal mg
+            WHERE mg.matchQuarter.matchQuarterId.matchId = :matchId
+                AND mg.matchQuarter.matchQuarterId.quarter = :quarter
+            """)
+    void deleteGoalsByQuarterId(
+            @Param("matchId") UUID matchId,
+            @Param("quarter") Integer quarter);
+
+    // 쿼터 모든 라인업 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("""
+            DELETE FROM MatchLineup ml
+            WHERE ml.matchQuarter.matchQuarterId.matchId = :matchId
+                AND ml.matchQuarter.matchQuarterId.quarter = :quarter
+            """)
+    void deleteLineupsByQuarterId(
+            @Param("matchId") UUID matchId,
+            @Param("quarter") Integer quarter);
 }

@@ -6,6 +6,8 @@ import com.project.Karman.domain.entity.Member;
 import com.project.Karman.domain.enums.ClubJoinStatus;
 import com.project.Karman.domain.enums.ClubPlayerPosition;
 import com.project.Karman.domain.enums.ClubPlayerRole;
+import com.project.Karman.domain.vo.PlayerStatsDelta;
+import com.project.Karman.dto.batch.PlayerStatBatchDto;
 import com.project.Karman.dto.response.*;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +36,8 @@ public class AffiliationMapper {
                 affiliation.getAffiliationId(),
                 affiliation.getPlayerName(),
                 affiliation.getBackNumber(),
-                affiliation.getPlayerPosition());
+                affiliation.getPlayerPosition()
+        );
     }
 
     public PlayerSelectListResponseDto toPlayerSelectListDto(UUID clubId, List<Affiliation> affiliations) {
@@ -45,7 +48,8 @@ public class AffiliationMapper {
 
         return PlayerSelectListResponseDto.of(
                 clubId,
-                playerSelectResponseDtoList);
+                playerSelectResponseDtoList
+        );
     }
 
     public PlayerInfoResponseDto toPlayerInfoDto(Affiliation affiliation) {
@@ -72,14 +76,26 @@ public class AffiliationMapper {
         return PlayerInfoListResponseDto.of(
                 clubId,
                 isStaff,
-                playerInfoResponseDtoList);
+                playerInfoResponseDtoList
+        );
+    }
+
+    public PlayerStatBatchDto toPlayerStatBatchDto(UUID affiliationId, PlayerStatsDelta delta) {
+
+        return PlayerStatBatchDto.of(
+                affiliationId,
+                delta.getMatchCount(),
+                delta.getGoal(),
+                delta.getAssist()
+        );
     }
 
     public ClubJoinRequestResponseDto toClubJoinRequestDto(Affiliation affiliation) {
 
         return ClubJoinRequestResponseDto.of(
                 affiliation.getAffiliationId(),
-                affiliation.getPlayerName());
+                affiliation.getPlayerName()
+        );
     }
 
     public ClubJoinRequestListResponseDto toClubJoinRequestListDto(UUID clubId, List<Affiliation> affiliations) {
@@ -90,6 +106,7 @@ public class AffiliationMapper {
 
         return ClubJoinRequestListResponseDto.of(
                 clubId,
-                clubJoinRequestResponseDtoList);
+                clubJoinRequestResponseDtoList
+        );
     }
 }

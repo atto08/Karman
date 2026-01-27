@@ -2,14 +2,16 @@ package com.project.Karman.service.mapper;
 
 import com.project.Karman.domain.entity.*;
 import com.project.Karman.domain.enums.MatchFormation;
+import com.project.Karman.dto.batch.MatchGoalBatchDto;
+import com.project.Karman.dto.batch.MatchLineupBatchDto;
 import com.project.Karman.dto.request.MatchCreateRequestDto;
 import com.project.Karman.dto.request.MatchGoalCreateRequestDto;
 import com.project.Karman.dto.request.MatchLineupCreateRequestDto;
-import com.project.Karman.dto.request.MatchQuarterCreateRequestDto;
 import com.project.Karman.dto.response.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class MatchMapper {
@@ -35,26 +37,28 @@ public class MatchMapper {
         );
     }
 
-    public MatchLineup toMatchLineupEntity(MatchQuarter matchQuarter, MatchLineupCreateRequestDto lineupRequestDto) {
+    public MatchLineupBatchDto toMatchLineupBatchDto(UUID lineupId, MatchQuarter matchQuarter, MatchLineupCreateRequestDto lineupRequestDto) {
 
-        return MatchLineup.of(
+        return MatchLineupBatchDto.of(
+                lineupId,
                 matchQuarter,
                 lineupRequestDto.positionNumber(),
                 lineupRequestDto.position(),
-                lineupRequestDto.isSub(),
                 lineupRequestDto.name(),
-                lineupRequestDto.affiliationId()
+                lineupRequestDto.affiliationId(),
+                lineupRequestDto.isSub()
         );
     }
 
-    public MatchGoal toMatchGoalEntity(MatchQuarter matchQuarter, MatchGoalCreateRequestDto goalDto) {
+    public MatchGoalBatchDto toMatchGoalBatchDto(UUID matchGoalId, MatchQuarter matchQuarter, MatchGoalCreateRequestDto goalRequestDto) {
 
-        return MatchGoal.of(
+        return MatchGoalBatchDto.of(
+                matchGoalId,
                 matchQuarter,
-                goalDto.scorerName(),
-                goalDto.scorerAffiliationId(),
-                goalDto.assistPlayerName(),
-                goalDto.assistPlayerAffiliationId()
+                goalRequestDto.scorerName(),
+                goalRequestDto.scorerAffiliationId(),
+                goalRequestDto.assistName(),
+                goalRequestDto.assistAffiliationId()
         );
     }
 
