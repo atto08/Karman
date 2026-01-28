@@ -177,6 +177,11 @@ public class MatchService {
 
         // 매치 스코어 증분 데이터
         MatchScoreDelta matchScoreDelta = new MatchScoreDelta(afterScores - beforeScores, afterConcedes - beforeConcedes);
+        // 경기 전체 스코어 업데이트
+        match.addScore(matchScoreDelta.getScoreGoal(), matchScoreDelta.getConcedeGoal());
+        // 쿼터 정보 업데이트
+        matchQuarter.updateScore(afterScores, afterConcedes);
+        matchQuarter.updateFormation(MatchFormation.fromName(requestDto.formation()));
 
         // update 라인업 유효성 검사
         validateAffiliationIdsInSquad(requestDto.lineup(), requestDto.goalsInfo(), clubId);
@@ -302,14 +307,7 @@ public class MatchService {
         matchQuarterBatchRepository.batchInsertMatchLineup(newLineupBatchDtoList);
         matchQuarterBatchRepository.batchInsertMatchGoal(newGoalsBatchDtoList);
 
-        // 7) 엔티티 상태 최종 반영
-        // 경기 전체 스코어 증분 반영
-        match.addScore(matchScoreDelta.getScoreGoal(), matchScoreDelta.getConcedeGoal());
-        // 쿼터 정보 업데이트
-        matchQuarter.updateScore(afterScores, afterConcedes);
-        matchQuarter.updateFormation(MatchFormation.fromName(requestDto.formation()));
-
-        // 8) 선수 스탯(Affiliation) 일괄 업데이트 (Batch Update)
+        // ✅ Batch Update: 선수 스탯(Affiliation) 일괄 업데이트
         applyAffiliationDeltas(playerStatsDeltaMap);
     }
 
