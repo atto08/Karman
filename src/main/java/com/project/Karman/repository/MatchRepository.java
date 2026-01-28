@@ -81,7 +81,7 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
             @Param("lose") MatchResult lose);
 
     // 쿼터 모든 골 기록 삭제
-    @Modifying(clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
             DELETE FROM MatchGoal mg
             WHERE mg.matchQuarter.matchQuarterId.matchId = :matchId
@@ -92,7 +92,7 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
             @Param("quarter") Integer quarter);
 
     // 쿼터 모든 라인업 삭제
-    @Modifying(clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
             DELETE FROM MatchLineup ml
             WHERE ml.matchQuarter.matchQuarterId.matchId = :matchId
