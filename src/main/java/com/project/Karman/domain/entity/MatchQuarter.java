@@ -24,10 +24,9 @@ public class MatchQuarter extends BaseEntity {
     @JoinColumn(name = "match_id")
     private Match match;
 
-    @Builder.Default
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private MatchFormation matchFormation = MatchFormation.FOUR_THREE_THREE;
+    private MatchFormation matchFormation;
 
     @Builder.Default
     @Column(nullable = false)
@@ -53,14 +52,6 @@ public class MatchQuarter extends BaseEntity {
                 .match(match)
                 .matchFormation(matchFormation)
                 .build();
-    }
-
-    public void addLineup(MatchLineup player) {
-        lineup.add(player);
-    }
-
-    public void addScoredGoal(MatchGoal goal) {
-        scoredGoals.add(goal);
     }
 
     public void updateScore(Long scoredGoal, Long concededGoal) {

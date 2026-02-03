@@ -11,7 +11,7 @@ import java.util.UUID;
 @Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class MatchGoal {
+public class MatchGoal extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -20,8 +20,8 @@ public class MatchGoal {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
-            @JoinColumn(name = "match_id", referencedColumnName = "match_id"),
-            @JoinColumn(name = "quarter", referencedColumnName = "quarter")
+            @JoinColumn(name = "match_id", referencedColumnName = "match_id", nullable = false),
+            @JoinColumn(name = "quarter", referencedColumnName = "quarter", nullable = false)
     })
     private MatchQuarter matchQuarter;
 
@@ -40,7 +40,7 @@ public class MatchGoal {
     private MatchPlayerInfo assistPlayer;
 
 
-    public static MatchGoal of(MatchQuarter matchQuarter,  String scorerName, UUID scorerAffiliationId,  String assistPlayerName, UUID assistPlayerAffiliationId) {
+    public static MatchGoal of(MatchQuarter matchQuarter, String scorerName, UUID scorerAffiliationId, String assistPlayerName, UUID assistPlayerAffiliationId) {
 
         return MatchGoal.builder()
                 .matchQuarter(matchQuarter)

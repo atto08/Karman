@@ -38,20 +38,18 @@ public class Match extends BaseEntity {
     @Column(nullable = false)
     private Long concededGoal = 0L;
 
-    @Builder.Default
     @Column(length = 50)
-    private String location = null;
+    private String location;
 
     @Column(nullable = false)
     private LocalDateTime matchDate;
 
-    @Builder.Default
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
-    private Weather weather = Weather.SUNNY;
+    private Weather weather;
 
     @Builder.Default
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
     private MatchResult matchResult = MatchResult.DRAW;
 

@@ -26,10 +26,10 @@ public class Club extends BaseEntity {
     @JoinColumn(name = "member_id", columnDefinition = "uuid", nullable = false, updatable = false)
     private Member member;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 50)
     private String clubName;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 20)
     private String area;
 
     @Column(nullable = false, length = 20)

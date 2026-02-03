@@ -21,8 +21,8 @@ public class MatchLineup extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
-            @JoinColumn(name = "match_id", referencedColumnName = "match_id"),
-            @JoinColumn(name = "quarter", referencedColumnName = "quarter")
+            @JoinColumn(name = "match_id", referencedColumnName = "match_id", nullable = false),
+            @JoinColumn(name = "quarter", referencedColumnName = "quarter", nullable = false)
     })
     private MatchQuarter matchQuarter;
 
@@ -38,6 +38,7 @@ public class MatchLineup extends BaseEntity {
     private Boolean isSub = false;
 
     @Embedded
+    @Column(nullable = false)
     private MatchPlayerInfo playerInfo;
 
     public static MatchLineup of(MatchQuarter matchQuarter, Integer positionNumber, ClubPlayerPosition clubPlayerPosition, Boolean isSub, String name, UUID affiliationId) {
