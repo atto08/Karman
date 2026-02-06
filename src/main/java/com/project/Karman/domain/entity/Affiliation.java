@@ -93,9 +93,8 @@ public class Affiliation extends BaseEntity {
         this.backNumber = updatedBackNumber == null ? this.backNumber : updatedBackNumber;
     }
 
-    public void applyDelta(PlayerStatsDelta delta) {
-        this.matchCount += delta.getMatchCount();
-        this.goal += delta.getGoal();
-        this.assist += delta.getAssist();
+    public void transferAffiliationInfo(String playerName, Member member) {
+        this.playerName = playerName;
+        this.member = member;
     }
 }
