@@ -259,6 +259,10 @@ public class ClubService {
         Affiliation sourceAffiliation = affiliationRepository.findById(requestDto.affiliationId())
                 .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
 
+        if(sourceAffiliation.getMember() != null) {
+            throw  new CustomException(ExceptionMessage.PLAYER_HAS_MEMBER_ID);
+        }
+
         Member targetMember = memberRepository.getReferenceById(requestDto.memberId());
         sourceAffiliation.transferAffiliationInfo(targetAffiliation.getPlayerName(), targetMember);
         sourceAffiliation.updatePlayerInfo(targetAffiliation.getPlayerPosition(), targetAffiliation.getBackNumber());
