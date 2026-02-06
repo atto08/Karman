@@ -114,6 +114,7 @@ public class AffiliationMapper {
 
         return ClubMemberResponseDto.of(
                 affiliation.getAffiliationId(),
+                affiliation.getMember().getMemberId(),
                 affiliation.getPlayerName(),
                 affiliation.getBackNumber()
         );
