@@ -233,6 +233,17 @@ public class ClubService {
         return affiliationMapper.toClubJoinRequestListDto(clubId, clubJoinRequestAffiliations);
     }
 
+    @Transactional(readOnly = true)
+    public ClubMembersListResponseDto getClubMembers(Member member, UUID clubId) {
+        // 클럽 조회
+        if (!clubRepository.existsById(clubId)) {
+            throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
+        }
+        // 클럽 소속 멤버 조회
+        List<Affiliation> clubMembers = affiliationRepository.findAllByClub_ClubIdAndMember_MemberIdIsNotNull(clubId);
+        return affiliationMapper.toClubMemberListDto(clubMembers);
+    }
+
     // 클럽 상세조회
     private Club findClubById(UUID clubId) {
         return clubRepository.findById(clubId)

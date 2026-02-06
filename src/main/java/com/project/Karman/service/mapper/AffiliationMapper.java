@@ -109,4 +109,23 @@ public class AffiliationMapper {
                 clubJoinRequestResponseDtoList
         );
     }
+
+    public ClubMemberResponseDto toClubMemberDto(Affiliation affiliation) {
+
+        return ClubMemberResponseDto.of(
+                affiliation.getAffiliationId(),
+                affiliation.getPlayerName(),
+                affiliation.getBackNumber()
+        );
+    }
+
+    public ClubMembersListResponseDto toClubMemberListDto(List<Affiliation> clubMembers) {
+        List<ClubMemberResponseDto> clubMemberResponseDtoList = clubMembers.stream()
+                .map(this::toClubMemberDto)
+                .toList();
+
+        return ClubMembersListResponseDto.of(
+                clubMemberResponseDtoList
+        );
+    }
 }
