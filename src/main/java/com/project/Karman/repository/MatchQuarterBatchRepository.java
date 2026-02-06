@@ -88,14 +88,17 @@ public class MatchQuarterBatchRepository {
                     scorer_name,
                     scorer_affiliation_id,
                     assist_name,
-                    assist_affiliation_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    assist_affiliation_id,
+                    created_at,
+                    updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 MatchGoalBatchDto goal = goals.get(i);
+                Timestamp now = Timestamp.valueOf(LocalDateTime.now());
 
                 // 1. PK
                 ps.setObject(1, goal.matchGoalId());
@@ -116,6 +119,9 @@ public class MatchQuarterBatchRepository {
                     ps.setObject(6, null);
                     ps.setObject(7, null);
                 }
+                // 5. BaseEntity 필드
+                ps.setTimestamp(8, now);
+                ps.setTimestamp(9, now);
             }
 
             @Override
