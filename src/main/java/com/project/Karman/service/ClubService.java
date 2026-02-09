@@ -265,7 +265,6 @@ public class ClubService {
 
         Member targetMember = memberRepository.getReferenceById(requestDto.memberId());
         sourceAffiliation.transferAffiliationInfo(targetAffiliation.getPlayerName(), targetMember);
-        sourceAffiliation.updatePlayerInfo(targetAffiliation.getPlayerPosition(), targetAffiliation.getBackNumber());
         affiliationRepository.delete(targetAffiliation);
     }
 
