@@ -233,6 +233,41 @@ public class ClubService {
         return affiliationMapper.toClubJoinRequestListDto(clubId, clubJoinRequestAffiliations);
     }
 
+    @Transactional(readOnly = true)
+    public ClubMembersListResponseDto getClubMembers(Member member, UUID clubId) {
+        // 클럽 조회
+        if (!clubRepository.existsById(clubId)) {
+            throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
+        }
+        // 클럽 소속 멤버 조회
+        List<Affiliation> clubMembers = affiliationRepository.findAllByClub_ClubIdAndMember_MemberIdIsNotNull(clubId);
+        return affiliationMapper.toClubMemberListDto(clubMembers);
+    }
+
+    @Transactional
+    public void transferPlayerRecord(Member member, UUID clubId, TransferPlayerRecordRequestDto requestDto) {
+
+        if (!clubRepository.existsById(clubId)) {
+            throw new CustomException(ExceptionMessage.NOT_FOUND_CLUB);
+        }
+
+        validateMemberIsManagement(clubId, member.getMemberId());
+
+        Affiliation targetAffiliation = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, requestDto.memberId())
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_TO_CLUB));
+
+        Affiliation sourceAffiliation = affiliationRepository.findByAffiliationIdAndClub_ClubId(requestDto.affiliationId(), clubId)
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_SOURCE_PLAYER));
+
+        if (sourceAffiliation.getMember() != null) {
+            throw new CustomException(ExceptionMessage.PLAYER_HAS_MEMBER_ID);
+        }
+
+        Member targetMember = memberRepository.getReferenceById(requestDto.memberId());
+        sourceAffiliation.transferAffiliationInfo(targetAffiliation.getPlayerName(), targetMember);
+        affiliationRepository.delete(targetAffiliation);
+    }
+
     // 클럽 상세조회
     private Club findClubById(UUID clubId) {
         return clubRepository.findById(clubId)

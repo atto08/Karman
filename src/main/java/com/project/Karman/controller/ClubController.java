@@ -154,4 +154,23 @@ public class ClubController {
                 .status(GET_CLUB_JOIN_REQUESTS.getHttpStatus())
                 .body(ApiResponse.success(GET_CLUB_JOIN_REQUESTS.getMessage(), clubJoinRequestListResponseDto));
     }
+
+    @GetMapping("/{club_id}/members")
+    public ResponseEntity<ApiResponse<ClubMembersListResponseDto>> getClubMembers(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                                  @PathVariable(value = "club_id") UUID clubId) {
+        ClubMembersListResponseDto clubMemberResponseDto = clubService.getClubMembers(userDetails.getMember(), clubId);
+        return ResponseEntity
+                .status(GET_CLUB_MEMBERS.getHttpStatus())
+                .body(ApiResponse.success(GET_CLUB_MEMBERS.getMessage(), clubMemberResponseDto));
+    }
+
+    @PostMapping("/{club_id}/players/transfers")
+    public ResponseEntity<ApiResponse<Void>> transferAffiliationRecord(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                       @PathVariable(value = "club_id") UUID clubId,
+                                                                       @Valid @RequestBody TransferPlayerRecordRequestDto requestDto) {
+        clubService.transferPlayerRecord(userDetails.getMember(), clubId, requestDto);
+        return ResponseEntity
+                .status(TRANSFER_PLAYER_RECORD.getHttpStatus())
+                .body(ApiResponse.success(TRANSFER_PLAYER_RECORD.getMessage()));
+    }
 }

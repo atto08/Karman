@@ -6,18 +6,20 @@ import lombok.Builder;
 import java.util.UUID;
 
 @Builder(access = AccessLevel.PRIVATE)
-public record ClubJoinRequestResponseDto(
+public record ClubMemberResponseDto(
         UUID affiliationId,
         UUID memberId,
-        String name
+        String name,
+        Integer backNumber
 ) {
 
-    public static ClubJoinRequestResponseDto of(UUID affiliationId, UUID memberId, String name) {
+    public static ClubMemberResponseDto of(UUID affiliationId, UUID memberId, String name, Integer backNumber) {
 
-        return ClubJoinRequestResponseDto.builder()
+        return ClubMemberResponseDto.builder()
                 .affiliationId(affiliationId)
                 .memberId(memberId)
                 .name(name)
+                .backNumber(backNumber)
                 .build();
     }
 }

@@ -18,7 +18,11 @@ public interface AffiliationRepository extends JpaRepository<Affiliation, UUID> 
 
     List<Affiliation> findAllByClub_ClubIdAndJoinStatusOrderByBackNumberAsc(UUID clubId, ClubJoinStatus joinStatus);
 
+    List<Affiliation> findAllByClub_ClubIdAndMember_MemberIdIsNotNull(UUID clubId);
+
     Optional<Affiliation> findByClub_ClubIdAndMember_MemberId(UUID clubId, UUID memberId);
+
+    Optional<Affiliation> findByAffiliationIdAndClub_ClubId(UUID affiliationId, UUID clubId);
 
     Boolean existsByClub_ClubIdAndMember_MemberIdAndJoinStatus(UUID clubId, UUID memberId, ClubJoinStatus joinStatus);
 
