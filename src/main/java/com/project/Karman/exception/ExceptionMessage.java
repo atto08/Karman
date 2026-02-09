@@ -17,9 +17,11 @@ public enum ExceptionMessage {
     OWNER_CAN_NOT_WITHDRAW_CLUB(HttpStatus.BAD_REQUEST, "구단주는 클럽을 탈퇴할 수 없습니다.", 400), // 탈퇴하면 클럽 삭제 되도록 수정
     ALREADY_JOINED_PLAYER(HttpStatus.BAD_REQUEST, "이미 가입된 선수입니다.", 400),
     NOT_ALLOWED_OWNER_ROLE(HttpStatus.BAD_REQUEST, "구단주 권한은 허용되지 않습니다.", 400),
-    PLAYER_HAS_MEMBER_ID(HttpStatus.BAD_REQUEST,"멤버 ID가 존재하는 선수 데이터 입니다.",400),
+    PLAYER_HAS_MEMBER_ID(HttpStatus.BAD_REQUEST, "멤버 ID가 존재하는 선수 데이터 입니다.", 400),
     NOT_FOUND_CLUB(HttpStatus.NOT_FOUND, "찾을 수 없는 클럽(팀) 입니다.", 404),
     NOT_FOUND_PLAYER_IN_CLUB(HttpStatus.NOT_FOUND, "클럽(팀)에 소속되지 않은 선수 입니다.", 404),
+    NOT_FOUND_SOURCE_PLAYER(HttpStatus.NOT_FOUND, "찾을 수 없는 이관대상 선수 입니다.", 404),
+    NOT_FOUND_PLAYER_TO_CLUB(HttpStatus.NOT_FOUND, "찾을 수 없는 가입요청 선수 입니다.", 404),
     PERMISSION_DENIED_USER_GET_CLUB(HttpStatus.FORBIDDEN, "클럽 정보 조회 권한이 없는 유저입니다.", 403),
     PERMISSION_DENIED_USER_UPDATE_CLUB(HttpStatus.FORBIDDEN, "클럽 수정 권한이 없는 유저입니다.", 403),
 

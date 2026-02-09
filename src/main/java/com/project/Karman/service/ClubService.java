@@ -254,13 +254,13 @@ public class ClubService {
         validateMemberIsManagement(clubId, member.getMemberId());
 
         Affiliation targetAffiliation = affiliationRepository.findByClub_ClubIdAndMember_MemberId(clubId, requestDto.memberId())
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_TO_CLUB));
 
-        Affiliation sourceAffiliation = affiliationRepository.findById(requestDto.affiliationId())
-                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_PLAYER_IN_CLUB));
+        Affiliation sourceAffiliation = affiliationRepository.findByAffiliationIdAndClub_ClubId(requestDto.affiliationId(), clubId)
+                .orElseThrow(() -> new CustomException(ExceptionMessage.NOT_FOUND_SOURCE_PLAYER));
 
-        if(sourceAffiliation.getMember() != null) {
-            throw  new CustomException(ExceptionMessage.PLAYER_HAS_MEMBER_ID);
+        if (sourceAffiliation.getMember() != null) {
+            throw new CustomException(ExceptionMessage.PLAYER_HAS_MEMBER_ID);
         }
 
         Member targetMember = memberRepository.getReferenceById(requestDto.memberId());

@@ -22,6 +22,8 @@ public interface AffiliationRepository extends JpaRepository<Affiliation, UUID> 
 
     Optional<Affiliation> findByClub_ClubIdAndMember_MemberId(UUID clubId, UUID memberId);
 
+    Optional<Affiliation> findByAffiliationIdAndClub_ClubId(UUID affiliationId, UUID clubId);
+
     Boolean existsByClub_ClubIdAndMember_MemberIdAndJoinStatus(UUID clubId, UUID memberId, ClubJoinStatus joinStatus);
 
     boolean existsByClub_ClubIdAndMember_MemberIdAndJoinStatusAndPlayerRoleIn(
