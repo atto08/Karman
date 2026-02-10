@@ -5,14 +5,14 @@
 
 ## 📋 목차 (Table of Contents)
 
-- [프로젝트 개요](#-프로젝트-개요)
+- [프로젝트 개요](#-프로젝트-개요-project-overview)
 - [기술 스택](#-기술-스택-tech-stacks)
 - [프로젝트 구조](#-프로젝트-구조-directory-structure)
 - [ERD](#-erd)
 - [시스템 아키텍처](#-시스템-아키텍처-architecture-diagram)
+- [트러블 슈팅](#-트러블-슈팅-trouble-shooting)
 - [설치 및 실행](#-설치-및-실행-방법-getting-started)
 - [API 명세](#-api-명세-api-documentation)
-- [성능 트러블슈팅](#-성능-트러블슈팅)
 
 ---
 
@@ -194,11 +194,10 @@ Karman/
 ## ⚡ 트러블 슈팅 (Trouble Shooting)
 
 ### 🔎 성능 개선 요약
-| 이슈 | 원인 | 해결 방안 | PR |
-|------|------|-----------|----|
-| 쿼터 생성/수정 API 성능 저하 | Cascade / Dirty Checking 기반 다건 처리로 RTT 누적 | 증분 계산 구조 + JDBC Batch / Bulk Delete 적용 | [PR 링크](PR_URL) |
-| 라인업/골 대량 INSERT | 다건 INSERT를 단건 JPA 저장으로 처리 | Batch Insert 적용 | [PR 링크](PR_URL) |
-| Supabase 무료 플랜 커넥션 제한 | 커넥션 수 제한 및 Idle 커넥션 종료 | HikariCP 설정 튜닝 (`maximum-pool-size: 4`, `prepareThreshold: 0`) | [PR 링크](PR_URL) |
+| 이슈 | 원인 | 해결 방안 |
+|------|------|-----------|
+| 쿼터 생성/수정 API 성능 저하 | Cascade / Dirty Checking 기반 다건 처리로 RTT 누적 | 증분 계산 구조 + JDBC Batch / Bulk Delete 적용 |
+| 라인업/골 대량 INSERT | 다건 INSERT를 단건 JPA 저장으로 처리 | Batch Insert 적용 |
 ---
 
 ### 📌 대표 사례 1. 쿼터 생성/수정 API 성능 개선 (v0 → v2)
