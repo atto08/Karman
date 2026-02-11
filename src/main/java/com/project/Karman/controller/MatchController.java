@@ -9,7 +9,6 @@ import com.project.Karman.dto.response.MatchListResponseDto;
 import com.project.Karman.dto.response.MatchResponseDto;
 import com.project.Karman.service.MatchService;
 import jakarta.validation.Valid;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -34,8 +33,27 @@ public class MatchController {
                                                          @Valid @RequestBody MatchCreateRequestDto requestDto) {
         matchService.createMatch(requestDto, clubId, userDetails.getMember());
         return ResponseEntity
-                .status(CRATE_MATCH.getHttpStatus())
-                .body(ApiResponse.success(CRATE_MATCH.getMessage()));
+                .status(CREATE_MATCH.getHttpStatus())
+                .body(ApiResponse.success(CREATE_MATCH.getMessage()));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<MatchListResponseDto>> getMatchInfoAll(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                             @PathVariable(value = "club_id") UUID clubId) {
+        MatchListResponseDto matchAll = matchService.getMatchInfoAll(userDetails.getMember(), clubId);
+        return ResponseEntity
+                .status(GET_ALL_MATCH_INFO.getHttpStatus())
+                .body(ApiResponse.success(GET_ALL_MATCH_INFO.getMessage(), matchAll));
+    }
+
+    @GetMapping("/{match_id}")
+    public ResponseEntity<ApiResponse<MatchResponseDto>> getMatchInfo(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                      @PathVariable(value = "club_id") UUID clubId,
+                                                                      @PathVariable(value = "match_id") UUID matchId) {
+        MatchResponseDto matchResponseDto = matchService.getMatchInfo(userDetails.getMember(), clubId, matchId);
+        return ResponseEntity
+                .status(GET_MATCH_DETAIL_INFO.getHttpStatus())
+                .body(ApiResponse.success(GET_MATCH_DETAIL_INFO.getMessage(), matchResponseDto));
     }
 
     @PostMapping("/{match_id}/quarters")
@@ -49,36 +67,15 @@ public class MatchController {
                 .body(ApiResponse.success(CREATE_MATCH_QUARTER.getMessage()));
     }
 
-    @PatchMapping("/{match_id}/quarters")
+    @PatchMapping("/{match_id}/quarters/{quarter}")
     public ResponseEntity<ApiResponse<Void>> modifyMatchQuarter(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                 @PathVariable(value = "club_id") UUID clubId,
                                                                 @PathVariable(value = "match_id") UUID matchId,
-                                                                @Param(value = "quarter") Integer quarter,
+                                                                @PathVariable(value = "quarter") Integer quarter,
                                                                 @Valid @RequestBody MatchQuarterUpdateRequestDto requestDto) {
         matchService.updateMatchQuarter(requestDto, clubId, matchId, userDetails.getMember(), quarter);
         return ResponseEntity
                 .status(UPDATE_MATCH_QUARTER.getHttpStatus())
                 .body(ApiResponse.success(UPDATE_MATCH_QUARTER.getMessage()));
-    }
-
-    // 매치 전체 조회
-    @GetMapping
-    public ResponseEntity<ApiResponse<MatchListResponseDto>> getMatchInfoAll(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                             @PathVariable(value = "club_id") UUID clubId) {
-        MatchListResponseDto matchAll = matchService.getMatchInfoAll(userDetails.getMember(), clubId);
-        return ResponseEntity
-                .status(GET_ALL_MATCH_INFO.getHttpStatus())
-                .body(ApiResponse.success(GET_ALL_MATCH_INFO.getMessage(), matchAll));
-    }
-
-    // 매치 상세 조회
-    @GetMapping("/{match_id}")
-    public ResponseEntity<ApiResponse<MatchResponseDto>> getMatchInfo(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                      @PathVariable(value = "club_id") UUID clubId,
-                                                                      @PathVariable(value = "match_id") UUID matchId) {
-        MatchResponseDto matchResponseDto = matchService.getMatchInfo(userDetails.getMember(), clubId, matchId);
-        return ResponseEntity
-                .status(GET_MATCH_DETAIL_INFO.getHttpStatus())
-                .body(ApiResponse.success(GET_MATCH_DETAIL_INFO.getMessage(), matchResponseDto));
     }
 }
