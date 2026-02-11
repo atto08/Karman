@@ -24,7 +24,6 @@ public class ClubController {
         this.clubService = clubService;
     }
 
-
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> createClub(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                         @Valid @RequestBody ClubCreateRequestDto requestDto) {
@@ -62,6 +61,15 @@ public class ClubController {
                 .body(ApiResponse.success(DELETE_CLUB.getMessage()));
     }
 
+    @DeleteMapping("/{club_id}/withdraw")
+    public ResponseEntity<ApiResponse<Void>> withdrawClub(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                          @PathVariable(value = "club_id") UUID clubId) {
+        clubService.withdrawClub(userDetails.getMember(), clubId);
+        return ResponseEntity
+                .status(WITHDRAW_CLUB.getHttpStatus())
+                .body(ApiResponse.success(WITHDRAW_CLUB.getMessage()));
+    }
+
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<SearchClubListResponseDto>> searchClubs(@RequestParam(name = "clubName") String param) {
         SearchClubListResponseDto searchClubDtoList = clubService.searchClub(param);
@@ -70,7 +78,17 @@ public class ClubController {
                 .body(ApiResponse.success(SEARCH_CLUB.getMessage(), searchClubDtoList));
     }
 
-    @GetMapping("/{club_id}/player-list")
+    @PostMapping("/{club_id}/players")
+    public ResponseEntity<ApiResponse<Void>> createPlayer(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                          @PathVariable(value = "club_id") UUID clubId,
+                                                          @Valid @RequestBody PlayerCreateRequestDto requestDto) {
+        clubService.addPlayerWithoutMember(userDetails.getMember(), clubId, requestDto);
+        return ResponseEntity
+                .status(ADD_PLAYER_IN_CLUB.getHttpStatus())
+                .body(ApiResponse.success(ADD_PLAYER_IN_CLUB.getMessage()));
+    }
+
+    @GetMapping("/{club_id}/players")
     public ResponseEntity<ApiResponse<PlayerInfoListResponseDto>> getPlayerList(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                                 @PathVariable(value = "club_id") UUID clubId) {
         PlayerInfoListResponseDto playerInfoList = clubService.getPlayerInfoList(userDetails.getMember(), clubId);
@@ -79,12 +97,34 @@ public class ClubController {
                 .body(ApiResponse.success(GET_PLAYERS_INFO_IN_CLUB.getMessage(), playerInfoList));
     }
 
-    @GetMapping("/{club_id}/squad")
-    public ResponseEntity<ApiResponse<PlayerSelectListResponseDto>> getPlayerSelectList(@PathVariable(value = "club_id") UUID clubId) {
+    @GetMapping("/{club_id}/players/selects")
+    public ResponseEntity<ApiResponse<PlayerSelectListResponseDto>> getPlayerSelectList(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                                        @PathVariable(value = "club_id") UUID clubId) {
         PlayerSelectListResponseDto playerSelectList = clubService.findPlayerSelectList(clubId);
         return ResponseEntity
                 .status(GET_PLAYER_SELECT_IN_CLUB.getHttpStatus())
                 .body(ApiResponse.success(GET_PLAYER_SELECT_IN_CLUB.getMessage(), playerSelectList));
+    }
+
+    @PatchMapping("/{club_id}/players/{affiliation_id}")
+    public ResponseEntity<ApiResponse<Void>> updatePlayerInfo(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                              @PathVariable(value = "club_id") UUID clubId,
+                                                              @PathVariable(value = "affiliation_id") UUID affiliationId,
+                                                              @Valid @RequestBody PlayerInfoUpdateRequestDto requestDto) {
+        clubService.updatePlayerInfo(userDetails.getMember(), clubId, affiliationId, requestDto);
+        return ResponseEntity
+                .status(UPDATE_PLAYER_INFO.getHttpStatus())
+                .body(ApiResponse.success(UPDATE_PLAYER_INFO.getMessage()));
+    }
+
+    @PostMapping("/{club_id}/players/transfers")
+    public ResponseEntity<ApiResponse<Void>> transferAffiliationRecord(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                       @PathVariable(value = "club_id") UUID clubId,
+                                                                       @Valid @RequestBody TransferPlayerRecordRequestDto requestDto) {
+        clubService.transferPlayerRecord(userDetails.getMember(), clubId, requestDto);
+        return ResponseEntity
+                .status(TRANSFER_PLAYER_RECORD.getHttpStatus())
+                .body(ApiResponse.success(TRANSFER_PLAYER_RECORD.getMessage()));
     }
 
     @PostMapping("/{club_id}/join-requests")
@@ -96,56 +136,6 @@ public class ClubController {
                 .body(ApiResponse.success(REQUEST_JOIN_CLUB.getMessage()));
     }
 
-    @PatchMapping("/{club_id}/join-requests/{player_id}")
-    public ResponseEntity<ApiResponse<Void>> updateClubJoinStatus(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                  @PathVariable(value = "club_id") UUID clubId,
-                                                                  @PathVariable(value = "player_id") UUID playerId,
-                                                                  @Valid @RequestBody JoinStatusUpdateRequestDto requestDto) {
-        String message = clubService.updateClubJoinStatus(userDetails.getMember(), clubId, playerId, requestDto);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(message));
-    }
-
-    @DeleteMapping("/{club_id}/withdraw")
-    public ResponseEntity<ApiResponse<Void>> withdrawClub(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                          @PathVariable(value = "club_id") UUID clubId) {
-        clubService.withdrawClub(userDetails.getMember(), clubId);
-        return ResponseEntity
-                .status(WITHDRAW_CLUB.getHttpStatus())
-                .body(ApiResponse.success(WITHDRAW_CLUB.getMessage()));
-    }
-
-    @PatchMapping("/{club_id}/players/{player_id}")
-    public ResponseEntity<ApiResponse<Void>> updatePlayerInfo(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                              @PathVariable(value = "club_id") UUID clubId,
-                                                              @PathVariable(value = "player_id") UUID playerId,
-                                                              @Valid @RequestBody PlayerInfoUpdateRequestDto requestDto) {
-        clubService.updatePlayerInfo(userDetails.getMember(), clubId, playerId, requestDto);
-        return ResponseEntity
-                .status(UPDATE_PLAYER_INFO.getHttpStatus())
-                .body(ApiResponse.success(UPDATE_PLAYER_INFO.getMessage()));
-    }
-
-    @GetMapping("/{club_id}/statics-records")
-    public ResponseEntity<ApiResponse<ClubStatisticsRecordsResponseDto>> getStaticsRecords(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                                           @PathVariable(value = "club_id") UUID clubId) {
-        ClubStatisticsRecordsResponseDto clubStatisticsRecordsResponseDto = clubService.getStaticsRecords(userDetails.getMember(), clubId);
-        return ResponseEntity
-                .status(GET_CLUB_STATICS_RECORDS.getHttpStatus())
-                .body(ApiResponse.success(GET_CLUB_STATICS_RECORDS.getMessage(), clubStatisticsRecordsResponseDto));
-    }
-
-    @PostMapping("/{club_id}/player")
-    public ResponseEntity<ApiResponse<Void>> createPlayer(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                          @PathVariable(value = "club_id") UUID clubId,
-                                                          @Valid @RequestBody PlayerCreateRequestDto requestDto) {
-        clubService.addPlayerWithoutMember(userDetails.getMember(), clubId, requestDto);
-        return ResponseEntity
-                .status(ADD_PLAYER_IN_CLUB.getHttpStatus())
-                .body(ApiResponse.success(ADD_PLAYER_IN_CLUB.getMessage()));
-    }
-
     @GetMapping("/{club_id}/join-requests")
     public ResponseEntity<ApiResponse<ClubJoinRequestListResponseDto>> getClubJoinRequests(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                                            @PathVariable(value = "club_id") UUID clubId) {
@@ -155,6 +145,26 @@ public class ClubController {
                 .body(ApiResponse.success(GET_CLUB_JOIN_REQUESTS.getMessage(), clubJoinRequestListResponseDto));
     }
 
+    @PatchMapping("/{club_id}/join-requests/{affiliation_id}")
+    public ResponseEntity<ApiResponse<Void>> updateClubJoinStatus(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                  @PathVariable(value = "club_id") UUID clubId,
+                                                                  @PathVariable(value = "affiliation_id") UUID affiliationId,
+                                                                  @Valid @RequestBody JoinStatusUpdateRequestDto requestDto) {
+        String message = clubService.updateClubJoinStatus(userDetails.getMember(), clubId, affiliationId, requestDto);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(message));
+    }
+
+    @GetMapping("/{club_id}/statistics-records")
+    public ResponseEntity<ApiResponse<ClubStatisticsRecordsResponseDto>> getStaticsRecords(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                                           @PathVariable(value = "club_id") UUID clubId) {
+        ClubStatisticsRecordsResponseDto clubStatisticsRecordsResponseDto = clubService.getStaticsRecords(userDetails.getMember(), clubId);
+        return ResponseEntity
+                .status(GET_CLUB_STATICS_RECORDS.getHttpStatus())
+                .body(ApiResponse.success(GET_CLUB_STATICS_RECORDS.getMessage(), clubStatisticsRecordsResponseDto));
+    }
+
     @GetMapping("/{club_id}/members")
     public ResponseEntity<ApiResponse<ClubMembersListResponseDto>> getClubMembers(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                                   @PathVariable(value = "club_id") UUID clubId) {
@@ -162,15 +172,5 @@ public class ClubController {
         return ResponseEntity
                 .status(GET_CLUB_MEMBERS.getHttpStatus())
                 .body(ApiResponse.success(GET_CLUB_MEMBERS.getMessage(), clubMemberResponseDto));
-    }
-
-    @PostMapping("/{club_id}/players/transfers")
-    public ResponseEntity<ApiResponse<Void>> transferAffiliationRecord(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                       @PathVariable(value = "club_id") UUID clubId,
-                                                                       @Valid @RequestBody TransferPlayerRecordRequestDto requestDto) {
-        clubService.transferPlayerRecord(userDetails.getMember(), clubId, requestDto);
-        return ResponseEntity
-                .status(TRANSFER_PLAYER_RECORD.getHttpStatus())
-                .body(ApiResponse.success(TRANSFER_PLAYER_RECORD.getMessage()));
     }
 }
