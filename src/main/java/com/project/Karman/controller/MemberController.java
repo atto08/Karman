@@ -19,8 +19,7 @@ public class MemberController {
         this.clubService = clubService;
     }
 
-
-    @GetMapping("/members/me/club")
+    @GetMapping("/members/me/clubs")
     ResponseEntity<ApiResponse<MyClubListResponseDto>> getMyClubList(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
         MyClubListResponseDto clubIdListResponseDto = clubService.getMyClubList(userDetails.getMember());
