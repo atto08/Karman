@@ -20,7 +20,7 @@ public class MemberController {
     }
 
 
-    @GetMapping("/members/my-club")
+    @GetMapping("/members/me/club")
     ResponseEntity<ApiResponse<MyClubListResponseDto>> getMyClubList(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
         MyClubListResponseDto clubIdListResponseDto = clubService.getMyClubList(userDetails.getMember());
