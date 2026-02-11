@@ -116,6 +116,7 @@
 ## 🛠 기술 스택 (Tech Stacks)
 
 ### Backend
+
 [![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)]
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.4-6DB33F?logo=springboot&logoColor=white)]
 [![Spring Security](https://img.shields.io/badge/Spring%20Security-6-6DB33F)]
@@ -123,11 +124,13 @@
 [![JdbcTemplate](https://img.shields.io/badge/JDBC-Batch-important)]
 
 ### DB & AI
+
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?logo=postgresql&logoColor=white)]
 [![pgvector](https://img.shields.io/badge/pgvector-VectorDB-purple)]
 [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-black)]
 
 ### Infra
+
 [![OCI](https://img.shields.io/badge/OCI-Cloud-red)]
 [![Nginx](https://img.shields.io/badge/Nginx-Reverse%20Proxy-green)]
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E)]
@@ -176,6 +179,7 @@ Karman/
 ├── .env.example
 └── README.md
 ```
+
 ---
 
 ## 💾 ERD
@@ -194,10 +198,12 @@ Karman/
 ## ⚡ 트러블 슈팅 (Trouble Shooting)
 
 ### 🔎 성능 개선 요약
-| 이슈 | 원인 | 해결 방안 |
-|------|------|-----------|
+
+| 이슈                 | 원인                                        | 해결 방안                                  |
+|--------------------|-------------------------------------------|----------------------------------------|
 | 쿼터 생성/수정 API 성능 저하 | Cascade / Dirty Checking 기반 다건 처리로 RTT 누적 | 증분 계산 구조 + JDBC Batch / Bulk Delete 적용 |
-| 라인업/골 대량 INSERT | 다건 INSERT를 단건 JPA 저장으로 처리 | Batch Insert 적용 |
+| 라인업/골 대량 INSERT    | 다건 INSERT를 단건 JPA 저장으로 처리                 | Batch Insert 적용                        |
+
 ---
 
 ### 📌 대표 사례 1. 쿼터 생성/수정 API 성능 개선 (v0 → v2)
@@ -217,6 +223,7 @@ Karman/
 > - **약 75~80% 성능 개선**
 
 📎 관련 PR 링크
+
 - [[#19] 성능 개선(v1) 매치 조회/집계 로직 개선](https://github.com/atto08/Karman/pull/19)
 - [[#20] 성능 개선(v2) JDBC Batch 기반 대량 처리 최적화](https://github.com/atto08/Karman/pull/20)
 
@@ -236,6 +243,7 @@ Karman/
 > - 경기 스코어와 상세 기록 간 **데이터 정합성 확보**
 
 📎 관련 PR
+
 - [[#21] 쿼터 수정 시 Match/MatchQuarter 스코어 미반영 문제 해결 ](https://github.com/atto08/Karman/pull/21)
 
 ---
@@ -256,13 +264,123 @@ Karman/
 > 수정 필요
 ---
 
-
 ## 🚀 설치 및 실행 방법 (Getting Started)
+
 > 작성 예정
 
 ---
 
 ## 📡 API 명세 (API Documentation)
-> 작성 예정
+
+### 📦 공통 응답 형식 (Common Response Format)
+
+모든 API는 아래와 같은 공통 응답 구조를 따릅니다.
+
+#### ✅ 성공 응답 예시
+
+```json
+{
+  "message": "로그인 성공",
+  "code": 200,
+  "data": {
+    "accessToken": "{accessToken}"
+  }
+}
+```
+
+#### ❌ 에러 응답 예시
+
+```json
+{
+  "message": "찾을 수 없는 클럽(팀) 입니다.",
+  "code": 404
+}
+```
+
+### 🔐 인증 정책 (Authentication)
+
+- `/auth/**` 경로를 제외한 모든 API는 JWT 기반 인증이 필요합니다.
+- 요청 시 `Authorization: Bearer {ACCESS_TOKEN}` 헤더를 포함해야 합니다.
+
+---
+
+### 🔐 Auth
+
+| Method | URI            | Description  |
+|--------|----------------|--------------|
+| POST   | `/auth/signup` | 회원가입         |
+| POST   | `/auth/login`  | 로그인 (JWT 발급) |
+
+---
+
+### 👤 Member
+
+| Method | URI                 | Description     |
+|--------|---------------------|-----------------|
+| GET    | `/members/me/clubs` | 내가 가입한 클럽 목록 조회 |
+
+---
+
+### 🏟 Club
+
+#### Club (Aggregate Root)
+
+| Method | URI                                   | Description |
+|--------|---------------------------------------|-------------|
+| POST   | `/clubs`                              | 클럽 생성       |
+| GET    | `/clubs/{club_id}`                    | 클럽 상세 조회    |
+| PATCH  | `/clubs/{club_id}`                    | 클럽 수정       |
+| DELETE | `/clubs/{club_id}`                    | 클럽 삭제       |
+| GET    | `/clubs/{club_id}/statistics-records` | 클럽 통계 조회    |
+| GET    | `/clubs/{club_id}/members`            | 클럽 멤버 조회    |
+
+#### 👥 Affiliation (Players & Join)
+
+| Method | URI                                               | Description   |
+|--------|---------------------------------------------------|---------------|
+| POST   | `/clubs/{club_id}/players`                        | 비회원 선수 추가     |
+| GET    | `/clubs/{club_id}/players`                        | 선수 목록 조회      |
+| GET    | `/clubs/{club_id}/players/selects`                | 라인업 선택용 선수 목록 |
+| PATCH  | `/clubs/{club_id}/players/{affiliation_id}`       | 선수 정보 수정      |
+| POST   | `/clubs/{club_id}/players/transfers`              | 선수 기록 이관      |
+| POST   | `/clubs/{club_id}/join-requests`                  | 클럽 가입 요청      |
+| GET    | `/clubs/{club_id}/join-requests`                  | 가입 요청 목록      |
+| PATCH  | `/clubs/{club_id}/join-requests/{affiliation_id}` | 가입 요청 상태 변경   |
+
+---
+
+### ⚽ Match
+
+#### Match (Aggregate Root)
+
+| Method | URI                                   | Description |
+|--------|---------------------------------------|-------------|
+| POST   | `/clubs/{club_id}/matches`            | 경기 생성       |
+| GET    | `/clubs/{club_id}/matches`            | 경기 목록 조회    |
+| GET    | `/clubs/{club_id}/matches/{match_id}` | 경기 상세 조회    |
+
+#### 🕒 MatchQuarter
+
+| Method | URI                                                      | Description |
+|--------|----------------------------------------------------------|-------------|
+| POST   | `/clubs/{club_id}/matches/{match_id}/quarters`           | 쿼터 생성       |
+| PATCH  | `/clubs/{club_id}/matches/{match_id}/quarters/{quarter}` | 쿼터 수정       |
+
+---
+
+### 🤖 AI
+
+#### Tactics (RAG 기반 전술 질의응답)
+
+| Method | URI                     | Description                     |
+|--------|-------------------------|---------------------------------|
+| POST   | `/ai/tactics/documents` | 전술 문서 인덱싱 (Vector Store 저장)     |
+| POST   | `/ai/tactics/ask`       | 전술 질의응답 (RAG 기반 AI Coach 응답 반환) |
+
+#### Lineup Recommendation
+
+| Method | URI                                  | Description         |
+|--------|--------------------------------------|---------------------|
+| POST   | `/clubs/{club_id}/lineups/recommend` | 클럽 데이터 기반 AI 라인업 추천 |
 
 ---
