@@ -3,7 +3,6 @@ package com.project.Karman.controller;
 import com.project.Karman.config.security.CustomUserDetails;
 import com.project.Karman.dto.request.AttendPlayerRequestDto;
 import com.project.Karman.dto.response.ApiResponse;
-import com.project.Karman.dto.response.AiCoachResponseDto;
 import com.project.Karman.dto.response.LineupRecommendResponseDto;
 import com.project.Karman.service.LineupService;
 import org.springframework.http.ResponseEntity;
@@ -26,10 +25,10 @@ public class LineupController {
         this.lineupService = lineupService;
     }
 
-    @PostMapping("/clubs/{club_id}/lineup/recommend")
+    @PostMapping("/clubs/{club_id}/lineups/recommend")
     public ResponseEntity<ApiResponse<LineupRecommendResponseDto>> recommendLineup(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                           @PathVariable(value = "club_id") UUID clubId,
-                                                                           @RequestBody AttendPlayerRequestDto requestDto) {
+                                                                                   @PathVariable(value = "club_id") UUID clubId,
+                                                                                   @RequestBody AttendPlayerRequestDto requestDto) {
         LineupRecommendResponseDto aiCoachResponseDto = lineupService.recommendLineup(userDetails.getMember(), clubId, requestDto.attendPlayers());
         return ResponseEntity
                 .status(GET_AI_LINEUP_RECOMMEND_RESPONSE.getHttpStatus())
