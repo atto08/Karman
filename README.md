@@ -111,6 +111,7 @@
 그 과정에서 발생한  
 설계 고민, 성능 이슈, 기술 선택의 이유를  
 하나씩 정리하고 개선해 나가는 것을 목표로 하고 있습니다.
+
 ---
 
 ## 🛠 기술 스택 (Tech Stacks)
@@ -167,7 +168,7 @@ Karman/
 │   │   │   │   └── response/           # API 응답 DTO
 │   │   │   ├── exception/              # 전역 예외 처리
 │   │   │   ├── repository/             # JPA, JdbcTemplate (Batch)
-│   │   │   ├── service/                 # 비즈니스 로직, Mapper
+│   │   │   ├── service/                # 비즈니스 로직, Mapper
 │   │   │   └── KarmanApplication.java
 │   │   └── resources/
 │   │       ├── application.yml
@@ -184,7 +185,6 @@ Karman/
 
 ## 💾 ERD
 
-<!-- ![ERD](docs/images/erd.png) -->
 ![ERD](docs/images/erd.png)
 
 ---
@@ -244,11 +244,11 @@ Karman/
 
 📎 관련 PR
 
-- [[#21] 쿼터 수정 시 Match/MatchQuarter 스코어 미반영 문제 해결 ](https://github.com/atto08/Karman/pull/21)
+- [[#21] 쿼터 수정 시 Match/MatchQuarter 스코어 미반영 문제 해결](https://github.com/atto08/Karman/pull/21)
 
 ---
 
-## 💡 기술 의사결정 (Technical Decisions)
+### 💡 기술 의사결정 (Technical Decisions)
 
 ### 선수(Affiliation) 식별자 설계 변경
 
@@ -260,13 +260,111 @@ Karman/
 > - `clubId`, `memberId`는 비즈니스 키로 관리
 > - 용병/비회원 선수(memberId 없음) 케이스까지 포함해 **도메인 확장성을 고려한 설계로 개선**
 
-📎 관련 PR
-> 수정 필요
 ---
 
 ## 🚀 설치 및 실행 방법 (Getting Started)
 
-> 작성 예정
+### 1️⃣ Requirements
+
+| 항목          | 버전           |
+|-------------|--------------|
+| Java        | 17           |
+| Spring Boot | 3.5.4        |
+| PostgreSQL  | 15+          |
+| pgvector    | Extension 필요 |
+| OpenAI      | API Key 필요   |
+
+---
+
+### 2️⃣ 프로젝트 클론
+
+```bash
+git clone https://github.com/atto08/Karman.git
+cd Karman
+```
+
+---
+
+### 3️⃣ PostgreSQL 및 pgvector 설정
+
+PostgreSQL 데이터베이스를 생성한 뒤, Vector 검색 기능 사용을 위해 `pgvector` 확장을 활성화합니다.
+
+```sql
+CREATE DATABASE karman;
+
+\c karman;
+
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+> PostgreSQL 15 이상에서 `pgvector` 확장이 필요합니다.
+
+---
+
+### 4️⃣ 환경 변수 설정
+
+프로젝트 루트 경로에 `.env` 파일을 직접 생성합니다.
+
+```bash
+touch .env
+```
+
+`.env` 파일을 열어 아래와 같이 수정합니다.
+
+```env
+# Database Configuration
+DB_URL="db-url"
+DB_NAME="db-name"
+DB_USERNAME="username"
+DB_PASSWORD="password"
+
+# OpenAI API
+OPENAI_API_KEY=api_key
+
+# JWT Secret
+JWT_SECRET=jwt-secret
+```
+
+---
+
+### 5️⃣ 애플리케이션 실행
+
+Gradle Wrapper를 사용하여 실행합니다.
+
+```bash
+./gradlew bootRun
+```
+
+또는 JAR 파일로 실행할 수 있습니다.
+
+```bash
+./gradlew build
+java -jar build/libs/Karman-0.0.1-SNAPSHOT.jar
+```
+
+---
+
+### 6️⃣ 실행 확인
+
+기본 포트 `8080`에서 서버가 실행됩니다.
+
+```bash
+curl http://localhost:8080/auth/login \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password"}'
+```
+
+---
+
+### ☁️ 운영 환경 (Deployment Overview)
+
+| 구성 요소         | 내용                               |
+|---------------|----------------------------------|
+| Backend       | Oracle Cloud Instance            |
+| Reverse Proxy | Nginx (HTTPS 443 → 8080 포워딩)     |
+| Database      | Supabase (PostgreSQL + pgvector) |
+| AI            | OpenAI GPT-4                     |
 
 ---
 
@@ -325,14 +423,14 @@ Karman/
 
 #### Club (Aggregate Root)
 
-| Method | URI                                   | Description |
-|--------|---------------------------------------|-------------|
-| POST   | `/clubs`                              | 클럽 생성       |
-| GET    | `/clubs/{club_id}`                    | 클럽 상세 조회    |
-| PATCH  | `/clubs/{club_id}`                    | 클럽 수정       |
-| DELETE | `/clubs/{club_id}`                    | 클럽 삭제       |
-| GET    | `/clubs/{club_id}/statistics-records` | 클럽 통계 조회    |
-| GET    | `/clubs/{club_id}/members`            | 클럽 멤버 조회    |
+| Method | URI                           | Description |
+|--------|-------------------------------|-------------|
+| POST   | `/clubs`                      | 클럽 생성       |
+| GET    | `/clubs/{club_id}`            | 클럽 상세 조회    |
+| PATCH  | `/clubs/{club_id}`            | 클럽 수정       |
+| DELETE | `/clubs/{club_id}`            | 클럽 삭제       |
+| GET    | `/clubs/{club_id}/statistics` | 클럽 통계 조회    |
+| GET    | `/clubs/{club_id}/members`    | 클럽 멤버 조회    |
 
 #### 👥 Affiliation (Players & Join)
 
