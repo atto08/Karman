@@ -100,7 +100,7 @@ public class ClubController {
     @GetMapping("/{club_id}/players/selects")
     public ResponseEntity<ApiResponse<PlayerSelectListResponseDto>> getPlayerSelectList(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                                         @PathVariable(value = "club_id") UUID clubId) {
-        PlayerSelectListResponseDto playerSelectList = clubService.findPlayerSelectList(clubId);
+        PlayerSelectListResponseDto playerSelectList = clubService.findPlayerSelectList(userDetails.getMember(), clubId);
         return ResponseEntity
                 .status(GET_PLAYER_SELECT_IN_CLUB.getHttpStatus())
                 .body(ApiResponse.success(GET_PLAYER_SELECT_IN_CLUB.getMessage(), playerSelectList));
@@ -156,10 +156,10 @@ public class ClubController {
                 .body(ApiResponse.success(message));
     }
 
-    @GetMapping("/{club_id}/statistics-records")
-    public ResponseEntity<ApiResponse<ClubStatisticsRecordsResponseDto>> getStaticsRecords(@AuthenticationPrincipal CustomUserDetails userDetails,
+    @GetMapping("/{club_id}/statistics")
+    public ResponseEntity<ApiResponse<ClubStatisticsRecordsResponseDto>> getClubStatistics(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                                            @PathVariable(value = "club_id") UUID clubId) {
-        ClubStatisticsRecordsResponseDto clubStatisticsRecordsResponseDto = clubService.getStaticsRecords(userDetails.getMember(), clubId);
+        ClubStatisticsRecordsResponseDto clubStatisticsRecordsResponseDto = clubService.getClubStatistics(userDetails.getMember(), clubId);
         return ResponseEntity
                 .status(GET_CLUB_STATICS_RECORDS.getHttpStatus())
                 .body(ApiResponse.success(GET_CLUB_STATICS_RECORDS.getMessage(), clubStatisticsRecordsResponseDto));
